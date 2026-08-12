@@ -12,7 +12,7 @@
 set -e
 
 # Configuration
-APP_NAME="Dorso"
+APP_NAME="PostureAI"
 BUNDLE_ID="com.thelazydeveloper.posturr"
 VERSION="1.15.1"
 BUILD_NUMBER="17"
@@ -20,8 +20,8 @@ MIN_MACOS="13.0"
 
 # Sparkle auto-update (direct-distribution builds only; App Store builds
 # exclude Sparkle entirely and rely on the App Store for updates)
-SPARKLE_FEED_URL="https://raw.githubusercontent.com/tldev/dorso/main/appcast.xml"
-SPARKLE_PUBLIC_ED_KEY="DGZFLiX7GOAurNDYQQQaoR4Hb4csYScDIIiui74ZvLY="
+//SPARKLE_FEED_URL="https://raw.githubusercontent.com/tldev/dorso/main/appcast.xml"
+//SPARKLE_PUBLIC_ED_KEY="DGZFLiX7GOAurNDYQQQaoR4Hb4csYScDIIiui74ZvLY="
 
 # Check for App Store build flag
 APP_STORE_BUILD=false
@@ -88,19 +88,18 @@ for f in $SWIFT_FILES; do
     echo "  - $(basename "$f")"
 done
 echo ""
-
 if [ "$DEV_BUILD" = true ]; then
     HOST_ARCH="$(uname -m)"
-    swift build -c "$BUILD_CONFIG" --arch "$HOST_ARCH" --product Dorso "${SWIFT_BUILD_FLAGS[@]}"
-    DEV_BINARY="$SCRIPT_DIR/.build/${HOST_ARCH}-apple-macosx/${BUILD_CONFIG}/Dorso"
+    swift build -c "$BUILD_CONFIG" --arch "$HOST_ARCH" --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
+    DEV_BINARY="$SCRIPT_DIR/.build/${HOST_ARCH}-apple-macosx/${BUILD_CONFIG}/PostureAI"
     if [ ! -f "$DEV_BINARY" ]; then
         echo -e "${RED}Error: Expected SwiftPM binary not found at $DEV_BINARY${NC}"
         exit 1
     fi
     cp "$DEV_BINARY" "$MACOS_DIR/$APP_NAME"
 else
-    swift build -c release --arch arm64 --product Dorso "${SWIFT_BUILD_FLAGS[@]}"
-    swift build -c release --arch x86_64 --product Dorso "${SWIFT_BUILD_FLAGS[@]}"
+    swift build -c release --arch arm64 --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
+    swift build -c release --arch x86_64 --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
 
     ARM64_BINARY="$SCRIPT_DIR/.build/arm64-apple-macosx/release/Dorso"
     X86_BINARY="$SCRIPT_DIR/.build/x86_64-apple-macosx/release/Dorso"

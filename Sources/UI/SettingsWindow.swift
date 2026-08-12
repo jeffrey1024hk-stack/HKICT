@@ -131,14 +131,14 @@ struct SettingsView: View {
                         .resizable()
                         .frame(width: 28, height: 28)
                 }
-                Text("Dorso")
+                Text("PostureAI")
                     .font(.system(size: 15, weight: .semibold))
 
                 Spacer()
 
                 // Social links
                 HStack(spacing: 4) {
-                    Link(destination: URL(string: "https://github.com/tldev/dorso")!) {
+                    Link(destination: URL(string: "https://github.com/tldev/PostureAI")!) {
                         GitHubIcon(color: Color.secondary.opacity(0.6))
                             .frame(width: 14, height: 14)
                             .padding(3)

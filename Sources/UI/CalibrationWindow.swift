@@ -262,7 +262,7 @@ class CalibrationWindowController: NSObject {
 
     // Activation policy the app had before calibration started. Calibration
     // forces .accessory because the overlay-above-fullscreen recipe only
-    // behaves reliably when Dorso isn't a .regular app.
+    // behaves reliably when PostureAI isn't a .regular app.
     private var activationPolicyToRestore: NSApplication.ActivationPolicy?
 
     struct CalibrationStep {
@@ -329,7 +329,7 @@ class CalibrationWindowController: NSObject {
 
         // Force .accessory so calibration windows overlay cleanly above a
         // fullscreen app on the current Space. Onboarding and Settings both
-        // flip Dorso to .regular, and if we launched calibration while still
+        // flip PostureAI to .regular, and if we launched calibration while still
         // .regular the overlay could land behind the fullscreen window.
         let currentPolicy = NSApp.activationPolicy()
         if currentPolicy != .accessory {
@@ -381,7 +381,7 @@ class CalibrationWindowController: NSObject {
             }
         }
 
-        // Activate first so subsequent ordering happens while Dorso is frontmost.
+        // Activate first so subsequent ordering happens while PostureAI is frontmost.
         NSApp.activate(ignoringOtherApps: true)
 
         // Re-asserting .level refreshes the window-server layer; pairing it with

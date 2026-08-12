@@ -1,6 +1,6 @@
 import AppKit
 #if SWIFT_PACKAGE
-import DorsoCore
+import PostureAICore
 #endif
 
 @main

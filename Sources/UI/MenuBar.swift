@@ -37,7 +37,7 @@ public class MenuBarManager: NSObject {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "figure.walk", accessibilityDescription: "Dorso")
+            button.image = NSImage(systemSymbolName: "figure.walk", accessibilityDescription: "PostureAI")
         }
         
         rebuildMenu()
@@ -81,7 +81,7 @@ public class MenuBarManager: NSObject {
         
         // 4. Quit Action
         let quitItem = NSMenuItem(
-            title: "Quit Dorso",
+            title: "Quit PostureAI",
             action: #selector(handleQuit),
             keyEquivalent: "q"
         )
@@ -106,7 +106,7 @@ public class MenuBarManager: NSObject {
             
             window.center()
             window.contentViewController = hostingController
-            window.title = "Dorso Dashboard"
+            window.title = "PostureAI Dashboard"
             window.isReleasedWhenClosed = false
             window.titlebarAppearsTransparent = true
             window.isMovableByWindowBackground = true

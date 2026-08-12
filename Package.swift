@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "Dorso",
+    name: "PostureAI",
     defaultLocalization: "en",
     platforms: [
         .macOS(.v13)
     ],
     products: [
-        .library(name: "DorsoCore", targets: ["DorsoCore"])
+        .library(name: "PostureAICore", targets: ["PostureAICore"])
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.0"),
@@ -17,7 +17,7 @@ let package = Package(
     targets: [
         // Core logic library - testable, no main entry point
         .target(
-            name: "DorsoCore",
+            name: "PostureAICore",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "Sparkle", package: "Sparkle")
@@ -38,15 +38,15 @@ let package = Package(
         ),
         // Executable target
         .executableTarget(
-            name: "Dorso",
-            dependencies: ["DorsoCore"],
+            name: "PostureAI",
+            dependencies: ["PostureAICore"],
             path: "Sources/App"
         ),
         // Test target
         .testTarget(
-            name: "DorsoTests",
+            name: "PostureAITests",
             dependencies: [
-                "DorsoCore",
+                "PostureAICore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Tests"

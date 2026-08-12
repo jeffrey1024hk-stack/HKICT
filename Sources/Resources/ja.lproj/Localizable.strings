@@ -1,0 +1,214 @@
+/* Dorso - Japanese Localizable Strings */
+
+// MARK: - Menu Bar (MenuBar.swift)
+
+"menu.status.starting" = "状態: 起動中...";
+"menu.enable" = "有効にする";
+"menu.recalibrate" = "再キャリブレーション";
+"menu.support" = "サポート";
+"menu.analytics" = "統計";
+"menu.settings" = "設定";
+"menu.quit" = "終了";
+"menu.checkForUpdates" = "アップデートを確認…";
+
+// MARK: - App Menu (DorsoMain.swift)
+
+"appmenu.quit" = "Dorso を終了";
+"appmenu.closeWindow" = "ウインドウを閉じる";
+"appmenu.file" = "ファイル";
+"appmenu.edit" = "編集";
+"appmenu.undo" = "取り消す";
+"appmenu.redo" = "やり直す";
+"appmenu.cut" = "カット";
+"appmenu.copy" = "コピー";
+"appmenu.paste" = "ペースト";
+"appmenu.selectAll" = "すべてを選択";
+
+// MARK: - Status Text (PostureUIState.swift)
+
+"status.disabled" = "状態: 無効";
+"status.calibrating" = "状態: キャリブレーション中...";
+"status.starting" = "状態: 起動中...";
+"status.away" = "状態: 離席中";
+"status.slouching" = "状態: 姿勢が悪い";
+"status.goodPosture" = "状態: 良い姿勢";
+"status.calibrationNeeded" = "状態: キャリブレーションが必要";
+"status.pausedOnTheGo" = "状態: 一時停止 (移動中 - 再キャリブレーション)";
+"status.cameraDisconnected" = "状態: カメラ未接続";
+"status.airPodsDisconnected" = "状態: AirPods 未接続";
+"status.pausedScreenLocked" = "状態: 一時停止 (画面ロック中)";
+"status.pausedPutInAirPods" = "状態: 一時停止 (AirPods を装着してください)";
+"status.pausedOnBattery" = "状態: 一時停止 (バッテリー駆動中)";
+
+// MARK: - Menu Bar Icon Accessibility (Models.swift)
+
+"accessibility.goodPosture" = "良い姿勢";
+"accessibility.badPosture" = "悪い姿勢";
+"accessibility.away" = "離席中";
+"accessibility.paused" = "一時停止";
+"accessibility.calibrating" = "キャリブレーション中";
+
+// MARK: - Warning Mode (SettingsWindow.swift)
+
+"warningMode.blur" = "ぼかし";
+"warningMode.glow" = "グロー";
+"warningMode.border" = "枠線";
+"warningMode.solid" = "塗りつぶし";
+"warningMode.none" = "なし";
+
+// MARK: - Detection Mode (Models.swift)
+
+"detectionMode.responsive" = "高速";
+"detectionMode.balanced" = "バランス";
+"detectionMode.performance" = "省エネ";
+
+// MARK: - Tracking Source (PostureDetector.swift)
+
+"trackingSource.camera" = "カメラ";
+"trackingSource.airpods" = "AirPods";
+"trackingSource.camera.description" = "カメラで頭の位置を追跡します。すべての Mac カメラで動作します。";
+"trackingSource.airpods.description" = "モーションセンサーで頭の傾きを検出します。AirPods Pro、Max、第3世代、またはANC付き第4世代が必要です。";
+"trackingSource.camera.requirement" = "カメラへのアクセスが必要";
+"trackingSource.airpods.requirement" = "macOS 14以降と対応する AirPods が必要";
+
+// MARK: - AirPods Detector (AirPodsPostureDetector.swift)
+
+"airpods.compatible" = "対応";
+"airpods.noMotionSensors" = "モーションセンサーなし";
+"airpods.requiresMacOS14" = "macOS 14.0 以降が必要";
+"airpods.noCompatibleConnected" = "対応する AirPods が接続されていません";
+"airpods.failedCreateManager" = "モーションマネージャーの作成に失敗しました";
+"airpods.noCompatiblePaired" = "対応する AirPods がペアリングされていません。AirPods Pro、Max、第3世代、またはANC付き第4世代をペアリングしてください。";
+
+// MARK: - Alerts (AppDelegate.swift)
+
+"alert.permissionRequired" = "許可が必要です";
+"alert.permissionRequired.airpods" = "AirPods トラッキングにはモーションとフィットネスの許可が必要です。システム設定 > プライバシーとセキュリティ > モーションとフィットネスで有効にしてください。";
+"alert.permissionRequired.camera" = "カメラの許可が必要です。システム設定 > プライバシーとセキュリティ > カメラで有効にしてください。";
+"alert.openSettings" = "設定を開く";
+"alert.cameraNotAvailable" = "カメラを使用できません";
+"alert.cameraNotAvailable.message" = "カメラが接続されていること、カメラへのアクセスが許可されていることを確認してください。";
+"alert.tryAgain" = "再試行";
+"support.title" = "Dorsoを応援";
+"support.message" = "Dorsoが姿勢の改善に役立ち、応援したいと思っていただけたら、コーヒーをごちそうしてください。";
+"support.button" = "コーヒーをおごる";
+
+// MARK: - Calibration (CalibrationWindow.swift)
+
+"calibration.lookAtRing" = "リングを見てスペースを押してください";
+"calibration.stepOf" = "ステップ %d / %d";
+"calibration.lookAtCorner" = "%@の角を見てください";
+"calibration.lookOtherScreen" = "もう一つの画面を見てください";
+"calibration.corner.topLeft" = "左上";
+"calibration.corner.topRight" = "右上";
+"calibration.corner.bottomLeft" = "左下";
+"calibration.corner.bottomRight" = "右下";
+/* {BracedText} is rendered as a keyboard keycap — keep the braces and English key name intact */
+"calibration.hint.tapSpace" = "リングを見ながら {Space} を押してください";
+"calibration.hint.escToSkip" = "{Esc} でキャリブレーションをスキップ";
+"calibration.airpods.putIn" = "AirPods を装着してください";
+"calibration.airpods.autoBegin" = "キャリブレーションが自動的に開始されます";
+"calibration.airpods.escToCancel" = "{Esc} でキャンセル";
+
+// MARK: - Settings Window (SettingsWindow.swift)
+
+"settings.title" = "設定";
+"settings.tracking" = "トラッキング";
+"settings.tracking.help" = "手動は1つのソースを使用します。自動はカメラとAirPodsの間で切り替え、優先ソースを可能な限り使用します。";
+"settings.noCameras" = "カメラなし";
+"settings.connected" = "接続済み";
+"settings.notConnected" = "未接続";
+"settings.recalibrate" = "再キャリブレーション";
+"settings.mode.manual" = "手動";
+"settings.mode.automatic" = "自動";
+"settings.preferred" = "優先";
+"settings.source" = "ソース";
+"settings.section.response" = "姿勢への反応";
+"settings.section.behavior" = "動作";
+"settings.appearance" = "外観";
+"settings.appearance.auto" = "自動";
+"settings.appearance.light" = "ライト";
+"settings.appearance.dark" = "ダーク";
+"settings.active" = "使用中";
+"settings.calibrated" = "校正済み";
+"settings.notCalibrated" = "未校正";
+"settings.preferredNeedsCalibration" = "優先デバイスの校正が必要です";
+"settings.calibratePreferred" = "校正する";
+"settings.profile" = "プロファイル";
+"settings.profile.help" = "異なる状況に合わせた設定を保存できます。プロファイルを切り替えて、すべての設定を即座に適用できます。";
+"settings.profile.new" = "新規";
+"settings.profile.newTitle" = "新規プロファイル";
+"settings.profile.namePrompt" = "設定プロファイルの名前を入力してください。";
+"settings.profile.namePlaceholder" = "プロファイル名";
+"settings.profile.create" = "作成";
+"settings.profile.deleteTitle" = "プロファイルを削除";
+"settings.profile.deleteMessage" = "このプロファイルを削除しますか？この操作は取り消せません。";
+"settings.profile.delete" = "削除";
+"settings.warning" = "警告";
+"settings.warning.help" = "ぼかしは画面を不鮮明にし、グローは端に光彩を表示し、枠線は色付きの枠を表示し、塗りつぶしは画面を覆います。なしで視覚警告を無効にします。";
+"settings.deadZone" = "デッドゾーン";
+"settings.deadZone.help" = "警告が始まるまでの許容される動きの範囲。ゆるいデッドゾーンはより自然な動きを許容します。";
+"settings.intensity" = "強度";
+"settings.intensity.help" = "デッドゾーンを超えて姿勢が崩れた時の警告の増加速度。";
+"settings.delay" = "遅延";
+"settings.delay.help" = "警告が有効になるまでの猶予時間。キーボードへのちらっとした視線で警告が出ないようにします。";
+"settings.detection" = "検出";
+"settings.detection.help" = "応答速度とバッテリーのバランス。高速は素早く検出し、省エネはバッテリーを節約します。";
+"settings.launchAtLogin" = "ログイン時に起動";
+"settings.launchAtLogin.help" = "ログイン時に Dorso を自動的に起動";
+"settings.autoUpdates" = "自動アップデート";
+"settings.autoUpdates.help" = "バックグラウンドで新しいバージョンを確認し、インストールを提案";
+"settings.showInDock" = "Dock に表示";
+"settings.showInDock.help" = "Dorso を Dock と Cmd+Tab に表示";
+"settings.blurWhenAway" = "離席時にぼかす";
+"settings.blurWhenAway.help.camera" = "離席時に完全なぼかしを適用";
+"settings.blurWhenAway.help.airpods" = "離席時に完全なぼかしを適用。カメラでの検出時のみ利用可能です。";
+"settings.pauseOnTheGo" = "移動中は一時停止";
+"settings.pauseOnTheGo.help" = "ノートパソコンのディスプレイのみの場合に自動一時停止";
+"settings.pauseOnBattery" = "バッテリー駆動中は一時停止";
+"settings.pauseOnBattery.help" = "バッテリー駆動中は自動的に一時停止して電力を節約";
+"settings.fullScreenOverlay" = "全画面オーバーレイ";
+"settings.fullScreenOverlay.help" = "Dockとメニューバーにも効果を広げる";
+"settings.shortcut" = "ショートカット";
+"settings.shortcut.help" = "Dorso の有効/無効を切り替えるグローバルキーボードショートカット。フィールドをクリックして、お好みのキーの組み合わせを押してください。";
+"settings.shortcut.press" = "押す...";
+"settings.compatibilityMode" = "互換モード";
+"settings.compatibilityMode.help" = "ぼかしが表示されない場合に有効にしてください";
+"settings.viewOnGitHub" = "GitHub で見る";
+"settings.joinDiscord" = "Discord に参加";
+
+// Settings slider labels
+"settings.deadZone.strict" = "厳格";
+"settings.deadZone.tight" = "狭い";
+"settings.deadZone.medium" = "中間";
+"settings.deadZone.relaxed" = "ゆるい";
+"settings.deadZone.loose" = "広い";
+"settings.intensity.gentle" = "穏やか";
+"settings.intensity.easy" = "軽い";
+"settings.intensity.medium" = "中間";
+"settings.intensity.firm" = "強い";
+"settings.intensity.aggressive" = "最強";
+
+// MARK: - Analytics (AnalyticsWindow.swift)
+
+"analytics.title" = "統計";
+"analytics.header" = "姿勢の統計";
+"analytics.tagline" = "習慣と改善を追跡しましょう";
+"analytics.todayScore" = "今日のスコア";
+"analytics.monitoringTime" = "モニタリング時間";
+"analytics.slouchDuration" = "姿勢悪化の時間";
+"analytics.slouchEvents" = "姿勢悪化の回数";
+"analytics.last7Days" = "過去7日間";
+
+// MARK: - Onboarding (OnboardingWindow.swift)
+
+"onboarding.title" = "Dorso へようこそ";
+"onboarding.subtitle" = "姿勢の追跡方法を選択してください";
+"onboarding.selectCamera" = "カメラを選択";
+"onboarding.pairedAirPods" = "ペアリング済み AirPods";
+"onboarding.unavailable" = "利用不可";
+"onboarding.continue" = "続ける";
+
+// MARK: - Common
+
+"common.cancel" = "キャンセル";

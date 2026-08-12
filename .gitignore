@@ -1,0 +1,53 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Build artifacts
+/build/
+*.app
+blur
+*.o
+*.swiftmodule
+*.swiftsourceinfo
+*.swiftdoc
+
+# IDE
+.vscode/
+.idea/
+
+# Xcode
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+.swiftpm/
+.build/
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
+
+# Claude Code
+.claude/
+
+# Runtime files
+posturr-command
+posturr-capture.jpg
+posturr-pose-data.txt
+posturr-response
+
+# Icon generation (keep AppIcon.icns)
+Posturr.iconset/
+
+# Release artifacts
+*.zip
+*.dmg
+build-appstore/

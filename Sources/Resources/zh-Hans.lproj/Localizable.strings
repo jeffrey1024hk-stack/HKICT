@@ -1,0 +1,214 @@
+/* Dorso - Chinese Simplified Localizable Strings */
+
+// MARK: - Menu Bar (MenuBar.swift)
+
+"menu.status.starting" = "状态：启动中...";
+"menu.enable" = "启用";
+"menu.recalibrate" = "重新校准";
+"menu.support" = "支持";
+"menu.analytics" = "统计";
+"menu.settings" = "设置";
+"menu.quit" = "退出";
+"menu.checkForUpdates" = "检查更新…";
+
+// MARK: - App Menu (DorsoMain.swift)
+
+"appmenu.quit" = "退出 Dorso";
+"appmenu.closeWindow" = "关闭窗口";
+"appmenu.file" = "文件";
+"appmenu.edit" = "编辑";
+"appmenu.undo" = "撤销";
+"appmenu.redo" = "重做";
+"appmenu.cut" = "剪切";
+"appmenu.copy" = "拷贝";
+"appmenu.paste" = "粘贴";
+"appmenu.selectAll" = "全选";
+
+// MARK: - Status Text (PostureUIState.swift)
+
+"status.disabled" = "状态：已停用";
+"status.calibrating" = "状态：校准中...";
+"status.starting" = "状态：启动中...";
+"status.away" = "状态：离开";
+"status.slouching" = "状态：姿势不良";
+"status.goodPosture" = "状态：姿势良好";
+"status.calibrationNeeded" = "状态：需要校准";
+"status.pausedOnTheGo" = "状态：已暂停（移动中 - 请重新校准）";
+"status.cameraDisconnected" = "状态：摄像头已断开";
+"status.airPodsDisconnected" = "状态：AirPods 已断开";
+"status.pausedScreenLocked" = "状态：已暂停（屏幕已锁定）";
+"status.pausedPutInAirPods" = "状态：已暂停（请佩戴 AirPods）";
+"status.pausedOnBattery" = "状态：已暂停（电池供电）";
+
+// MARK: - Menu Bar Icon Accessibility (Models.swift)
+
+"accessibility.goodPosture" = "姿势良好";
+"accessibility.badPosture" = "姿势不良";
+"accessibility.away" = "离开";
+"accessibility.paused" = "已暂停";
+"accessibility.calibrating" = "校准中";
+
+// MARK: - Warning Mode (SettingsWindow.swift)
+
+"warningMode.blur" = "模糊";
+"warningMode.glow" = "光晕";
+"warningMode.border" = "边框";
+"warningMode.solid" = "全屏";
+"warningMode.none" = "无";
+
+// MARK: - Detection Mode (Models.swift)
+
+"detectionMode.responsive" = "快速响应";
+"detectionMode.balanced" = "平衡";
+"detectionMode.performance" = "省电";
+
+// MARK: - Tracking Source (PostureDetector.swift)
+
+"trackingSource.camera" = "摄像头";
+"trackingSource.airpods" = "AirPods";
+"trackingSource.camera.description" = "使用摄像头追踪头部位置。适用于任何 Mac 摄像头。";
+"trackingSource.airpods.description" = "使用运动传感器检测头部倾斜。需要 AirPods Pro、Max、第三代或带 ANC 的第四代。";
+"trackingSource.camera.requirement" = "需要摄像头访问权限";
+"trackingSource.airpods.requirement" = "需要 macOS 14 或更高版本及兼容的 AirPods";
+
+// MARK: - AirPods Detector (AirPodsPostureDetector.swift)
+
+"airpods.compatible" = "兼容";
+"airpods.noMotionSensors" = "无运动传感器";
+"airpods.requiresMacOS14" = "需要 macOS 14.0 或更高版本";
+"airpods.noCompatibleConnected" = "未连接兼容的 AirPods";
+"airpods.failedCreateManager" = "无法创建运动管理器";
+"airpods.noCompatiblePaired" = "未配对兼容的 AirPods。请配对 AirPods Pro、Max、第三代或带 ANC 的第四代。";
+
+// MARK: - Alerts (AppDelegate.swift)
+
+"alert.permissionRequired" = "需要权限";
+"alert.permissionRequired.airpods" = "AirPods 追踪需要运动与健身权限。请在系统设置 > 隐私与安全性 > 运动与健身中启用。";
+"alert.permissionRequired.camera" = "需要摄像头权限。请在系统设置 > 隐私与安全性 > 摄像头中启用。";
+"alert.openSettings" = "打开设置";
+"alert.cameraNotAvailable" = "摄像头不可用";
+"alert.cameraNotAvailable.message" = "请确保摄像头已连接并已授予摄像头访问权限。";
+"alert.tryAgain" = "重试";
+"support.title" = "支持 Dorso";
+"support.message" = "如果 Dorso 帮助你改善了坐姿，并且你愿意表达支持，请我喝杯咖啡。";
+"support.button" = "请我喝杯咖啡";
+
+// MARK: - Calibration (CalibrationWindow.swift)
+
+"calibration.lookAtRing" = "看着圆环，按下空格键";
+"calibration.stepOf" = "第 %d 步，共 %d 步";
+"calibration.lookAtCorner" = "看向%@角";
+"calibration.lookOtherScreen" = "看向另一个屏幕";
+"calibration.corner.topLeft" = "左上";
+"calibration.corner.topRight" = "右上";
+"calibration.corner.bottomLeft" = "左下";
+"calibration.corner.bottomRight" = "右下";
+/* {BracedText} is rendered as a keyboard keycap — keep the braces and English key name intact */
+"calibration.hint.tapSpace" = "看着圆环时按下 {Space}";
+"calibration.hint.escToSkip" = "{Esc} 跳过校准";
+"calibration.airpods.putIn" = "请佩戴您的 AirPods";
+"calibration.airpods.autoBegin" = "校准将自动开始";
+"calibration.airpods.escToCancel" = "按 {Esc} 取消";
+
+// MARK: - Settings Window (SettingsWindow.swift)
+
+"settings.title" = "设置";
+"settings.tracking" = "追踪";
+"settings.tracking.help" = "手动使用单一来源。自动根据可用性在摄像头和AirPods之间切换，优先使用您选择的来源。";
+"settings.noCameras" = "无摄像头";
+"settings.connected" = "已连接";
+"settings.notConnected" = "未连接";
+"settings.recalibrate" = "重新校准";
+"settings.mode.manual" = "手动";
+"settings.mode.automatic" = "自动";
+"settings.preferred" = "首选";
+"settings.source" = "来源";
+"settings.section.response" = "姿势响应";
+"settings.section.behavior" = "行为";
+"settings.appearance" = "外观";
+"settings.appearance.auto" = "自动";
+"settings.appearance.light" = "浅色";
+"settings.appearance.dark" = "深色";
+"settings.active" = "活跃";
+"settings.calibrated" = "已校准";
+"settings.notCalibrated" = "未校准";
+"settings.preferredNeedsCalibration" = "首选设备需要校准";
+"settings.calibratePreferred" = "校准";
+"settings.profile" = "配置文件";
+"settings.profile.help" = "为不同场景保存不同的配置。切换配置文件即可立即应用所有设置。";
+"settings.profile.new" = "新建";
+"settings.profile.newTitle" = "新建配置文件";
+"settings.profile.namePrompt" = "为您的设置配置文件命名。";
+"settings.profile.namePlaceholder" = "配置文件名称";
+"settings.profile.create" = "创建";
+"settings.profile.deleteTitle" = "删除配置文件";
+"settings.profile.deleteMessage" = "确定要删除此配置文件吗？此操作无法撤销。";
+"settings.profile.delete" = "删除";
+"settings.warning" = "警告";
+"settings.warning.help" = "模糊会遮挡屏幕，光晕在边缘显示光晕，边框显示彩色边框，全屏填充屏幕。无则禁用视觉警告。";
+"settings.deadZone" = "容差区";
+"settings.deadZone.help" = "触发警告前允许的移动范围。宽松的容差区允许更多自然运动。";
+"settings.intensity" = "强度";
+"settings.intensity.help" = "超出容差区后警告增加的速度。";
+"settings.delay" = "延迟";
+"settings.delay.help" = "警告激活前的缓冲时间。允许短暂看键盘而不触发警告。";
+"settings.detection" = "检测";
+"settings.detection.help" = "在响应速度和电池之间取得平衡。快速响应检测迅速，省电模式节省电量。";
+"settings.launchAtLogin" = "登录时启动";
+"settings.launchAtLogin.help" = "登录时自动启动 Dorso";
+"settings.autoUpdates" = "自动更新";
+"settings.autoUpdates.help" = "在后台检查新版本并提示安装";
+"settings.showInDock" = "在程序坞中显示";
+"settings.showInDock.help" = "在程序坞和 Cmd+Tab 中显示 Dorso";
+"settings.blurWhenAway" = "离开时模糊";
+"settings.blurWhenAway.help.camera" = "离开时应用完全模糊";
+"settings.blurWhenAway.help.airpods" = "离开时应用完全模糊。仅在使用摄像头检测时可用。";
+"settings.pauseOnTheGo" = "移动中暂停";
+"settings.pauseOnTheGo.help" = "仅使用笔记本显示屏时自动暂停";
+"settings.pauseOnBattery" = "电池供电时暂停";
+"settings.pauseOnBattery.help" = "使用电池时自动暂停以省电";
+"settings.fullScreenOverlay" = "全屏覆盖";
+"settings.fullScreenOverlay.help" = "将效果延伸至程序坞和菜单栏";
+"settings.shortcut" = "快捷键";
+"settings.shortcut.help" = "用于开关 Dorso 的全局快捷键。点击输入框，然后按下您想要的组合键。";
+"settings.shortcut.press" = "请按...";
+"settings.compatibilityMode" = "兼容模式";
+"settings.compatibilityMode.help" = "如果模糊效果未显示，请启用此选项";
+"settings.viewOnGitHub" = "在 GitHub 上查看";
+"settings.joinDiscord" = "加入 Discord";
+
+// Settings slider labels
+"settings.deadZone.strict" = "严格";
+"settings.deadZone.tight" = "紧凑";
+"settings.deadZone.medium" = "中等";
+"settings.deadZone.relaxed" = "宽松";
+"settings.deadZone.loose" = "宽泛";
+"settings.intensity.gentle" = "轻柔";
+"settings.intensity.easy" = "轻微";
+"settings.intensity.medium" = "中等";
+"settings.intensity.firm" = "较强";
+"settings.intensity.aggressive" = "强烈";
+
+// MARK: - Analytics (AnalyticsWindow.swift)
+
+"analytics.title" = "统计";
+"analytics.header" = "姿势统计";
+"analytics.tagline" = "追踪您的习惯和改善情况";
+"analytics.todayScore" = "今日评分";
+"analytics.monitoringTime" = "监测时间";
+"analytics.slouchDuration" = "不良姿势时长";
+"analytics.slouchEvents" = "不良姿势次数";
+"analytics.last7Days" = "最近 7 天";
+
+// MARK: - Onboarding (OnboardingWindow.swift)
+
+"onboarding.title" = "欢迎使用 Dorso";
+"onboarding.subtitle" = "选择您希望如何追踪姿势";
+"onboarding.selectCamera" = "选择摄像头";
+"onboarding.pairedAirPods" = "已配对的 AirPods";
+"onboarding.unavailable" = "不可用";
+"onboarding.continue" = "继续";
+
+// MARK: - Common
+
+"common.cancel" = "取消";

@@ -1,0 +1,5 @@
+/* Info.plist localized strings */
+
+"NSCameraUsageDescription" = "Dorso 需要访问摄像头以监测您的姿势，并在您驼背时模糊屏幕。";
+"NSMotionUsageDescription" = "Dorso 需要访问运动数据以通过 AirPods 监测您的姿势。";
+"NSBluetoothAlwaysUsageDescription" = "Dorso 使用蓝牙检测已配对的 AirPods 以追踪头部运动。";

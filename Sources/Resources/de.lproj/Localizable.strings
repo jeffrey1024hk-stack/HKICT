@@ -1,0 +1,214 @@
+/* Dorso - German Localizable Strings */
+
+// MARK: - Menu Bar (MenuBar.swift)
+
+"menu.status.starting" = "Status: Wird gestartet...";
+"menu.enable" = "Aktivieren";
+"menu.recalibrate" = "Neu kalibrieren";
+"menu.support" = "Unterstützen";
+"menu.analytics" = "Statistiken";
+"menu.settings" = "Einstellungen";
+"menu.quit" = "Beenden";
+"menu.checkForUpdates" = "Nach Updates suchen…";
+
+// MARK: - App Menu (DorsoMain.swift)
+
+"appmenu.quit" = "Dorso beenden";
+"appmenu.closeWindow" = "Fenster schließen";
+"appmenu.file" = "Ablage";
+"appmenu.edit" = "Bearbeiten";
+"appmenu.undo" = "Widerrufen";
+"appmenu.redo" = "Wiederholen";
+"appmenu.cut" = "Ausschneiden";
+"appmenu.copy" = "Kopieren";
+"appmenu.paste" = "Einsetzen";
+"appmenu.selectAll" = "Alles auswählen";
+
+// MARK: - Status Text (PostureUIState.swift)
+
+"status.disabled" = "Status: Deaktiviert";
+"status.calibrating" = "Status: Kalibrierung...";
+"status.starting" = "Status: Wird gestartet...";
+"status.away" = "Status: Abwesend";
+"status.slouching" = "Status: Schlechte Haltung";
+"status.goodPosture" = "Status: Gute Haltung";
+"status.calibrationNeeded" = "Status: Kalibrierung erforderlich";
+"status.pausedOnTheGo" = "Status: Pausiert (unterwegs - neu kalibrieren)";
+"status.cameraDisconnected" = "Status: Kamera getrennt";
+"status.airPodsDisconnected" = "Status: AirPods getrennt";
+"status.pausedScreenLocked" = "Status: Pausiert (Bildschirm gesperrt)";
+"status.pausedPutInAirPods" = "Status: Pausiert (AirPods einsetzen)";
+"status.pausedOnBattery" = "Status: Pausiert (Akkubetrieb)";
+
+// MARK: - Menu Bar Icon Accessibility (Models.swift)
+
+"accessibility.goodPosture" = "Gute Haltung";
+"accessibility.badPosture" = "Schlechte Haltung";
+"accessibility.away" = "Abwesend";
+"accessibility.paused" = "Pausiert";
+"accessibility.calibrating" = "Kalibrierung";
+
+// MARK: - Warning Mode (SettingsWindow.swift)
+
+"warningMode.blur" = "Unschärfe";
+"warningMode.glow" = "Leuchten";
+"warningMode.border" = "Rahmen";
+"warningMode.solid" = "Vollton";
+"warningMode.none" = "Keine";
+
+// MARK: - Detection Mode (Models.swift)
+
+"detectionMode.responsive" = "Reaktiv";
+"detectionMode.balanced" = "Ausgewogen";
+"detectionMode.performance" = "Leistung";
+
+// MARK: - Tracking Source (PostureDetector.swift)
+
+"trackingSource.camera" = "Kamera";
+"trackingSource.airpods" = "AirPods";
+"trackingSource.camera.description" = "Verwendet die Kamera zur Erfassung der Kopfposition. Funktioniert mit jeder Mac-Kamera.";
+"trackingSource.airpods.description" = "Verwendet Bewegungssensoren zur Erkennung der Kopfneigung. Erfordert AirPods Pro, Max, 3. Gen. oder 4 mit ANC.";
+"trackingSource.camera.requirement" = "Erfordert Kamerazugriff";
+"trackingSource.airpods.requirement" = "Erfordert macOS 14+ und kompatible AirPods";
+
+// MARK: - AirPods Detector (AirPodsPostureDetector.swift)
+
+"airpods.compatible" = "Kompatibel";
+"airpods.noMotionSensors" = "Keine Bewegungssensoren";
+"airpods.requiresMacOS14" = "Erfordert macOS 14.0 oder neuer";
+"airpods.noCompatibleConnected" = "Keine kompatiblen AirPods verbunden";
+"airpods.failedCreateManager" = "Bewegungsmanager konnte nicht erstellt werden";
+"airpods.noCompatiblePaired" = "Keine kompatiblen AirPods gekoppelt. Bitte koppeln Sie AirPods Pro, Max, 3. Gen. oder 4 mit ANC.";
+
+// MARK: - Alerts (AppDelegate.swift)
+
+"alert.permissionRequired" = "Berechtigung erforderlich";
+"alert.permissionRequired.airpods" = "Die Berechtigung für Bewegung und Fitness wird für das AirPods-Tracking benötigt. Aktivieren Sie diese in Systemeinstellungen > Datenschutz & Sicherheit > Bewegung & Fitness.";
+"alert.permissionRequired.camera" = "Die Kameraberechtigung ist erforderlich. Aktivieren Sie diese in Systemeinstellungen > Datenschutz & Sicherheit > Kamera.";
+"alert.openSettings" = "Einstellungen öffnen";
+"alert.cameraNotAvailable" = "Kamera nicht verfügbar";
+"alert.cameraNotAvailable.message" = "Stellen Sie sicher, dass die Kamera angeschlossen und der Kamerazugriff gewährt ist.";
+"alert.tryAgain" = "Erneut versuchen";
+"support.title" = "Dorso unterstützen";
+"support.message" = "Wenn Dorso Ihnen mit Ihrer Haltung geholfen hat und Sie Ihre Unterstützung zeigen möchten, spendieren Sie mir bitte einen Kaffee.";
+"support.button" = "Spendiere mir einen Kaffee";
+
+// MARK: - Calibration (CalibrationWindow.swift)
+
+"calibration.lookAtRing" = "Schauen Sie auf den Ring und drücken Sie Leertaste";
+"calibration.stepOf" = "Schritt %d von %d";
+"calibration.lookAtCorner" = "Schauen Sie auf die %@ Ecke";
+"calibration.lookOtherScreen" = "Schauen Sie auf den anderen Bildschirm";
+"calibration.corner.topLeft" = "obere linke";
+"calibration.corner.topRight" = "obere rechte";
+"calibration.corner.bottomLeft" = "untere linke";
+"calibration.corner.bottomRight" = "untere rechte";
+/* {BracedText} is rendered as a keyboard keycap — keep the braces and English key name intact */
+"calibration.hint.tapSpace" = "Drücken Sie {Space} während Sie auf den Ring schauen";
+"calibration.hint.escToSkip" = "{Esc} um die Kalibrierung zu überspringen";
+"calibration.airpods.putIn" = "Setzen Sie Ihre AirPods ein";
+"calibration.airpods.autoBegin" = "Die Kalibrierung beginnt automatisch";
+"calibration.airpods.escToCancel" = "{Esc} drücken zum Abbrechen";
+
+// MARK: - Settings Window (SettingsWindow.swift)
+
+"settings.title" = "Einstellungen";
+"settings.tracking" = "Tracking";
+"settings.tracking.help" = "Manuell nutzt eine Quelle. Automatisch wechselt zwischen Kamera und AirPods je nach Verfügbarkeit und bevorzugt Ihre gewählte Quelle.";
+"settings.noCameras" = "Keine Kameras";
+"settings.connected" = "Verbunden";
+"settings.notConnected" = "Nicht verbunden";
+"settings.recalibrate" = "Neu kalibrieren";
+"settings.mode.manual" = "Manuell";
+"settings.mode.automatic" = "Automatisch";
+"settings.preferred" = "Bevorzugt";
+"settings.source" = "Quelle";
+"settings.section.response" = "Haltungsreaktion";
+"settings.section.behavior" = "Verhalten";
+"settings.appearance" = "Erscheinungsbild";
+"settings.appearance.auto" = "Auto";
+"settings.appearance.light" = "Hell";
+"settings.appearance.dark" = "Dunkel";
+"settings.active" = "Aktiv";
+"settings.calibrated" = "Kalibriert";
+"settings.notCalibrated" = "Nicht kalibriert";
+"settings.preferredNeedsCalibration" = "Bevorzugtes Gerät muss kalibriert werden";
+"settings.calibratePreferred" = "Kalibrieren";
+"settings.profile" = "Profil";
+"settings.profile.help" = "Speichern Sie verschiedene Konfigurationen für verschiedene Situationen. Wechseln Sie das Profil, um alle Einstellungen sofort anzuwenden.";
+"settings.profile.new" = "Neu";
+"settings.profile.newTitle" = "Neues Profil";
+"settings.profile.namePrompt" = "Benennen Sie Ihr Einstellungsprofil.";
+"settings.profile.namePlaceholder" = "Profilname";
+"settings.profile.create" = "Erstellen";
+"settings.profile.deleteTitle" = "Profil löschen";
+"settings.profile.deleteMessage" = "Möchten Sie dieses Profil wirklich löschen? Dies kann nicht rückgängig gemacht werden.";
+"settings.profile.delete" = "Löschen";
+"settings.warning" = "Warnung";
+"settings.warning.help" = "Unschärfe verdunkelt den Bildschirm, Leuchten zeigt einen Leuchteffekt am Rand, Rahmen zeigt farbige Ränder, Vollton füllt den Bildschirm. Keine deaktiviert visuelle Warnungen.";
+"settings.deadZone" = "Toleranz";
+"settings.deadZone.help" = "Wie viel Sie sich bewegen können, bevor die Warnung beginnt. Ein lockerer Toleranzbereich erlaubt mehr natürliche Bewegung.";
+"settings.intensity" = "Intensität";
+"settings.intensity.help" = "Wie schnell die Warnung zunimmt, wenn Sie über den Toleranzbereich hinaus einsinken.";
+"settings.delay" = "Verzögerung";
+"settings.delay.help" = "Karenzzeit, bevor die Warnung aktiviert wird. Ermöglicht kurze Blicke auf die Tastatur ohne Auslösung.";
+"settings.detection" = "Erkennung";
+"settings.detection.help" = "Balance zwischen Reaktionsfähigkeit und Akku. Reaktiv erkennt schnell, Leistung schont den Akku.";
+"settings.launchAtLogin" = "Beim Anmelden starten";
+"settings.launchAtLogin.help" = "Dorso automatisch beim Anmelden starten";
+"settings.autoUpdates" = "Automatische Updates";
+"settings.autoUpdates.help" = "Im Hintergrund nach neuen Versionen suchen und deren Installation anbieten";
+"settings.showInDock" = "Im Dock anzeigen";
+"settings.showInDock.help" = "Dorso im Dock und bei Cmd+Tab anzeigen";
+"settings.blurWhenAway" = "Bei Abwesenheit unscharf";
+"settings.blurWhenAway.help.camera" = "Volle Unschärfe anwenden, wenn Sie sich entfernen";
+"settings.blurWhenAway.help.airpods" = "Volle Unschärfe anwenden, wenn Sie sich entfernen. Nur verfügbar bei Kamera-Erkennung.";
+"settings.pauseOnTheGo" = "Unterwegs pausieren";
+"settings.pauseOnTheGo.help" = "Automatisch pausieren bei reinem Laptop-Display";
+"settings.pauseOnBattery" = "Im Akkubetrieb pausieren";
+"settings.pauseOnBattery.help" = "Automatisch pausieren, um im Akkubetrieb Strom zu sparen";
+"settings.fullScreenOverlay" = "Vollbild-Overlay";
+"settings.fullScreenOverlay.help" = "Effekte auf Dock und Menüleiste ausdehnen";
+"settings.shortcut" = "Tastenkürzel";
+"settings.shortcut.help" = "Globales Tastenkürzel zum Ein-/Ausschalten von Dorso. Klicken Sie auf das Feld und drücken Sie die gewünschte Tastenkombination.";
+"settings.shortcut.press" = "Drücken...";
+"settings.compatibilityMode" = "Kompatibilitätsmodus";
+"settings.compatibilityMode.help" = "Aktivieren, wenn die Unschärfe nicht erscheint";
+"settings.viewOnGitHub" = "Auf GitHub ansehen";
+"settings.joinDiscord" = "Discord beitreten";
+
+// Settings slider labels
+"settings.deadZone.strict" = "Streng";
+"settings.deadZone.tight" = "Eng";
+"settings.deadZone.medium" = "Mittel";
+"settings.deadZone.relaxed" = "Locker";
+"settings.deadZone.loose" = "Weit";
+"settings.intensity.gentle" = "Sanft";
+"settings.intensity.easy" = "Leicht";
+"settings.intensity.medium" = "Mittel";
+"settings.intensity.firm" = "Fest";
+"settings.intensity.aggressive" = "Aggressiv";
+
+// MARK: - Analytics (AnalyticsWindow.swift)
+
+"analytics.title" = "Statistiken";
+"analytics.header" = "Haltungsstatistiken";
+"analytics.tagline" = "Verfolgen Sie Ihre Gewohnheiten und Verbesserung im Laufe der Zeit";
+"analytics.todayScore" = "Heutige Bewertung";
+"analytics.monitoringTime" = "Überwachungszeit";
+"analytics.slouchDuration" = "Dauer schlechter Haltung";
+"analytics.slouchEvents" = "Haltungsvorfälle";
+"analytics.last7Days" = "Letzte 7 Tage";
+
+// MARK: - Onboarding (OnboardingWindow.swift)
+
+"onboarding.title" = "Willkommen bei Dorso";
+"onboarding.subtitle" = "Wählen Sie, wie Sie Ihre Haltung überwachen möchten";
+"onboarding.selectCamera" = "Kamera auswählen";
+"onboarding.pairedAirPods" = "Gekoppelte AirPods";
+"onboarding.unavailable" = "Nicht verfügbar";
+"onboarding.continue" = "Weiter";
+
+// MARK: - Common
+
+"common.cancel" = "Abbrechen";

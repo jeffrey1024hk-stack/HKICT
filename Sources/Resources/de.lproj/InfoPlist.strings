@@ -1,0 +1,5 @@
+/* Info.plist localized strings */
+
+"NSCameraUsageDescription" = "Dorso benötigt Kamerazugriff, um Ihre Haltung zu überwachen und den Bildschirm bei schlechter Haltung unscharf zu machen.";
+"NSMotionUsageDescription" = "Dorso benötigt Zugriff auf Bewegungsdaten, um Ihre Haltung über AirPods zu überwachen.";
+"NSBluetoothAlwaysUsageDescription" = "Dorso verwendet Bluetooth, um gekoppelte AirPods für die Kopfbewegungserkennung zu erkennen.";

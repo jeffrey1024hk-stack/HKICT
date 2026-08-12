@@ -1,0 +1,5 @@
+/* Info.plist localized strings */
+
+"NSCameraUsageDescription" = "Dorso は姿勢を監視し、猫背になった時に画面をぼかすためにカメラへのアクセスが必要です。";
+"NSMotionUsageDescription" = "Dorso は AirPods を使用して姿勢を監視するためにモーションデータへのアクセスが必要です。";
+"NSBluetoothAlwaysUsageDescription" = "Dorso は頭の動きを追跡するためにペアリングされた AirPods を検出するのに Bluetooth を使用します。";

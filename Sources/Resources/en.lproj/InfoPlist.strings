@@ -1,0 +1,5 @@
+/* Info.plist localized strings */
+
+"NSCameraUsageDescription" = "Dorso needs camera access to monitor your posture and blur the screen when you slouch.";
+"NSMotionUsageDescription" = "Dorso needs access to motion data to monitor your posture using AirPods.";
+"NSBluetoothAlwaysUsageDescription" = "Dorso uses Bluetooth to detect paired AirPods for head motion tracking.";

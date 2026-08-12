@@ -1,0 +1,293 @@
+# Claude Code Instructions for Dorso
+
+## Releasing
+
+### Ship It (Full Release Workflow)
+
+When the user says "ship it", perform the complete release workflow:
+
+1. **Pull latest changes** with `git pull --rebase origin main` - ALWAYS do this first before committing
+2. **Bump version** in `build.sh` (both `VERSION` and `BUILD_NUMBER`)
+3. **Commit** cleanup/feature changes with proper attribution
+4. **Merge** to main (if on a feature branch)
+5. **Run `./release.sh X.Y.Z`** - builds, signs, notarizes, creates GitHub release, updates and pushes the Sparkle appcast
+6. **Update release notes** with user-friendly description via `gh release edit`
+7. **Update CHANGELOG.md** with new version entry
+8. **Update README.md** contributors section if applicable
+9. **Commit and push** changelog/readme updates
+10. **Comment on PR/issue** thanking contributor and linking to release
+
+### GitHub Release (Direct Distribution)
+
+**IMPORTANT: Before releasing, always check existing releases and tags:**
+```bash
+gh release list --limit 5
+git tag --sort=-v:refname | head -5
+```
+Only proceed if the version you're about to release doesn't already exist.
+
+Always use the release script for GitHub releases:
+```bash
+./release.sh 1.0.X
+```
+
+This script handles:
+- Building the app
+- Code signing with Developer ID
+- Apple notarization
+- DMG creation with drag-to-Applications
+- ZIP archive
+- Git tagging
+- GitHub release creation
+
+**Never manually create GitHub releases** - the script ensures proper signing and notarization.
+
+### After Running release.sh
+The script creates generic release notes. **You must update them** with specific changes using:
+```bash
+gh release edit vX.Y.Z --notes "$(cat <<'EOF'
+## What's New
+
+### Bug Fix (or Feature, Improvement, etc.)
+- **Short title** - Description of what changed and why it matters.
+
+### Also in this release
+- Any other notable points
+
+## Installation
+
+1. Download `Dorso-vX.Y.Z.dmg` or `Dorso-vX.Y.Z.zip`
+2. Drag `Dorso.app` to Applications
+3. Launch normally - no warnings!
+4. Grant camera permission and complete calibration
+
+## Requirements
+- macOS 13.0 (Ventura) or later
+EOF
+)"
+```
+
+**Writing good release notes:**
+- Keep it simple and user-focused - describe the benefit, not the implementation
+- Avoid technical jargon (e.g., "brandCyan color" → "consistent styling")
+- Don't repeat commit messages verbatim - synthesize changes into what users care about
+- One clear sentence is better than a list of technical details
+- Example: "Consistent styling across Settings and Analytics windows" instead of "Redesigned analytics window with brand-consistent styling, replaced shadows with borders, updated color scheme"
+
+### Acknowledgments
+When implementing features or fixes from GitHub issues, always give credit to the person who suggested it:
+- In the GitHub release notes: "Thanks to @username for suggesting this!"
+- In CHANGELOG.md: Add an `### Acknowledgments` section with a link to their GitHub profile
+- In README.md: Add them to the Contributors section with a brief description of their contribution
+- Comment on the issue thanking them and linking to the release
+
+Note: Issues auto-close when referenced with "Closes #N" in commit messages. If you try to close an issue and it's already closed, just add a thank-you comment instead.
+
+### Update CHANGELOG.md
+After updating the GitHub release notes, also update `CHANGELOG.md` with a new entry:
+- Add the new version section at the top (after the header)
+- Use Keep a Changelog format with `### Added`, `### Changed`, `### Fixed` sections as appropriate
+- Include the release date in YYYY-MM-DD format
+- Commit and push the changelog update
+
+### App Store Release
+For App Store submissions, run these steps after the GitHub release:
+
+```bash
+cd /Users/tjohnell/projects/dorso
+
+# 1. Build for App Store (excludes private APIs)
+./build.sh --appstore
+
+# 2. Copy to appstore folder and sign
+rm -rf build-appstore/Dorso.app
+cp -r build/Dorso.app build-appstore/
+cd build-appstore
+
+codesign --force --options runtime \
+    --entitlements Dorso.entitlements \
+    --sign "Apple Distribution: Thomas Johnell (KBF2YGT2KP)" \
+    --timestamp \
+    Dorso.app
+
+# 3. Create installer package
+rm -f Dorso.pkg
+productbuild \
+    --component Dorso.app /Applications \
+    --sign "3rd Party Mac Developer Installer: Thomas Johnell (KBF2YGT2KP)" \
+    Dorso.pkg
+
+# 4. Upload (ask user for app-specific password)
+xcrun altool --upload-app -f Dorso.pkg -t macos -u tjohnell@gmail.com -p APP_SPECIFIC_PASSWORD
+```
+
+**Important:** The upload requires an app-specific password from appleid.apple.com. Ask the user to provide it when uploading - do not store it in files.
+
+After upload:
+1. Go to App Store Connect → App Store tab
+2. Select the version (e.g., "1.0 Prepare for Submission")
+3. Scroll to Build section → click + → select the new build
+4. Answer Export Compliance: "No" (no encryption)
+5. Save → Add for Review → Submit to App Review
+
+### Auto-Update (Sparkle)
+
+GitHub builds auto-update via Sparkle. App Store builds contain no trace of Sparkle (the `APP_STORE` flag compiles the code out and `-dead_strip_dylibs` removes the linkage) and update through the App Store itself.
+
+- **Feed**: `appcast.xml` at the repo root, served from raw.githubusercontent.com (`SPARKLE_FEED_URL` in `build.sh`). An update goes live when appcast.xml lands on main; release.sh step 8 edits, commits, and pushes it automatically.
+- **Update eligibility** is decided by comparing `BUILD_NUMBER` (CFBundleVersion), so `BUILD_NUMBER` must increase with every release, not just `VERSION`. release.sh aborts if `VERSION` in build.sh does not match the release argument.
+- **Signing**: updates are EdDSA-signed. The private key lives in the login Keychain as "Private key for signing Sparkle updates" (public key: `SPARKLE_PUBLIC_ED_KEY` in `build.sh`). If the key is lost, shipped apps will reject future updates, so keep a backup. release.sh signs Sparkle's nested components before the app, then signs the final ZIP with `sign_update`. Never hand-edit appcast signatures.
+- **ZIPs must be created with `ditto -c -k --keepParent`**: `zip -r` flattens Sparkle.framework's internal symlinks, which breaks the code signature and makes Sparkle reject the update.
+- Sparkle CLI tools ship with the SwiftPM artifact at `.build/artifacts/sparkle/Sparkle/bin/`.
+
+## Build Configurations
+
+- `./build.sh --dev` - Fast iteration: debug config, host arch only (~10s warm). Use this during development. Not suitable for distribution — debug binary, non-universal.
+- `./build.sh` - Regular build with private APIs (release, universal, for GitHub/direct distribution)
+- `./build.sh --appstore` - App Store build without private APIs
+- `./build.sh --release` - Regular build + creates ZIP archive
+
+## Installing During Development
+
+**Always kill the existing process and remove old app before installing:**
+```bash
+pkill -x Dorso; rm -rf /Applications/Dorso.app && cp -r build/Dorso.app /Applications/
+```
+
+This prevents file locking issues and permission errors from code signing.
+
+## Clearing Settings (Reset to Onboarding)
+
+To reset the app and trigger the onboarding flow again:
+```bash
+pkill -x Dorso
+rm -f ~/Library/Preferences/com.thelazydeveloper.posturr.plist
+killall cfprefsd
+```
+
+Note: The bundle ID is `com.thelazydeveloper.posturr`, NOT `com.posturr`.
+
+## Start Fresh (Rebuild + Reset + Launch)
+
+To rebuild, reinstall, clear settings and permissions, and launch the app:
+```bash
+pkill -x Dorso; ./build.sh --dev && rm -rf /Applications/Dorso.app && cp -r build/Dorso.app /Applications/ && rm -f ~/Library/Preferences/com.thelazydeveloper.posturr.plist && killall cfprefsd 2>/dev/null && tccutil reset Camera com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Motion com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Bluetooth com.thelazydeveloper.posturr 2>/dev/null; open /Applications/Dorso.app
+```
+
+## Code Quality Rules
+
+**NEVER use delays/timeouts to solve timing problems.** They are hacks that hide the real issue. Instead:
+- Fix the actual sequencing/state management
+- Use proper callbacks or completion handlers
+- Wait for actual events, not arbitrary time periods
+
+## Workflow for Bug Fixes and Features
+
+**IMPORTANT: Never commit or push until the user explicitly asks you to.** After making changes:
+1. Build and install the app
+2. Wait for the user to test
+3. Only commit when the user confirms it works or explicitly asks to commit
+
+**Never comment on GitHub issues** until the user explicitly asks you to. The user will handle acknowledgments and issue comments.
+
+## Version Bumping
+
+Update both `VERSION` and `BUILD_NUMBER` in `build.sh` before releasing. Sparkle compares `BUILD_NUMBER` to decide whether an update is offered, so it must increase every release.
+
+## Key Files
+
+### Source Code (in `Sources/`)
+- `App/DorsoMain.swift` - Executable entry point (everything else in `Sources/` builds as the testable `DorsoCore` library)
+- `Core/` - Pure logic, no UI side effects
+  - `TrackingFeature.swift` - TCA reducer owning tracking state; requests side effects as `EffectIntent` values via `TrackingRuntimeClient.perform`
+  - `PostureEngine.swift` - Pure state-transition functions used by the reducer
+  - `AppState.swift`, `Models.swift`, `PostureUIState.swift`, `Analytics.swift`, `Localization.swift`
+- `AppDelegate/` - App coordinator, split by concern
+  - `AppDelegate.swift` - Properties, lifecycle, store dispatch funnels (`applyTrackingAction` sync / `sendTrackingAction` async), and `performTrackingEffect` (the single place reducer effects execute)
+  - `AppDelegate+Tracking.swift` - Detector/UI sync, source switching, monitoring, initial setup
+  - `AppDelegate+Calibration.swift` - Calibration flow and its alerts
+  - `AppDelegate+DeviceEvents.swift` - Camera hot-plug, display config, screen lock
+  - `AppDelegate+Overlay.swift`, `AppDelegate+Persistence.swift`
+- `Detectors/` - `CameraPostureDetector`, `AirPodsPostureDetector`, shared `PostureDetector` protocol
+- `System/` - OS observers (camera hot-plug, display, screen lock) and global hotkey
+- `Settings/` - Settings keys, migrations, profiles
+- `UI/` - Menu bar, overlays (blur, warning), and windows (Settings, Calibration, Onboarding, Analytics, Support)
+
+### Architecture Rules
+- All tracking state lives in the TCA store; `AppDelegate` exposes computed accessors over it, never duplicate stored state.
+- Every store dispatch goes through `applyTrackingAction`/`sendTrackingAction` so transition side effects (detector/UI sync) are never skipped.
+- New reducer side effects: add an `EffectIntent` case and handle it in `performTrackingEffect`. Do not add ad-hoc callbacks.
+- Tests must stay headless: nothing test-reachable in `DorsoCore` may require a window server (`swift test` must pass without one).
+
+### Build & Release
+- `build.sh` - Build script with App Store support
+- `release.sh` - Full GitHub release automation
+- `PRIVACY.md` - Privacy policy for App Store
+
+## UI/UX Branding Guidelines
+
+### Brand Colors
+```swift
+extension Color {
+    static let brandCyan = Color(red: 0.31, green: 0.82, blue: 0.77)  // #4fd1c5 - from app icon
+    static let brandNavy = Color(red: 0.10, green: 0.15, blue: 0.27)  // #1a2744 - from app icon
+}
+```
+
+### Design Principles
+- **Brand connection**: Use `brandCyan` for accents (sliders, toggles, selected states, buttons)
+- **No system blue**: Replace default macOS blue with brand cyan
+- **Subtle, not loud**: Use `.opacity(0.1)` to `.opacity(0.3)` for backgrounds/borders
+
+### Window Layout
+- Use `sizeThatFits` for auto-sizing windows to content
+- Fixed width with auto height: `.frame(width: 640).fixedSize(horizontal: false, vertical: true)`
+- Standard padding: `.padding(24)`
+
+### Section Cards (SectionCard component)
+- Rounded containers: `cornerRadius: 10`
+- Background: `Color(NSColor.controlBackgroundColor)`
+- Subtle border: `Color.primary.opacity(0.06)`
+- Section header: Icon (brandCyan) + title (12pt semibold)
+- Internal spacing: 12-14pt between items
+
+### Typography
+- Window title: 22pt semibold
+- Section headers: 12pt semibold with SF Symbol icon
+- Labels: 13pt regular
+- Help text: 12pt in popovers
+- Slider labels: 10-11pt secondary color
+
+### Controls
+- **Segmented pickers**: Custom `WarningStylePicker` with brandCyan selected state
+- **Toggles**: `.tint(.brandCyan)`
+- **Sliders**: `.tint(.brandCyan)` with value badge (pill with cyan background at 12% opacity)
+- **Buttons**: brandCyan text/icon with 10% cyan background, 30% cyan border
+- **Help icons**: `questionmark.circle` at 11pt, secondary color at 60% opacity
+
+### Value Badges (for sliders)
+```swift
+Text(value)
+    .font(.system(size: 12, weight: .medium))
+    .foregroundColor(.brandCyan)
+    .padding(.horizontal, 10)
+    .padding(.vertical, 3)
+    .background(Capsule().fill(Color.brandCyan.opacity(0.12)))
+```
+
+### Dividers
+Use `SubtleDivider`: `Rectangle().fill(Color.primary.opacity(0.08)).frame(height: 1)`
+
+### Header Pattern
+- App icon (52x52 with subtle shadow)
+- App name (22pt semibold) + tagline (12pt secondary)
+- Social links (GitHub/Discord icons, 16x16, secondary color at 70% opacity)
+- Version badge (11pt medium in capsule with 5% primary background)
+
+### Social Icons
+- Use official SVG paths from Simple Icons (GitHubIcon, DiscordIcon structs in SettingsWindow.swift)
+- Add `.onHover` with `NSCursor.pointingHand` for pointer cursor
+- Wrap in Link with `.contentShape(Rectangle())` for larger hit area
+
+### Reference Implementation
+See `SettingsWindow.swift` for the complete branded implementation.

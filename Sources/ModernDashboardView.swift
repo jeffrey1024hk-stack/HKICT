@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ModernDashboardView: View {
-    // Hooks directly into Dorso's persistence layer
+    // Hooks directly into PostureAI's persistence layer
     @AppStorage("sensitivity") private var sensitivity: Double = 0.5
     @AppStorage("deadZone") private var deadZone: Double = 0.2
     @AppStorage("isTrackingPaused") private var isPaused: Bool = false
@@ -16,7 +16,7 @@ struct ModernDashboardView: View {
             NotabilityCard {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Dorso")
+                        Text("PostureAI")
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                         
                         Text(isPaused ? "Monitoring Paused" : (isSlouching ? "Slouching Detected" : "Good Posture"))

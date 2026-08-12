@@ -21,14 +21,14 @@ jobs:
       - name: Grant execution permissions
         run: chmod +x build.sh
 
-      - name: Build Dorso App
+      - name: Build PostureAI App
         run: ./build.sh --dev
 
       - name: Zip App Bundle
-        run: ditto -c -k --keepParent build/Dorso.app build/Dorso.app.zip
+        run: ditto -c -k --keepParent build/PostureAI.app build/PostureAI.app.zip
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Dorso-macOS-App
-          path: build/Dorso.app.zip
+          name: PostureAI-macOS-App
+          path: build/PostureAI.app.zip

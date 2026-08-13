@@ -11,7 +11,7 @@ let package = Package(
         .library(name: "PostureAICore", targets: ["PostureAICore"])
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.0"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "1.8.2"),
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.4")
     ],
     targets: [

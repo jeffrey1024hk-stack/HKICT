@@ -1,0 +1,597 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8401CB69302D0F7B00E3028F /* PostureAICore in Frameworks */ = {isa = PBXBuildFile; productRef = 8401CB68302D0F7B00E3028F /* PostureAICore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8401CB48302D0A5700E3028F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8401CB2E302D0A1700E3028F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8401CB35302D0A1800E3028F;
+			remoteInfo = PostureAI;
+		};
+		8401CB52302D0A5700E3028F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8401CB2E302D0A1700E3028F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8401CB35302D0A1800E3028F;
+			remoteInfo = PostureAI;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		8401CB36302D0A1800E3028F /* PostureAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PostureAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8401CB47302D0A5700E3028F /* PostureAITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PostureAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8401CB51302D0A5700E3028F /* PostureAIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PostureAIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		8401CB38302D0A1800E3028F /* PostureAI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PostureAI;
+			sourceTree = "<group>";
+		};
+		8401CB4A302D0A5700E3028F /* PostureAITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PostureAITests;
+			sourceTree = "<group>";
+		};
+		8401CB54302D0A5700E3028F /* PostureAIUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PostureAIUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8401CB33302D0A1800E3028F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8401CB69302D0F7B00E3028F /* PostureAICore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8401CB44302D0A5700E3028F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8401CB4E302D0A5700E3028F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8401CB2D302D0A1700E3028F = {
+			isa = PBXGroup;
+			children = (
+				8401CB38302D0A1800E3028F /* PostureAI */,
+				8401CB4A302D0A5700E3028F /* PostureAITests */,
+				8401CB54302D0A5700E3028F /* PostureAIUITests */,
+				8401CB6A302D0F9700E3028F /* Frameworks */,
+				8401CB37302D0A1800E3028F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8401CB37302D0A1800E3028F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8401CB36302D0A1800E3028F /* PostureAI.app */,
+				8401CB47302D0A5700E3028F /* PostureAITests.xctest */,
+				8401CB51302D0A5700E3028F /* PostureAIUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8401CB6A302D0F9700E3028F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8401CB35302D0A1800E3028F /* PostureAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8401CB5B302D0A5800E3028F /* Build configuration list for PBXNativeTarget "PostureAI" */;
+			buildPhases = (
+				8401CB32302D0A1800E3028F /* Sources */,
+				8401CB33302D0A1800E3028F /* Frameworks */,
+				8401CB34302D0A1800E3028F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8401CB38302D0A1800E3028F /* PostureAI */,
+			);
+			name = PostureAI;
+			packageProductDependencies = (
+				8401CB68302D0F7B00E3028F /* PostureAICore */,
+			);
+			productName = PostureAI;
+			productReference = 8401CB36302D0A1800E3028F /* PostureAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8401CB46302D0A5700E3028F /* PostureAITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8401CB5E302D0A5800E3028F /* Build configuration list for PBXNativeTarget "PostureAITests" */;
+			buildPhases = (
+				8401CB43302D0A5700E3028F /* Sources */,
+				8401CB44302D0A5700E3028F /* Frameworks */,
+				8401CB45302D0A5700E3028F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8401CB49302D0A5700E3028F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8401CB4A302D0A5700E3028F /* PostureAITests */,
+			);
+			name = PostureAITests;
+			packageProductDependencies = (
+			);
+			productName = PostureAITests;
+			productReference = 8401CB47302D0A5700E3028F /* PostureAITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		8401CB50302D0A5700E3028F /* PostureAIUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8401CB61302D0A5800E3028F /* Build configuration list for PBXNativeTarget "PostureAIUITests" */;
+			buildPhases = (
+				8401CB4D302D0A5700E3028F /* Sources */,
+				8401CB4E302D0A5700E3028F /* Frameworks */,
+				8401CB4F302D0A5700E3028F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8401CB53302D0A5700E3028F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8401CB54302D0A5700E3028F /* PostureAIUITests */,
+			);
+			name = PostureAIUITests;
+			packageProductDependencies = (
+			);
+			productName = PostureAIUITests;
+			productReference = 8401CB51302D0A5700E3028F /* PostureAIUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8401CB2E302D0A1700E3028F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					8401CB35302D0A1800E3028F = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					8401CB46302D0A5700E3028F = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 8401CB35302D0A1800E3028F;
+					};
+					8401CB50302D0A5700E3028F = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 8401CB35302D0A1800E3028F;
+					};
+				};
+			};
+			buildConfigurationList = 8401CB31302D0A1700E3028F /* Build configuration list for PBXProject "PostureAI" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8401CB2D302D0A1700E3028F;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8401CB67302D0F7B00E3028F /* XCLocalSwiftPackageReference "../PostureAIMac" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 8401CB37302D0A1800E3028F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8401CB35302D0A1800E3028F /* PostureAI */,
+				8401CB46302D0A5700E3028F /* PostureAITests */,
+				8401CB50302D0A5700E3028F /* PostureAIUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8401CB34302D0A1800E3028F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8401CB45302D0A5700E3028F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8401CB4F302D0A5700E3028F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8401CB32302D0A1800E3028F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8401CB43302D0A5700E3028F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8401CB4D302D0A5700E3028F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8401CB49302D0A5700E3028F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8401CB35302D0A1800E3028F /* PostureAI */;
+			targetProxy = 8401CB48302D0A5700E3028F /* PBXContainerItemProxy */;
+		};
+		8401CB53302D0A5700E3028F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8401CB35302D0A1800E3028F /* PostureAI */;
+			targetProxy = 8401CB52302D0A5700E3028F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		8401CB59302D0A5700E3028F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		8401CB5A302D0A5700E3028F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		8401CB5C302D0A5800E3028F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PostureAI/PostureAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PostureAI/Preview Content\"";
+				DEVELOPMENT_TEAM = C988KFZNXU;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Required for AirPods posture tracking.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Required for posture analysis.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Required for AirPods motion and posture tracking.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chill.PostureAI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8401CB5D302D0A5800E3028F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PostureAI/PostureAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PostureAI/Preview Content\"";
+				DEVELOPMENT_TEAM = C988KFZNXU;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Required for AirPods posture tracking.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Required for posture analysis.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Required for AirPods motion and posture tracking.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chill.PostureAI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8401CB5F302D0A5800E3028F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C988KFZNXU;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chill.PostureAITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PostureAI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PostureAI";
+			};
+			name = Debug;
+		};
+		8401CB60302D0A5800E3028F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C988KFZNXU;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chill.PostureAITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PostureAI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PostureAI";
+			};
+			name = Release;
+		};
+		8401CB62302D0A5800E3028F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C988KFZNXU;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chill.PostureAIUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = PostureAI;
+			};
+			name = Debug;
+		};
+		8401CB63302D0A5800E3028F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C988KFZNXU;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = chill.PostureAIUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = PostureAI;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8401CB31302D0A1700E3028F /* Build configuration list for PBXProject "PostureAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8401CB59302D0A5700E3028F /* Debug */,
+				8401CB5A302D0A5700E3028F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8401CB5B302D0A5800E3028F /* Build configuration list for PBXNativeTarget "PostureAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8401CB5C302D0A5800E3028F /* Debug */,
+				8401CB5D302D0A5800E3028F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8401CB5E302D0A5800E3028F /* Build configuration list for PBXNativeTarget "PostureAITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8401CB5F302D0A5800E3028F /* Debug */,
+				8401CB60302D0A5800E3028F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8401CB61302D0A5800E3028F /* Build configuration list for PBXNativeTarget "PostureAIUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8401CB62302D0A5800E3028F /* Debug */,
+				8401CB63302D0A5800E3028F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		8401CB67302D0F7B00E3028F /* XCLocalSwiftPackageReference "../PostureAIMac" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../PostureAIMac;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8401CB68302D0F7B00E3028F /* PostureAICore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PostureAICore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8401CB2E302D0A1700E3028F /* Project object */;
+}

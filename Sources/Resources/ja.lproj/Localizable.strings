@@ -11,7 +11,7 @@
 "menu.quit" = "終了";
 "menu.checkForUpdates" = "アップデートを確認…";
 
-// MARK: - App Menu (DorsoMain.swift)
+// MARK: - App Menu (PostureAIMain.swift)
 
 "appmenu.quit" = "Dorso を終了";
 "appmenu.closeWindow" = "ウインドウを閉じる";

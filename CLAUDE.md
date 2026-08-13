@@ -1,4 +1,4 @@
-# Claude Code Instructions for Dorso
+# Claude Code Instructions for PostureAI
 
 ## Releasing
 
@@ -56,8 +56,8 @@ gh release edit vX.Y.Z --notes "$(cat <<'EOF'
 
 ## Installation
 
-1. Download `Dorso-vX.Y.Z.dmg` or `Dorso-vX.Y.Z.zip`
-2. Drag `Dorso.app` to Applications
+1. Download `PostureAI-vX.Y.Z.dmg` or `PostureAI-vX.Y.Z.zip`
+2. Drag `PostureAI.app` to Applications
 3. Launch normally - no warnings!
 4. Grant camera permission and complete calibration
 
@@ -94,31 +94,31 @@ After updating the GitHub release notes, also update `CHANGELOG.md` with a new e
 For App Store submissions, run these steps after the GitHub release:
 
 ```bash
-cd /Users/tjohnell/projects/dorso
+cd /Users/admin/Desktop/PostureAI
 
 # 1. Build for App Store (excludes private APIs)
 ./build.sh --appstore
 
 # 2. Copy to appstore folder and sign
-rm -rf build-appstore/Dorso.app
-cp -r build/Dorso.app build-appstore/
+rm -rf build-appstore/PostureAI.app
+cp -r build/PostureAI.app build-appstore/
 cd build-appstore
 
 codesign --force --options runtime \
-    --entitlements Dorso.entitlements \
-    --sign "Apple Distribution: Thomas Johnell (KBF2YGT2KP)" \
+    --entitlements PostureAI.entitlements \
+    --sign "Apple Distribution: Chill Guy (KBF2YGT2KP)" \
     --timestamp \
-    Dorso.app
+    PostureAI.app
 
 # 3. Create installer package
-rm -f Dorso.pkg
+rm -f PostureAI.pkg
 productbuild \
-    --component Dorso.app /Applications \
-    --sign "3rd Party Mac Developer Installer: Thomas Johnell (KBF2YGT2KP)" \
-    Dorso.pkg
+    --component PostureAI.app /Applications \
+    --sign "3rd Party Mac Developer Installer: Chill Guy (KBF2YGT2KP)" \
+    PostureAI.pkg
 
 # 4. Upload (ask user for app-specific password)
-xcrun altool --upload-app -f Dorso.pkg -t macos -u tjohnell@gmail.com -p APP_SPECIFIC_PASSWORD
+xcrun altool --upload-app -f PostureAI.pkg -t macos -u chill@gmail.com -p APP_SPECIFIC_PASSWORD
 ```
 
 **Important:** The upload requires an app-specific password from appleid.apple.com. Ask the user to provide it when uploading - do not store it in files.
@@ -151,7 +151,7 @@ GitHub builds auto-update via Sparkle. App Store builds contain no trace of Spar
 
 **Always kill the existing process and remove old app before installing:**
 ```bash
-pkill -x Dorso; rm -rf /Applications/Dorso.app && cp -r build/Dorso.app /Applications/
+pkill -x PostureAI; rm -rf /Applications/PostureAI.app && cp -r build/PostureAI.app /Applications/
 ```
 
 This prevents file locking issues and permission errors from code signing.
@@ -160,7 +160,7 @@ This prevents file locking issues and permission errors from code signing.
 
 To reset the app and trigger the onboarding flow again:
 ```bash
-pkill -x Dorso
+pkill -x PostureAI
 rm -f ~/Library/Preferences/com.thelazydeveloper.posturr.plist
 killall cfprefsd
 ```
@@ -171,7 +171,7 @@ Note: The bundle ID is `com.thelazydeveloper.posturr`, NOT `com.posturr`.
 
 To rebuild, reinstall, clear settings and permissions, and launch the app:
 ```bash
-pkill -x Dorso; ./build.sh --dev && rm -rf /Applications/Dorso.app && cp -r build/Dorso.app /Applications/ && rm -f ~/Library/Preferences/com.thelazydeveloper.posturr.plist && killall cfprefsd 2>/dev/null && tccutil reset Camera com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Motion com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Bluetooth com.thelazydeveloper.posturr 2>/dev/null; open /Applications/Dorso.app
+pkill -x PostureAI; ./build.sh --dev && rm -rf /Applications/PostureAI.app && cp -r build/PostureAI.app /Applications/ && rm -f ~/Library/Preferences/com.thelazydeveloper.posturr.plist && killall cfprefsd 2>/dev/null && tccutil reset Camera com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Motion com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Bluetooth com.thelazydeveloper.posturr 2>/dev/null; open /Applications/PostureAI.app
 ```
 
 ## Code Quality Rules
@@ -197,7 +197,7 @@ Update both `VERSION` and `BUILD_NUMBER` in `build.sh` before releasing. Sparkle
 ## Key Files
 
 ### Source Code (in `Sources/`)
-- `App/DorsoMain.swift` - Executable entry point (everything else in `Sources/` builds as the testable `DorsoCore` library)
+- `App/PostureAIMain.swift` - Executable entry point (everything else in `Sources/` builds as the testable `PostureAICore` library)
 - `Core/` - Pure logic, no UI side effects
   - `TrackingFeature.swift` - TCA reducer owning tracking state; requests side effects as `EffectIntent` values via `TrackingRuntimeClient.perform`
   - `PostureEngine.swift` - Pure state-transition functions used by the reducer
@@ -217,7 +217,7 @@ Update both `VERSION` and `BUILD_NUMBER` in `build.sh` before releasing. Sparkle
 - All tracking state lives in the TCA store; `AppDelegate` exposes computed accessors over it, never duplicate stored state.
 - Every store dispatch goes through `applyTrackingAction`/`sendTrackingAction` so transition side effects (detector/UI sync) are never skipped.
 - New reducer side effects: add an `EffectIntent` case and handle it in `performTrackingEffect`. Do not add ad-hoc callbacks.
-- Tests must stay headless: nothing test-reachable in `DorsoCore` may require a window server (`swift test` must pass without one).
+- Tests must stay headless: nothing test-reachable in `PostureAICore` may require a window server (`swift test` must pass without one).
 
 ### Build & Release
 - `build.sh` - Build script with App Store support

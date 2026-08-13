@@ -288,8 +288,8 @@ fi
 echo -e "${GREEN}[8/8] Updating appcast...${NC}"
 SIGN_ATTRS=$("$SPARKLE_BIN/sign_update" "build/$ZIP_NAME")
 PUB_DATE=$(LC_ALL=C date "+%a, %d %b %Y %H:%M:%S %z")
-DOWNLOAD_URL="https://github.com/tldev/dorso/releases/download/$TAG/$ZIP_NAME"
-RELEASE_URL="https://github.com/tldev/dorso/releases/tag/$TAG"
+DOWNLOAD_URL="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/$TAG/$ZIP_NAME"
+RELEASE_URL="https://github.com/jeffrey1024hk-stack/HKICT/releases/tag/$TAG"
 
 # Drop any existing appcast item for this tag (re-release), then insert the
 # new item below the marker comment
@@ -342,4 +342,4 @@ echo ""
 echo "Files:"
 ls -lh "build/$ZIP_NAME" "build/$DMG_NAME" 2>/dev/null
 echo ""
-echo -e "Release URL: ${CYAN}https://github.com/tldev/dorso/releases/tag/$TAG${NC}"
+echo -e "Release URL: ${CYAN}https://github.com/jeffrey1024hk-stack/HKICT/releases/tag/$TAG${NC}"

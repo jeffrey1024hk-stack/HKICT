@@ -11,7 +11,7 @@
 "menu.quit" = "Quit";
 "menu.checkForUpdates" = "Check for Updates…";
 
-// MARK: - App Menu (DorsoMain.swift)
+// MARK: - App Menu (PostureAIMain.swift)
 
 "appmenu.quit" = "Quit Dorso";
 "appmenu.closeWindow" = "Close Window";

@@ -138,7 +138,7 @@ struct SettingsView: View {
 
                 // Social links
                 HStack(spacing: 4) {
-                    Link(destination: URL(string: "https://github.com/tldev/PostureAI")!) {
+                    Link(destination: URL(string: "https://github.com/jeffrey1024hk-stack/HKICT")!) {
                         GitHubIcon(color: Color.secondary.opacity(0.6))
                             .frame(width: 14, height: 14)
                             .padding(3)

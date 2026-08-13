@@ -1,7 +1,7 @@
 import AppKit
 import os.log
 
-private let log = OSLog(subsystem: "com.thelazydeveloper.dorso", category: "Calibration")
+private let log = OSLog(subsystem: "chill..PostureAI", category: "Calibration")
 
 extension AppDelegate {
     // MARK: - Calibration Flow

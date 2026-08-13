@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
     <channel>
-        <title>Dorso</title>
+        <title>PostureAI</title>
         <link>https://github.com/jeffrey1024hk-stack/HKICT</link>
-        <description>Most recent updates to Dorso</description>
+        <description>Most recent updates to PostureAI</description>
         <language>en</language>
         <!-- release.sh inserts new release items below this line -->
         <item>
@@ -15,7 +15,7 @@
             <sparkle:releaseNotesLink>https://github.com/jeffrey1024hk-stack/HKICT/releases/tag/v1.15.1</sparkle:releaseNotesLink>
             <pubDate>Sun, 19 Jul 2026 11:46:28 -0500</pubDate>
             <enclosure
-                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.15.1/Dorso-v1.15.1.zip"
+                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.15.1/PostureAI-v1.15.1.zip"
                 sparkle:edSignature="bpDDG0Oj9h6++eaMDz8n9d3gSxBnASFbWAJ0ezB/iAfzyEepJWh517dDg2IDl0z55Mtmxr4RNcKj04ULpAnGBw==" length="9446967"
                 type="application/octet-stream"/>
         </item>
@@ -28,7 +28,7 @@
             <sparkle:releaseNotesLink>https://github.com/jeffrey1024hk-stack/HKICT/releases/tag/v1.15.0</sparkle:releaseNotesLink>
             <pubDate>Sun, 19 Jul 2026 11:32:07 -0500</pubDate>
             <enclosure
-                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.15.0/Dorso-v1.15.0.zip"
+                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.15.0/PostureAI-v1.15.0.zip"
                 sparkle:edSignature="FBALyWdDrz3gsixSOMeRNOOiIMeMg6jzhiUTG+2QWhZKfVnFSEkdVz9pm4A3BZD9gSFDcsVZDPvinjyyOvsFCw==" length="9445595"
                 type="application/octet-stream"/>
         </item>
@@ -41,7 +41,7 @@
             <sparkle:releaseNotesLink>https://github.com/jeffrey1024hk-stack/HKICT/releases/tag/v1.14.2</sparkle:releaseNotesLink>
             <pubDate>Sun, 19 Jul 2026 10:47:45 -0500</pubDate>
             <enclosure
-                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.14.2/Dorso-v1.14.2.zip"
+                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.14.2/PostureAI-v1.14.2.zip"
                 sparkle:edSignature="HupG3siSUR7Fu5rs05o3h2b4aj8Q12c7bQz73B1518iiGAJaDkeR9dhVVehFD2VUpuKfWK+6KqPENz2NQc0vAw==" length="9390408"
                 type="application/octet-stream"/>
         </item>
@@ -54,7 +54,7 @@
             <sparkle:releaseNotesLink>https://github.com/jeffrey1024hk-stack/HKICT/releases/tag/v1.14.1</sparkle:releaseNotesLink>
             <pubDate>Sun, 19 Jul 2026 10:19:17 -0500</pubDate>
             <enclosure
-                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.14.1/Dorso-v1.14.1.zip"
+                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.14.1/PostureAI-v1.14.1.zip"
                 sparkle:edSignature="0YUiJshzgDPpfLfsKuJwB+3GjTlb9Vy++Vz0w2aFUql7rwBB9BCNEnKYDwd21/Yj10JaQPDd6g/V21XcPvFhAw==" length="9389713"
                 type="application/octet-stream"/>
         </item>
@@ -67,7 +67,7 @@
             <sparkle:releaseNotesLink>https://github.com/jeffrey1024hk-stack/HKICT/releases/tag/v1.14.0</sparkle:releaseNotesLink>
             <pubDate>Sun, 19 Jul 2026 10:09:17 -0500</pubDate>
             <enclosure
-                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.14.0/Dorso-v1.14.0.zip"
+                url="https://github.com/jeffrey1024hk-stack/HKICT/releases/download/v1.14.0/PostureAI-v1.14.0.zip"
                 sparkle:edSignature="UgJfUZMqQyytTmIHMzYvWy4f1kmJPNLHXkAqfXp1ZHKUquAHLJnNDwNl8+ZzUYQUNJO3gv3xBvGakiEKMu8iAQ==" length="9390030"
                 type="application/octet-stream"/>
         </item>

@@ -5,7 +5,7 @@ import os.log
 import ComposableArchitecture
 import SwiftUI
 
-//private let log = OSLog(subsystem: "com.thelazydeveloper.PostureAI", category: "AppDelegate")
+//private let log = OSLog(subsystem: "chill..PostureAI", category: "AppDelegate")
 private var dashboardWindow: NSWindow?
 
 // MARK: - MenuBarIconType to MenuBarIcon Conversion

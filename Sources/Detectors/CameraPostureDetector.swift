@@ -3,7 +3,7 @@ import AVFoundation
 import Vision
 import os.log
 
-private let log = OSLog(subsystem: "com.thelazydeveloper.dorso", category: "CameraDetector")
+private let log = OSLog(subsystem: "chill..PostureAI", category: "CameraDetector")
 
 /// Camera-based posture detection using Vision framework
 class CameraPostureDetector: NSObject, PostureDetector {
@@ -93,8 +93,8 @@ class CameraPostureDetector: NSObject, PostureDetector {
 
     private var captureSession: AVCaptureSession?
     private var videoOutput: AVCaptureVideoDataOutput?
-    private let captureQueue = DispatchQueue(label: "dorso.camera.capture")
-    private let sessionQueue = DispatchQueue(label: "dorso.camera.session")
+    private let captureQueue = DispatchQueue(label: "PostureAI.camera.capture")
+    private let sessionQueue = DispatchQueue(label: "PostureAI.camera.session")
     private let runtime: Runtime
 
     var selectedCameraID: String?

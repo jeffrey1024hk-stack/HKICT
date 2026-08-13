@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Dorso Release Script
+# PostureAI Release Script
 # Creates a new release with build, signing, notarization, DMG, and GitHub release
 
 set -e
@@ -16,8 +16,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
 # Code signing identity
-DEVELOPER_ID="Developer ID Application: Thomas Johnell (KBF2YGT2KP)"
-NOTARY_PROFILE="notarytool-dorso"
+DEVELOPER_ID="Developer ID Application: Chill Guy (KBF2YGT2KP)"
+NOTARY_PROFILE="notarytool-PostureAI"
 
 # Check for required dependencies
 check_dependency() {
@@ -132,12 +132,12 @@ if [ ! -x "$SPARKLE_BIN/sign_update" ]; then
 fi
 
 TAG="v$VERSION"
-ZIP_NAME="Dorso-$TAG.zip"
-DMG_NAME="Dorso-$TAG.dmg"
+ZIP_NAME="PostureAI-$TAG.zip"
+DMG_NAME="PostureAI-$TAG.dmg"
 
 echo ""
 echo -e "${CYAN}═══════════════════════════════════════${NC}"
-echo -e "${CYAN}  Dorso Release Script - $TAG${NC}"
+echo -e "${CYAN}  PostureAI Release Script - $TAG${NC}"
 echo -e "${CYAN}═══════════════════════════════════════${NC}"
 echo ""
 
@@ -173,18 +173,18 @@ echo -e "${GREEN}[2/8] Signing app with Developer ID...${NC}"
 
 # Sign Sparkle's nested components first (inside-out order), per Sparkle's
 # distribution docs. All need hardened runtime for notarization.
-SPARKLE_FW="build/Dorso.app/Contents/Frameworks/Sparkle.framework"
+SPARKLE_FW="build/PostureAI.app/Contents/Frameworks/Sparkle.framework"
 codesign --force --options runtime --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_FW/Versions/B/XPCServices/Installer.xpc"
 codesign --force --options runtime --preserve-metadata=entitlements --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_FW/Versions/B/XPCServices/Downloader.xpc"
 codesign --force --options runtime --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_FW/Versions/B/Autoupdate"
 codesign --force --options runtime --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_FW/Versions/B/Updater.app"
 codesign --force --options runtime --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_FW"
 
-codesign --force --options runtime --entitlements "build/Dorso.entitlements" --sign "$DEVELOPER_ID" --timestamp "build/Dorso.app"
+codesign --force --options runtime --entitlements "build/PostureAI.entitlements" --sign "$DEVELOPER_ID" --timestamp "build/PostureAI.app"
 
 # Verify signature
 echo "Verifying signature..."
-codesign --verify --deep --strict "build/Dorso.app"
+codesign --verify --deep --strict "build/PostureAI.app"
 echo -e "${GREEN}Signature verified${NC}"
 
 # Step 3: Create ZIP for notarization
@@ -192,7 +192,7 @@ echo -e "${GREEN}Signature verified${NC}"
 # break the code signature
 echo -e "${GREEN}[3/8] Creating ZIP for notarization...${NC}"
 rm -f "build/$ZIP_NAME"
-ditto -c -k --keepParent build/Dorso.app "build/$ZIP_NAME"
+ditto -c -k --keepParent build/PostureAI.app "build/$ZIP_NAME"
 
 # Step 4: Submit for notarization
 echo -e "${GREEN}[4/8] Submitting for notarization (this may take a few minutes)...${NC}"
@@ -200,30 +200,30 @@ xcrun notarytool submit "build/$ZIP_NAME" --keychain-profile "$NOTARY_PROFILE" -
 
 # Step 5: Staple the notarization ticket
 echo -e "${GREEN}[5/8] Stapling notarization ticket...${NC}"
-xcrun stapler staple "build/Dorso.app"
+xcrun stapler staple "build/PostureAI.app"
 
 # Recreate ZIP with stapled app
 rm -f "build/$ZIP_NAME"
-ditto -c -k --keepParent build/Dorso.app "build/$ZIP_NAME"
+ditto -c -k --keepParent build/PostureAI.app "build/$ZIP_NAME"
 
 # Step 6: Create DMG (with notarized app)
 echo -e "${GREEN}[6/8] Creating DMG...${NC}"
-hdiutil detach /Volumes/Dorso 2>/dev/null || true
+hdiutil detach /Volumes/PostureAI 2>/dev/null || true
 rm -f "build/$DMG_NAME"
 
 create-dmg \
-    --volname "Dorso" \
-    --volicon "build/Dorso.app/Contents/Resources/AppIcon.icns" \
+    --volname "PostureAI" \
+    --volicon "build/PostureAI.app/Contents/Resources/AppIcon.icns" \
     --background "assets/dmg-background.png" \
     --window-pos 200 120 \
     --window-size 654 444 \
     --icon-size 140 \
     --text-size 12 \
-    --icon "Dorso.app" 197 195 \
-    --hide-extension "Dorso.app" \
+    --icon "PostureAI.app" 197 195 \
+    --hide-extension "PostureAI.app" \
     --app-drop-link 473 195 \
     "build/$DMG_NAME" \
-    build/Dorso.app
+    build/PostureAI.app
 
 # Sign and notarize the DMG too
 echo "Signing DMG..."
@@ -240,7 +240,7 @@ echo -e "${GREEN}[7/8] Creating git tag and GitHub release...${NC}"
 git tag "$TAG"
 git push origin "$TAG"
 
-RELEASE_NOTES="## Dorso $TAG
+RELEASE_NOTES="## PostureAI $TAG
 
 A macOS app that blurs your screen when you slouch.
 
@@ -256,7 +256,7 @@ A macOS app that blurs your screen when you slouch.
 ### Installation
 
 1. Download the \`.dmg\` or \`.zip\`
-2. Drag \`Dorso.app\` to Applications
+2. Drag \`PostureAI.app\` to Applications
 3. Launch normally - no Gatekeeper warning!
 4. Grant camera permission, then complete calibration
 
@@ -268,7 +268,7 @@ if [ "$SKIP_GH_RELEASE" = "true" ]; then
     echo ""
     echo "To create the release manually, run:"
     echo -e "${CYAN}gh auth login${NC}"
-    echo -e "${CYAN}gh release create $TAG build/$ZIP_NAME build/$DMG_NAME --title \"Dorso $TAG\"${NC}"
+    echo -e "${CYAN}gh release create $TAG build/$ZIP_NAME build/$DMG_NAME --title \"PostureAI $TAG\"${NC}"
 else
     # Delete existing release if present
     gh release delete "$TAG" --yes 2>/dev/null || true
@@ -277,7 +277,7 @@ else
     gh release create "$TAG" \
         "build/$ZIP_NAME" \
         "build/$DMG_NAME" \
-        --title "Dorso $TAG" \
+        --title "PostureAI $TAG" \
         --notes "$RELEASE_NOTES"
 
     echo -e "${GREEN}Release created!${NC}"

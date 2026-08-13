@@ -1,6 +1,6 @@
 import Foundation
 import ComposableArchitecture
-@testable import DorsoCore
+@testable import PostureAICore
 
 private actor IntentRecorder {
     private var intents: [TrackingFeature.EffectIntent] = []

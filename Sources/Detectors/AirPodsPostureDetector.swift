@@ -3,7 +3,7 @@ import CoreMotion
 import IOBluetooth
 import os.log
 
-private let log = OSLog(subsystem: "com.thelazydeveloper.dorso", category: "AirPodsDetector")
+private let log = OSLog(subsystem: "chill..PostureAI", category: "AirPodsDetector")
 
 // MARK: - AirPods Product ID Detection
 

@@ -1,6 +1,6 @@
 import AppKit
 import XCTest
-@testable import DorsoCore
+@testable import PostureAICore
 
 final class AppDelegateTrackingIntegrationTests: XCTestCase {
     private func makeValidCameraCalibration(cameraID: String) -> CameraCalibrationData {

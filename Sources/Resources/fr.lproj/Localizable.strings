@@ -1,4 +1,4 @@
-/* Dorso - French Localizable Strings */
+/* PostureAI - French Localizable Strings */
 
 // MARK: - Menu Bar (MenuBar.swift)
 
@@ -13,7 +13,7 @@
 
 // MARK: - App Menu (PostureAIMain.swift)
 
-"appmenu.quit" = "Quitter Dorso";
+"appmenu.quit" = "Quitter PostureAI";
 "appmenu.closeWindow" = "Fermer la fenêtre";
 "appmenu.file" = "Fichier";
 "appmenu.edit" = "Édition";
@@ -89,8 +89,8 @@
 "alert.cameraNotAvailable" = "Caméra non disponible";
 "alert.cameraNotAvailable.message" = "Vérifiez que la caméra est connectée et que l'accès à la caméra est autorisé.";
 "alert.tryAgain" = "Réessayer";
-"support.title" = "Soutenir Dorso";
-"support.message" = "Dorso vous aide à corriger posture et vous voulez montrer votre soutien? offrez-moi un café.";
+"support.title" = "Soutenir PostureAI";
+"support.message" = "PostureAI vous aide à corriger posture et vous voulez montrer votre soutien? offrez-moi un café.";
 "support.button" = "Offrez-moi un café";
 
 // MARK: - Calibration (CalibrationWindow.swift)
@@ -155,11 +155,11 @@
 "settings.detection" = "Détection";
 "settings.detection.help" = "Équilibre entre réactivité et batterie. Réactif détecte rapidement, Performance économise la batterie.";
 "settings.launchAtLogin" = "Lancer au démarrage";
-"settings.launchAtLogin.help" = "Démarrer Dorso automatiquement à l'ouverture de session";
+"settings.launchAtLogin.help" = "Démarrer PostureAI automatiquement à l'ouverture de session";
 "settings.autoUpdates" = "Mises à jour automatiques";
 "settings.autoUpdates.help" = "Rechercher les nouvelles versions en arrière-plan et proposer de les installer";
 "settings.showInDock" = "Montrer dans le Dock";
-"settings.showInDock.help" = "Garde Dorso visible dans le Dock et avec Cmd+Tab";
+"settings.showInDock.help" = "Garde PostureAI visible dans le Dock et avec Cmd+Tab";
 "settings.blurWhenAway" = "Flouter en cas d'absence";
 "settings.blurWhenAway.help.camera" = "Applique un flou complet lorsque vous vous éloignez de l'écran";
 "settings.blurWhenAway.help.airpods" = "Applique un flou complet lorsque vous vous absentez. Disponible uniquement avec la détection par caméra.";
@@ -170,7 +170,7 @@
 "settings.fullScreenOverlay" = "Superposition plein écran";
 "settings.fullScreenOverlay.help" = "Étendre les effets sur le Dock et la barre des menus";
 "settings.shortcut" = "Raccourci";
-"settings.shortcut.help" = "Raccourci clavier global pour activer/désactiver Dorso. Cliquez sur le champ et appuyez sur la nouvelle combinaison de touches souhaitée.";
+"settings.shortcut.help" = "Raccourci clavier global pour activer/désactiver PostureAI. Cliquez sur le champ et appuyez sur la nouvelle combinaison de touches souhaitée.";
 "settings.shortcut.press" = "Appuyez...";
 "settings.compatibilityMode" = "Mode de compatibilité";
 "settings.compatibilityMode.help" = "Activez si le flou n'apparaît pas";
@@ -202,7 +202,7 @@
 
 // MARK: - Onboarding (OnboardingWindow.swift)
 
-"onboarding.title" = "Bienvenue dans Dorso";
+"onboarding.title" = "Bienvenue dans PostureAI";
 "onboarding.subtitle" = "Choisissez comment surveiller votre posture";
 "onboarding.selectCamera" = "Sélectionner la caméra";
 "onboarding.pairedAirPods" = "AirPods jumelés";

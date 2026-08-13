@@ -1,4 +1,4 @@
-/* Dorso - Spanish Localizable Strings */
+/* PostureAI - Spanish Localizable Strings */
 
 // MARK: - Menu Bar (MenuBar.swift)
 
@@ -13,7 +13,7 @@
 
 // MARK: - App Menu (PostureAIMain.swift)
 
-"appmenu.quit" = "Salir de Dorso";
+"appmenu.quit" = "Salir de PostureAI";
 "appmenu.closeWindow" = "Cerrar ventana";
 "appmenu.file" = "Archivo";
 "appmenu.edit" = "Edición";
@@ -89,8 +89,8 @@
 "alert.cameraNotAvailable" = "Cámara no disponible";
 "alert.cameraNotAvailable.message" = "Asegúrate de que la cámara está conectada y el acceso a la cámara está concedido.";
 "alert.tryAgain" = "Reintentar";
-"support.title" = "Apoya a Dorso";
-"support.message" = "Si Dorso te ha ayudado con tu postura y quieres mostrar tu apoyo, por favor invítame a un café.";
+"support.title" = "Apoya a PostureAI";
+"support.message" = "Si PostureAI te ha ayudado con tu postura y quieres mostrar tu apoyo, por favor invítame a un café.";
 "support.button" = "Invítame a un café";
 
 // MARK: - Calibration (CalibrationWindow.swift)
@@ -155,11 +155,11 @@
 "settings.detection" = "Detección";
 "settings.detection.help" = "Equilibrio entre capacidad de respuesta y duración de la batería. Reactiva detecta rápido, Rendimienta ahorra batería.";
 "settings.launchAtLogin" = "Iniciar al arrancar";
-"settings.launchAtLogin.help" = "Iniciar Dorso automáticamente al iniciar sesión";
+"settings.launchAtLogin.help" = "Iniciar PostureAI automáticamente al iniciar sesión";
 "settings.autoUpdates" = "Actualizaciones automáticas";
 "settings.autoUpdates.help" = "Buscar nuevas versiones en segundo plano y ofrecer instalarlas";
 "settings.showInDock" = "Mostrar en el dock";
-"settings.showInDock.help" = "Mantener Dorso en el Dock y Cmd+Tab";
+"settings.showInDock.help" = "Mantener PostureAI en el Dock y Cmd+Tab";
 "settings.blurWhenAway" = "Desenfocar al ausentarse";
 "settings.blurWhenAway.help.camera" = "Aplicar desenfoque completo cuando te ausentes";
 "settings.blurWhenAway.help.airpods" = "Aplicar desenfoque completo cuando te ausentes. Solo disponible cuando se usa la cámara para la detección.";
@@ -170,7 +170,7 @@
 "settings.fullScreenOverlay" = "Superposición a pantalla completa";
 "settings.fullScreenOverlay.help" = "Extender efectos sobre el Dock y la barra de menús";
 "settings.shortcut" = "Atajo";
-"settings.shortcut.help" = "Atajo de teclado global para activar/desactivar Dorso. Haz clic en el campo y pulsa la combinación de teclas deseada.";
+"settings.shortcut.help" = "Atajo de teclado global para activar/desactivar PostureAI. Haz clic en el campo y pulsa la combinación de teclas deseada.";
 "settings.shortcut.press" = "Pulsa...";
 "settings.compatibilityMode" = "Modo de compatibilidad";
 "settings.compatibilityMode.help" = "Actívalo si el desenfoque no aparece";
@@ -202,7 +202,7 @@
 
 // MARK: - Onboarding (OnboardingWindow.swift)
 
-"onboarding.title" = "Bienvenido a Dorso";
+"onboarding.title" = "Bienvenido a PostureAI";
 "onboarding.subtitle" = "Elige cómo quieres monitorear tu postura";
 "onboarding.selectCamera" = "Seleccionar cámara";
 "onboarding.pairedAirPods" = "AirPods vinculados";

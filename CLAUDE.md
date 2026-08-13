@@ -161,17 +161,17 @@ This prevents file locking issues and permission errors from code signing.
 To reset the app and trigger the onboarding flow again:
 ```bash
 pkill -x PostureAI
-rm -f ~/Library/Preferences/com.thelazydeveloper.posturr.plist
+rm -f ~/Library/Preferences/chill..PostureAI.plist
 killall cfprefsd
 ```
 
-Note: The bundle ID is `com.thelazydeveloper.posturr`, NOT `com.posturr`.
+Note: The bundle ID is `chill..PostureAI`, NOT `com.PostureAI`.
 
 ## Start Fresh (Rebuild + Reset + Launch)
 
 To rebuild, reinstall, clear settings and permissions, and launch the app:
 ```bash
-pkill -x PostureAI; ./build.sh --dev && rm -rf /Applications/PostureAI.app && cp -r build/PostureAI.app /Applications/ && rm -f ~/Library/Preferences/com.thelazydeveloper.posturr.plist && killall cfprefsd 2>/dev/null && tccutil reset Camera com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Motion com.thelazydeveloper.posturr 2>/dev/null && tccutil reset Bluetooth com.thelazydeveloper.posturr 2>/dev/null; open /Applications/PostureAI.app
+pkill -x PostureAI; ./build.sh --dev && rm -rf /Applications/PostureAI.app && cp -r build/PostureAI.app /Applications/ && rm -f ~/Library/Preferences/chill..PostureAI.plist && killall cfprefsd 2>/dev/null && tccutil reset Camera chill..PostureAI 2>/dev/null && tccutil reset Motion chill..PostureAI 2>/dev/null && tccutil reset Bluetooth chill..PostureAI 2>/dev/null; open /Applications/PostureAI.app
 ```
 
 ## Code Quality Rules

@@ -1,7 +1,7 @@
 import AppKit
 import os.log
 
-private let log = OSLog(subsystem: "com.thelazydeveloper.dorso", category: "Tracking")
+private let log = OSLog(subsystem: "chill..PostureAI", category: "Tracking")
 
 /// Context gathered at startup to decide between monitoring and onboarding.
 struct InitialSetupContext {

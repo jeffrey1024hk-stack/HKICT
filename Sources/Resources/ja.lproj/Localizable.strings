@@ -1,4 +1,4 @@
-/* Dorso - Japanese Localizable Strings */
+/* PostureAI - Japanese Localizable Strings */
 
 // MARK: - Menu Bar (MenuBar.swift)
 
@@ -13,7 +13,7 @@
 
 // MARK: - App Menu (PostureAIMain.swift)
 
-"appmenu.quit" = "Dorso を終了";
+"appmenu.quit" = "PostureAI を終了";
 "appmenu.closeWindow" = "ウインドウを閉じる";
 "appmenu.file" = "ファイル";
 "appmenu.edit" = "編集";
@@ -89,8 +89,8 @@
 "alert.cameraNotAvailable" = "カメラを使用できません";
 "alert.cameraNotAvailable.message" = "カメラが接続されていること、カメラへのアクセスが許可されていることを確認してください。";
 "alert.tryAgain" = "再試行";
-"support.title" = "Dorsoを応援";
-"support.message" = "Dorsoが姿勢の改善に役立ち、応援したいと思っていただけたら、コーヒーをごちそうしてください。";
+"support.title" = "PostureAIを応援";
+"support.message" = "PostureAIが姿勢の改善に役立ち、応援したいと思っていただけたら、コーヒーをごちそうしてください。";
 "support.button" = "コーヒーをおごる";
 
 // MARK: - Calibration (CalibrationWindow.swift)
@@ -155,11 +155,11 @@
 "settings.detection" = "検出";
 "settings.detection.help" = "応答速度とバッテリーのバランス。高速は素早く検出し、省エネはバッテリーを節約します。";
 "settings.launchAtLogin" = "ログイン時に起動";
-"settings.launchAtLogin.help" = "ログイン時に Dorso を自動的に起動";
+"settings.launchAtLogin.help" = "ログイン時に PostureAI を自動的に起動";
 "settings.autoUpdates" = "自動アップデート";
 "settings.autoUpdates.help" = "バックグラウンドで新しいバージョンを確認し、インストールを提案";
 "settings.showInDock" = "Dock に表示";
-"settings.showInDock.help" = "Dorso を Dock と Cmd+Tab に表示";
+"settings.showInDock.help" = "PostureAI を Dock と Cmd+Tab に表示";
 "settings.blurWhenAway" = "離席時にぼかす";
 "settings.blurWhenAway.help.camera" = "離席時に完全なぼかしを適用";
 "settings.blurWhenAway.help.airpods" = "離席時に完全なぼかしを適用。カメラでの検出時のみ利用可能です。";
@@ -170,7 +170,7 @@
 "settings.fullScreenOverlay" = "全画面オーバーレイ";
 "settings.fullScreenOverlay.help" = "Dockとメニューバーにも効果を広げる";
 "settings.shortcut" = "ショートカット";
-"settings.shortcut.help" = "Dorso の有効/無効を切り替えるグローバルキーボードショートカット。フィールドをクリックして、お好みのキーの組み合わせを押してください。";
+"settings.shortcut.help" = "PostureAI の有効/無効を切り替えるグローバルキーボードショートカット。フィールドをクリックして、お好みのキーの組み合わせを押してください。";
 "settings.shortcut.press" = "押す...";
 "settings.compatibilityMode" = "互換モード";
 "settings.compatibilityMode.help" = "ぼかしが表示されない場合に有効にしてください";
@@ -202,7 +202,7 @@
 
 // MARK: - Onboarding (OnboardingWindow.swift)
 
-"onboarding.title" = "Dorso へようこそ";
+"onboarding.title" = "PostureAI へようこそ";
 "onboarding.subtitle" = "姿勢の追跡方法を選択してください";
 "onboarding.selectCamera" = "カメラを選択";
 "onboarding.pairedAirPods" = "ペアリング済み AirPods";

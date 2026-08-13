@@ -1,7 +1,7 @@
 import XCTest
 import CoreMotion
 import ComposableArchitecture
-@testable import DorsoCore
+@testable import PostureAICore
 
 /// Custom notification used to simulate app activation in tests.
 private let testActivationNotification = NSNotification.Name("TestAppDidBecomeActive")

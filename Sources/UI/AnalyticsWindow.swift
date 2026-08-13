@@ -1,6 +1,6 @@
-import SwiftUI
-import Charts
 import AppKit
+import Charts
+import SwiftUI
 
 // MARK: - Window Controller
 
@@ -84,12 +84,12 @@ struct AnalyticsView: View {
                         .stroke(Color.primary.opacity(0.06), lineWidth: 1)
                 )
             }
-            .padding(.bottom, 8)
+            .padding(.bottom, 4)
 
             // Main Content Grid
             HStack(alignment: .top, spacing: 16) {
-                // Left Col: Stats
-                VStack(spacing: 12) {
+                // Left Col: Stats (Including New Streak Card)
+                VStack(spacing: 10) {
                     AnalyticsStatCard(
                         title: L("analytics.monitoringTime"),
                         value: formatDuration(manager.todayStats.totalSeconds),
@@ -109,6 +109,14 @@ struct AnalyticsView: View {
                         value: "\(manager.todayStats.slouchCount)",
                         icon: "exclamationmark.circle",
                         color: .red
+                    )
+
+                    // NEW: Streak Stat Card
+                    AnalyticsStatCard(
+                        title: "Current Streak",
+                        value: "\(manager.calculateStreak()) Days",
+                        icon: "flame.fill",
+                        color: .orange
                     )
                 }
                 .frame(width: 180)
@@ -153,7 +161,7 @@ struct AnalyticsView: View {
                             AxisValueLabel(format: .dateTime.weekday(.abbreviated))
                         }
                     }
-                    .frame(minHeight: 180)
+                    .frame(minHeight: 220)
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -166,18 +174,35 @@ struct AnalyticsView: View {
                         .stroke(Color.primary.opacity(0.06), lineWidth: 1)
                 )
             }
+
+            // NEW: Best & Worst Hours Highlights
+            HStack(spacing: 12) {
+                HourlyHighlightCard(
+                    title: "Best Hour Today",
+                    hour: manager.todayStats.bestHour,
+                    icon: "hand.thumbsup.fill",
+                    color: .green
+                )
+
+                HourlyHighlightCard(
+                    title: "Worst Hour Today",
+                    hour: manager.todayStats.worstHour,
+                    icon: "exclamationmark.triangle.fill",
+                    color: .orange
+                )
+            }
         }
         .padding(24)
         .frame(width: 580)
         .fixedSize(horizontal: false, vertical: true)
     }
-    
+
     func scoreColor(_ score: Double) -> Color {
         if score >= 85 { return .brandCyan }
         if score >= 70 { return .yellow }
         return .orange
     }
-    
+
     private static let hourMinuteFormatter: DateComponentsFormatter = {
         let f = DateComponentsFormatter()
         f.unitsStyle = .abbreviated
@@ -225,6 +250,8 @@ struct AnalyticsView: View {
     }
 }
 
+// MARK: - Helper Views
+
 struct AnalyticsStatCard: View {
     let title: String
     let value: String
@@ -234,20 +261,20 @@ struct AnalyticsStatCard: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .medium))
+                .font(.system(size: 16, weight: .medium))
                 .foregroundColor(color)
-                .frame(width: 28)
+                .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
                 Text(value)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
             }
             Spacer()
         }
-        .padding(12)
+        .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color(NSColor.controlBackgroundColor))
@@ -256,6 +283,48 @@ struct AnalyticsStatCard: View {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .stroke(Color.primary.opacity(0.06), lineWidth: 1)
         )
+    }
+}
+
+struct HourlyHighlightCard: View {
+    let title: String
+    let hour: Int?
+    let icon: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(color)
+                .frame(width: 24)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                Text(formattedHour(hour))
+                    .font(.system(size: 13, weight: .semibold))
+            }
+            Spacer()
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(NSColor.controlBackgroundColor))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
+    }
+
+    private func formattedHour(_ hour: Int?) -> String {
+        guard let hour else { return "N/A (< 5m data)" }
+        let components = DateComponents(hour: hour)
+        guard let date = Calendar.current.date(from: components) else { return "N/A" }
+        return date.formatted(.dateTime.hour())
     }
 }
 

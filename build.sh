@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Dorso Build Script
+# PostureAI Build Script
 # Compiles the app and creates the app bundle
 #
 # Usage:
@@ -13,7 +13,7 @@ set -e
 
 # Configuration
 APP_NAME="PostureAI"
-BUNDLE_ID="com.thelazydeveloper.posturr"
+BUNDLE_ID="chill..PostureAI"
 VERSION="1.15.1"
 BUILD_NUMBER="17"
 MIN_MACOS="13.0"
@@ -101,8 +101,8 @@ else
     swift build -c release --arch arm64 --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
     swift build -c release --arch x86_64 --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
 
-    ARM64_BINARY="$SCRIPT_DIR/.build/arm64-apple-macosx/release/Dorso"
-    X86_BINARY="$SCRIPT_DIR/.build/x86_64-apple-macosx/release/Dorso"
+    ARM64_BINARY="$SCRIPT_DIR/.build/arm64-apple-macosx/release/PostureAI"
+    X86_BINARY="$SCRIPT_DIR/.build/x86_64-apple-macosx/release/PostureAI"
 
     if [ ! -f "$ARM64_BINARY" ] || [ ! -f "$X86_BINARY" ]; then
         echo -e "${RED}Error: Expected SwiftPM binaries not found.${NC}"
@@ -168,11 +168,11 @@ cat > "$CONTENTS/Info.plist" << EOF
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.healthcare-fitness</string>
     <key>NSCameraUsageDescription</key>
-    <string>Dorso needs camera access to monitor your posture and blur the screen when you slouch.</string>
+    <string>PostureAI needs camera access to monitor your posture and blur the screen when you slouch.</string>
     <key>NSMotionUsageDescription</key>
-    <string>Dorso needs access to motion data to monitor your posture using AirPods.</string>
+    <string>PostureAI needs access to motion data to monitor your posture using AirPods.</string>
     <key>NSBluetoothAlwaysUsageDescription</key>
-    <string>Dorso uses Bluetooth to detect paired AirPods for head motion tracking.</string>
+    <string>PostureAI uses Bluetooth to detect paired AirPods for head motion tracking.</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>CFBundleIconFile</key>
@@ -218,9 +218,9 @@ if [ -f "$SCRIPT_DIR/AppIcon.icon/icon.json" ]; then
 elif [ -f "$SCRIPT_DIR/AppIcon.icns" ]; then
     echo "Copying app icon..."
     cp "$SCRIPT_DIR/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
-elif [ -d "$SCRIPT_DIR/Dorso.iconset" ]; then
+elif [ -d "$SCRIPT_DIR/PostureAI.iconset" ]; then
     echo "Converting iconset to icns..."
-    iconutil -c icns -o "$RESOURCES_DIR/AppIcon.icns" "$SCRIPT_DIR/Dorso.iconset"
+    iconutil -c icns -o "$RESOURCES_DIR/AppIcon.icns" "$SCRIPT_DIR/PostureAI.iconset"
 else
     echo -e "${YELLOW}Warning: No app icon found. The app will use default icon.${NC}"
 fi
@@ -260,7 +260,7 @@ fi
 echo "Creating entitlements..."
 if [ "$APP_STORE_BUILD" = true ]; then
     # App Store entitlements (requires App Sandbox)
-    cat > "$BUILD_DIR/Dorso.entitlements" << EOF
+    cat > "$BUILD_DIR/PostureAI.entitlements" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -280,7 +280,7 @@ if [ "$APP_STORE_BUILD" = true ]; then
 EOF
 else
     # Direct distribution entitlements (hardened runtime, no sandbox)
-    cat > "$BUILD_DIR/Dorso.entitlements" << EOF
+    cat > "$BUILD_DIR/PostureAI.entitlements" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">

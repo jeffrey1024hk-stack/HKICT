@@ -1,6 +1,6 @@
 import AppKit
 import XCTest
-@testable import DorsoCore
+@testable import PostureAICore
 
 /// Exercises MenuBarManager's update paths without a window server by
 /// building the menu via makeMenu() instead of setup().

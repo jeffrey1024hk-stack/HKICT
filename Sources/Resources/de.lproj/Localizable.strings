@@ -1,4 +1,4 @@
-/* Dorso - German Localizable Strings */
+/* PostureAI - German Localizable Strings */
 
 // MARK: - Menu Bar (MenuBar.swift)
 
@@ -13,7 +13,7 @@
 
 // MARK: - App Menu (PostureAIMain.swift)
 
-"appmenu.quit" = "Dorso beenden";
+"appmenu.quit" = "PostureAI beenden";
 "appmenu.closeWindow" = "Fenster schließen";
 "appmenu.file" = "Ablage";
 "appmenu.edit" = "Bearbeiten";
@@ -89,8 +89,8 @@
 "alert.cameraNotAvailable" = "Kamera nicht verfügbar";
 "alert.cameraNotAvailable.message" = "Stellen Sie sicher, dass die Kamera angeschlossen und der Kamerazugriff gewährt ist.";
 "alert.tryAgain" = "Erneut versuchen";
-"support.title" = "Dorso unterstützen";
-"support.message" = "Wenn Dorso Ihnen mit Ihrer Haltung geholfen hat und Sie Ihre Unterstützung zeigen möchten, spendieren Sie mir bitte einen Kaffee.";
+"support.title" = "PostureAI unterstützen";
+"support.message" = "Wenn PostureAI Ihnen mit Ihrer Haltung geholfen hat und Sie Ihre Unterstützung zeigen möchten, spendieren Sie mir bitte einen Kaffee.";
 "support.button" = "Spendiere mir einen Kaffee";
 
 // MARK: - Calibration (CalibrationWindow.swift)
@@ -155,11 +155,11 @@
 "settings.detection" = "Erkennung";
 "settings.detection.help" = "Balance zwischen Reaktionsfähigkeit und Akku. Reaktiv erkennt schnell, Leistung schont den Akku.";
 "settings.launchAtLogin" = "Beim Anmelden starten";
-"settings.launchAtLogin.help" = "Dorso automatisch beim Anmelden starten";
+"settings.launchAtLogin.help" = "PostureAI automatisch beim Anmelden starten";
 "settings.autoUpdates" = "Automatische Updates";
 "settings.autoUpdates.help" = "Im Hintergrund nach neuen Versionen suchen und deren Installation anbieten";
 "settings.showInDock" = "Im Dock anzeigen";
-"settings.showInDock.help" = "Dorso im Dock und bei Cmd+Tab anzeigen";
+"settings.showInDock.help" = "PostureAI im Dock und bei Cmd+Tab anzeigen";
 "settings.blurWhenAway" = "Bei Abwesenheit unscharf";
 "settings.blurWhenAway.help.camera" = "Volle Unschärfe anwenden, wenn Sie sich entfernen";
 "settings.blurWhenAway.help.airpods" = "Volle Unschärfe anwenden, wenn Sie sich entfernen. Nur verfügbar bei Kamera-Erkennung.";
@@ -170,7 +170,7 @@
 "settings.fullScreenOverlay" = "Vollbild-Overlay";
 "settings.fullScreenOverlay.help" = "Effekte auf Dock und Menüleiste ausdehnen";
 "settings.shortcut" = "Tastenkürzel";
-"settings.shortcut.help" = "Globales Tastenkürzel zum Ein-/Ausschalten von Dorso. Klicken Sie auf das Feld und drücken Sie die gewünschte Tastenkombination.";
+"settings.shortcut.help" = "Globales Tastenkürzel zum Ein-/Ausschalten von PostureAI. Klicken Sie auf das Feld und drücken Sie die gewünschte Tastenkombination.";
 "settings.shortcut.press" = "Drücken...";
 "settings.compatibilityMode" = "Kompatibilitätsmodus";
 "settings.compatibilityMode.help" = "Aktivieren, wenn die Unschärfe nicht erscheint";
@@ -202,7 +202,7 @@
 
 // MARK: - Onboarding (OnboardingWindow.swift)
 
-"onboarding.title" = "Willkommen bei Dorso";
+"onboarding.title" = "Willkommen bei PostureAI";
 "onboarding.subtitle" = "Wählen Sie, wie Sie Ihre Haltung überwachen möchten";
 "onboarding.selectCamera" = "Kamera auswählen";
 "onboarding.pairedAirPods" = "Gekoppelte AirPods";

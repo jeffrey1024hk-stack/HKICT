@@ -3,12 +3,16 @@ import os
 
 // MARK: - Data Models
 
-struct DailyStats: Codable, Identifiable {
+struct DailyStats: Codable, Identifiable, Equatable {
     var id: String { dayKey }
     let date: Date
     var totalSeconds: TimeInterval
     var slouchSeconds: TimeInterval
     var slouchCount: Int
+    
+    // NEW: Hourly buckets for best/worst hour analysis (Key: 0..23 representing hour of day)
+    var hourlyTotalSeconds: [Int: TimeInterval] = [:]
+    var hourlySlouchSeconds: [Int: TimeInterval] = [:]
     
     var dayKey: String {
         Self.dayKey(for: date)
@@ -27,6 +31,31 @@ struct DailyStats: Codable, Identifiable {
         let ratio = max(0, min(1, 1.0 - (slouchSeconds / totalSeconds)))
         return ratio * 100.0
     }
+
+    // NEW: Slouch percentage string (e.g., "23%")
+    var slouchPercentageString: String {
+        guard totalSeconds > 0 else { return "0%" }
+        let percentage = Int(round((slouchSeconds / totalSeconds) * 100))
+        return "\(percentage)%"
+    }
+
+    // NEW: Best hour evaluation (min 5 mins of tracking in that hour)
+    var bestHour: Int? {
+        evalHours().min(by: { $0.slouchRatio < $1.slouchRatio })?.hour
+    }
+
+    // NEW: Worst hour evaluation (min 5 mins of tracking in that hour)
+    var worstHour: Int? {
+        evalHours().max(by: { $0.slouchRatio < $1.slouchRatio })?.hour
+    }
+
+    private func evalHours() -> [(hour: Int, slouchRatio: Double)] {
+        hourlyTotalSeconds.compactMap { (hour, total) in
+            guard total >= 300 else { return nil } // Ignore hours under 5 mins
+            let slouch = hourlySlouchSeconds[hour] ?? 0
+            return (hour, slouch / total)
+        }
+    }
 }
 
 // MARK: - Analytics Manager
@@ -34,8 +63,8 @@ struct DailyStats: Codable, Identifiable {
 class AnalyticsManager: ObservableObject {
     static let shared = AnalyticsManager()
 
-    private static let logger = Logger(subsystem: "com.thelazydeveloper.dorso", category: "Analytics")
-    private static let legacyMigrationFlagKey = "analyticsMigratedPosturrToDorso.v1"
+    private static let logger = Logger(subsystem: "chill..PostureAI", category: "Analytics")
+    private static let legacyMigrationFlagKey = "analyticsMigratedPostureAIToPostureAI.v1"
     
     @Published var todayStats: DailyStats
     private var history: [String: DailyStats] = [:]
@@ -52,7 +81,7 @@ class AnalyticsManager: ObservableObject {
         fileURL: URL? = nil,
         calendar: Calendar = .current,
         now: @escaping () -> Date = Date.init,
-        persistenceQueue: DispatchQueue = DispatchQueue(label: "dorso.analytics.persistence", qos: .utility)
+        persistenceQueue: DispatchQueue = DispatchQueue(label: "PostureAI.analytics.persistence", qos: .utility)
     ) {
         self.calendar = calendar
         self.now = now
@@ -103,14 +132,14 @@ class AnalyticsManager: ObservableObject {
     private static func defaultFileURL(fileManager: FileManager) -> URL {
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
         let baseDir = appSupport ?? fileManager.temporaryDirectory
-        let appDir = baseDir.appendingPathComponent("Dorso", isDirectory: true)
+        let appDir = baseDir.appendingPathComponent("PostureAI", isDirectory: true)
         return appDir.appendingPathComponent("analytics.json")
     }
 
     private static func legacyFileURL(fileManager: FileManager) -> URL {
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
         let baseDir = appSupport ?? fileManager.temporaryDirectory
-        let legacyDir = baseDir.appendingPathComponent("Posturr", isDirectory: true)
+        let legacyDir = baseDir.appendingPathComponent("PostureAI", isDirectory: true)
         return legacyDir.appendingPathComponent("analytics.json")
     }
 
@@ -176,11 +205,19 @@ class AnalyticsManager: ObservableObject {
         let slouchCount = current.slouchCount + legacy.slouchCount
         let date = min(current.date, legacy.date)
 
+        var mergedHourlyTotal = current.hourlyTotalSeconds
+        for (h, val) in legacy.hourlyTotalSeconds { mergedHourlyTotal[h, default: 0] += val }
+
+        var mergedHourlySlouch = current.hourlySlouchSeconds
+        for (h, val) in legacy.hourlySlouchSeconds { mergedHourlySlouch[h, default: 0] += val }
+
         return DailyStats(
             date: date,
             totalSeconds: totalSeconds,
             slouchSeconds: slouchSeconds,
-            slouchCount: slouchCount
+            slouchCount: slouchCount,
+            hourlyTotalSeconds: mergedHourlyTotal,
+            hourlySlouchSeconds: mergedHourlySlouch
         )
     }
 
@@ -200,12 +237,18 @@ class AnalyticsManager: ObservableObject {
     
     // MARK: - Tracking Methods
     
-    func trackTime(interval: TimeInterval, isSlouching: Bool) {
+    /// Updated to accept timestamp and record into hourly buckets
+    func trackTime(interval: TimeInterval, isSlouching: Bool, at date: Date = Date()) {
         checkDayRollover()
         
+        let hour = calendar.component(.hour, from: date)
+        
         todayStats.totalSeconds += interval
+        todayStats.hourlyTotalSeconds[hour, default: 0] += interval
+        
         if isSlouching {
             todayStats.slouchSeconds += interval
+            todayStats.hourlySlouchSeconds[hour, default: 0] += interval
         }
         
         // Update history cache
@@ -232,7 +275,7 @@ class AnalyticsManager: ObservableObject {
         
         // Generate last 7 days including today
         for i in (0..<7).reversed() {
-             if let date = calendar.date(byAdding: .day, value: -i, to: now) {
+            if let date = calendar.date(byAdding: .day, value: -i, to: now) {
                 let dayKey = DailyStats.dayKey(for: date, calendar: calendar)
                 if let stats = history[dayKey] {
                     result.append(stats)
@@ -244,6 +287,40 @@ class AnalyticsManager: ObservableObject {
         }
         
         return result
+    }
+
+    // NEW: Streak calculation logic (Score >= threshold, e.g. 75%)
+    func calculateStreak(scoreThreshold: Double = 75.0) -> Int {
+        var streak = 0
+        let today = now()
+        var checkOffset = 0
+        
+        // Check if today meets criteria (minimum 10 minutes tracked)
+        if todayStats.totalSeconds >= 600 && todayStats.postureScore >= scoreThreshold {
+            streak += 1
+            checkOffset = 1
+        } else if todayStats.totalSeconds < 600 {
+            // Today hasn't accumulated enough data yet, check from yesterday
+            checkOffset = 1
+        } else {
+            // Today failed the goal score
+            return 0
+        }
+        
+        // Walk backwards through history
+        while true {
+            guard let checkDate = calendar.date(byAdding: .day, value: -checkOffset, to: today) else { break }
+            let key = DailyStats.dayKey(for: checkDate, calendar: calendar)
+            
+            if let stats = history[key], stats.totalSeconds >= 600, stats.postureScore >= scoreThreshold {
+                streak += 1
+                checkOffset += 1
+            } else {
+                break
+            }
+        }
+        
+        return streak
     }
     
     // MARK: - Internal Logic
@@ -316,11 +393,11 @@ class AnalyticsManager: ObservableObject {
         let dataPoints: [(daysAgo: Int, score: Double, slouchCount: Int, hours: Double)] = [
             (6, 68, 22, 4.5),
             (5, 74, 16, 5.2),
-            (4, 71, 19, 6.1),  // dip — natural regression
+            (4, 71, 19, 6.1),
             (3, 82, 11, 5.8),
-            (2, 79, 13, 4.9),  // slight pullback
+            (2, 79, 13, 4.9),
             (1, 88,  7, 6.3),
-            (0, 91,  5, 3.2),  // today — partial day
+            (0, 91,  5, 3.2),
         ]
         for point in dataPoints {
             guard let date = calendar.date(byAdding: .day, value: -point.daysAgo, to: now) else { continue }

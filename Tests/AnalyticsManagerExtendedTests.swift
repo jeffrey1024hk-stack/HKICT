@@ -1,5 +1,5 @@
 import XCTest
-@testable import DorsoCore
+@testable import PostureAICore
 
 final class AnalyticsManagerExtendedTests: XCTestCase {
 
@@ -275,10 +275,10 @@ final class AnalyticsManagerExtendedTests: XCTestCase {
     func testLegacyMigrationMergesFilesAndRetainsLegacyFile() throws {
         let rootDir = makeTempDirectory()
         let currentURL = rootDir
-            .appendingPathComponent("Dorso", isDirectory: true)
+            .appendingPathComponent("PostureAI", isDirectory: true)
             .appendingPathComponent("analytics.json")
         let legacyURL = rootDir
-            .appendingPathComponent("Posturr", isDirectory: true)
+            .appendingPathComponent("PostureAI", isDirectory: true)
             .appendingPathComponent("analytics.json")
 
         try FileManager.default.createDirectory(at: currentURL.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -340,10 +340,10 @@ final class AnalyticsManagerExtendedTests: XCTestCase {
     func testLegacyMigrationMarksCompleteWhenNoLegacyFileExists() throws {
         let rootDir = makeTempDirectory()
         let currentURL = rootDir
-            .appendingPathComponent("Dorso", isDirectory: true)
+            .appendingPathComponent("PostureAI", isDirectory: true)
             .appendingPathComponent("analytics.json")
         let legacyURL = rootDir
-            .appendingPathComponent("Posturr", isDirectory: true)
+            .appendingPathComponent("PostureAI", isDirectory: true)
             .appendingPathComponent("analytics.json")
 
         let suiteName = "AnalyticsMigrationTests.\(UUID().uuidString)"
@@ -372,10 +372,10 @@ final class AnalyticsManagerExtendedTests: XCTestCase {
     func testLegacyMigrationDoesNotDoubleCountEquivalentEntries() throws {
         let rootDir = makeTempDirectory()
         let currentURL = rootDir
-            .appendingPathComponent("Dorso", isDirectory: true)
+            .appendingPathComponent("PostureAI", isDirectory: true)
             .appendingPathComponent("analytics.json")
         let legacyURL = rootDir
-            .appendingPathComponent("Posturr", isDirectory: true)
+            .appendingPathComponent("PostureAI", isDirectory: true)
             .appendingPathComponent("analytics.json")
 
         try FileManager.default.createDirectory(at: currentURL.deletingLastPathComponent(), withIntermediateDirectories: true)

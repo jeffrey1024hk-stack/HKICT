@@ -1,5 +1,5 @@
 import XCTest
-@testable import DorsoCore
+@testable import PostureAICore
 
 final class TrackingCharacterizationTests: XCTestCase {
 

@@ -1,5 +1,5 @@
 import Foundation
-@testable import DorsoCore
+@testable import PostureAICore
 
 enum TrackingScenarioEvent: Equatable {
     case initial

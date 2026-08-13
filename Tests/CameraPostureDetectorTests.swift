@@ -1,6 +1,6 @@
 import XCTest
 import AVFoundation
-@testable import DorsoCore
+@testable import PostureAICore
 
 final class CameraPostureDetectorTests: XCTestCase {
 

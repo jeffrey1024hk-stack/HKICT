@@ -1,4 +1,4 @@
-/* Dorso - Chinese Simplified Localizable Strings */
+/* PostureAI - Chinese Simplified Localizable Strings */
 
 // MARK: - Menu Bar (MenuBar.swift)
 
@@ -13,7 +13,7 @@
 
 // MARK: - App Menu (PostureAIMain.swift)
 
-"appmenu.quit" = "退出 Dorso";
+"appmenu.quit" = "退出 PostureAI";
 "appmenu.closeWindow" = "关闭窗口";
 "appmenu.file" = "文件";
 "appmenu.edit" = "编辑";
@@ -89,8 +89,8 @@
 "alert.cameraNotAvailable" = "摄像头不可用";
 "alert.cameraNotAvailable.message" = "请确保摄像头已连接并已授予摄像头访问权限。";
 "alert.tryAgain" = "重试";
-"support.title" = "支持 Dorso";
-"support.message" = "如果 Dorso 帮助你改善了坐姿，并且你愿意表达支持，请我喝杯咖啡。";
+"support.title" = "支持 PostureAI";
+"support.message" = "如果 PostureAI 帮助你改善了坐姿，并且你愿意表达支持，请我喝杯咖啡。";
 "support.button" = "请我喝杯咖啡";
 
 // MARK: - Calibration (CalibrationWindow.swift)
@@ -155,11 +155,11 @@
 "settings.detection" = "检测";
 "settings.detection.help" = "在响应速度和电池之间取得平衡。快速响应检测迅速，省电模式节省电量。";
 "settings.launchAtLogin" = "登录时启动";
-"settings.launchAtLogin.help" = "登录时自动启动 Dorso";
+"settings.launchAtLogin.help" = "登录时自动启动 PostureAI";
 "settings.autoUpdates" = "自动更新";
 "settings.autoUpdates.help" = "在后台检查新版本并提示安装";
 "settings.showInDock" = "在程序坞中显示";
-"settings.showInDock.help" = "在程序坞和 Cmd+Tab 中显示 Dorso";
+"settings.showInDock.help" = "在程序坞和 Cmd+Tab 中显示 PostureAI";
 "settings.blurWhenAway" = "离开时模糊";
 "settings.blurWhenAway.help.camera" = "离开时应用完全模糊";
 "settings.blurWhenAway.help.airpods" = "离开时应用完全模糊。仅在使用摄像头检测时可用。";
@@ -170,7 +170,7 @@
 "settings.fullScreenOverlay" = "全屏覆盖";
 "settings.fullScreenOverlay.help" = "将效果延伸至程序坞和菜单栏";
 "settings.shortcut" = "快捷键";
-"settings.shortcut.help" = "用于开关 Dorso 的全局快捷键。点击输入框，然后按下您想要的组合键。";
+"settings.shortcut.help" = "用于开关 PostureAI 的全局快捷键。点击输入框，然后按下您想要的组合键。";
 "settings.shortcut.press" = "请按...";
 "settings.compatibilityMode" = "兼容模式";
 "settings.compatibilityMode.help" = "如果模糊效果未显示，请启用此选项";
@@ -202,7 +202,7 @@
 
 // MARK: - Onboarding (OnboardingWindow.swift)
 
-"onboarding.title" = "欢迎使用 Dorso";
+"onboarding.title" = "欢迎使用 PostureAI";
 "onboarding.subtitle" = "选择您希望如何追踪姿势";
 "onboarding.selectCamera" = "选择摄像头";
 "onboarding.pairedAirPods" = "已配对的 AirPods";

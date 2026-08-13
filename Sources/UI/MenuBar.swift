@@ -6,8 +6,9 @@ public class MenuBarManager: NSObject {
     // Public statusItem for popup window anchoring in AppDelegate
     public var statusItem: NSStatusItem!
     
-    // Window reference to keep ModernDashboardView alive
+    // Window references to keep views alive
     private var dashboardWindow: NSWindow?
+    private var analyticsWindowController: AnalyticsWindowController?
     
     // Callback closures expected by AppDelegate
     public var onToggleEnabled: (() -> Void)?
@@ -54,10 +55,19 @@ public class MenuBarManager: NSObject {
         )
         dashboardItem.target = self
         menu.addItem(dashboardItem)
+
+        // 2. NEW: Analytics Menu Item
+        let analyticsItem = NSMenuItem(
+            title: "Analytics...",
+            action: #selector(openAnalytics),
+            keyEquivalent: "a"
+        )
+        analyticsItem.target = self
+        menu.addItem(analyticsItem)
         
         menu.addItem(NSMenuItem.separator())
         
-        // 2. Recalibrate Action
+        // 3. Recalibrate Action
         let recalibrateItem = NSMenuItem(
             title: "Recalibrate Posture",
             action: #selector(handleRecalibrate),
@@ -68,7 +78,7 @@ public class MenuBarManager: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
-        // 3. Check for Updates
+        // 4. Check for Updates
         let updateItem = NSMenuItem(
             title: "Check for Updates...",
             action: #selector(handleCheckForUpdates),
@@ -79,7 +89,7 @@ public class MenuBarManager: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
-        // 4. Quit Action
+        // 5. Quit Action
         let quitItem = NSMenuItem(
             title: "Quit PostureAI",
             action: #selector(handleQuit),
@@ -116,6 +126,22 @@ public class MenuBarManager: NSObject {
         
         dashboardWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// NEW: Opens the Analytics window
+    @objc public func openAnalytics() {
+        if let onShowAnalytics = onShowAnalytics {
+            // Call AppDelegate callback if provided
+            onShowAnalytics()
+        } else {
+            // Fallback: Directly present AnalyticsWindowController
+            if analyticsWindowController == nil {
+                analyticsWindowController = AnalyticsWindowController()
+            }
+            analyticsWindowController?.showWindow(nil)
+            analyticsWindowController?.window?.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
     }
     
     @objc private func handleRecalibrate() {

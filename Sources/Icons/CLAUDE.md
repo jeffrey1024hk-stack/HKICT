@@ -60,7 +60,7 @@ Claude will:
 ## Step 4: Build and Test
 
 ```bash
-./build.sh && rm -rf /Applications/Dorso.app && cp -r build/Dorso.app /Applications/ && open /Applications/Dorso.app
+./build.sh && rm -rf /Applications/PostureAI.app && cp -r build/PostureAI.app /Applications/ && open /Applications/PostureAI.app
 ```
 
 ## Technical Notes

@@ -2,7 +2,7 @@ import Foundation
 import os
 
 enum SettingsMigrations {
-    private static let logger = Logger(subsystem: "com.thelazydeveloper.dorso", category: "SettingsMigrations")
+    private static let logger = Logger(subsystem: "chill..PostureAI", category: "SettingsMigrations")
 
     static func migrateLegacyKeysIfNeeded(userDefaults: UserDefaults = .standard) {
         migrateAirPodsCalibrationKeyIfNeeded(userDefaults: userDefaults)

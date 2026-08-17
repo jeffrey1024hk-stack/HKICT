@@ -2,12 +2,12 @@ import AppKit
 
 // MARK: - Keyboard Shortcut
 
-struct KeyboardShortcut: Equatable {
+struct AppKeyboardShortcut: Equatable {
     var keyCode: UInt16
     var modifiers: NSEvent.ModifierFlags
 
     // Default: Ctrl+Option+P
-    static let defaultShortcut = KeyboardShortcut(
+    static let defaultShortcut = AppKeyboardShortcut(
         keyCode: 35,  // 'P' key
         modifiers: [.control, .option]
     )
@@ -45,4 +45,3 @@ struct KeyboardShortcut: Equatable {
         return keyMap[keyCode] ?? "?"
     }
 }
-

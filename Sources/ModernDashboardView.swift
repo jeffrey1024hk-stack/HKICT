@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ModernDashboardView: View {
-    // Hooks directly into PostureAI's persistence layer
+    // AppStorage hooks
     @AppStorage("sensitivity") private var sensitivity: Double = 0.5
     @AppStorage("deadZone") private var deadZone: Double = 0.2
     @AppStorage("isTrackingPaused") private var isPaused: Bool = false
@@ -16,10 +16,10 @@ struct ModernDashboardView: View {
             NotabilityCard {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("PostureAI")
+                        Text(L("dashboard.title"))
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                         
-                        Text(isPaused ? "Monitoring Paused" : (isSlouching ? "Slouching Detected" : "Good Posture"))
+                        Text(isPaused ? L("dashboard.status.paused") : (isSlouching ? L("dashboard.status.slouching") : L("dashboard.status.good")))
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundColor(statusColor)
                     }
@@ -32,7 +32,7 @@ struct ModernDashboardView: View {
                             .fill(statusColor)
                             .frame(width: 8, height: 8)
                         
-                        Text(isPaused ? "OFF" : "LIVE")
+                        Text(isPaused ? L("dashboard.live.off") : L("dashboard.live.on"))
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(statusColor)
                     }
@@ -41,10 +41,14 @@ struct ModernDashboardView: View {
                     .background(statusColor.opacity(0.12))
                     .clipShape(Capsule())
                     
-                    // Main Toggle
+                    // Main Toggle Switch
                     Toggle("", isOn: Binding(
                         get: { !isPaused },
-                        set: { isPaused = !$0 }
+                        set: { newValue in
+                            isPaused = !newValue
+                            notifyStateChange(name: "TogglePause", object: isPaused)
+                            notifyStateChange(name: "TrackingStateChanged", object: !isPaused)
+                        }
                     ))
                     .toggleStyle(.switch)
                     .labelsHidden()
@@ -54,25 +58,27 @@ struct ModernDashboardView: View {
             // 2. Input Source Selector
             NotabilityCard {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("INPUT SOURCE")
+                    Text(L("dashboard.inputSource"))
                         .font(.system(size: 10, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
                     
                     HStack(spacing: 8) {
                         MethodButton(
-                            title: "Camera",
+                            title: L("dashboard.camera"),
                             icon: "camera.fill",
                             isSelected: trackingMethod == "camera"
                         ) {
                             trackingMethod = "camera"
+                            notifyStateChange(name: "TrackingMethodChanged", object: "camera")
                         }
                         
                         MethodButton(
-                            title: "AirPods",
+                            title: L("dashboard.airpods"),
                             icon: "airpodspro",
                             isSelected: trackingMethod == "airpods"
                         ) {
                             trackingMethod = "airpods"
+                            notifyStateChange(name: "TrackingMethodChanged", object: "airpods")
                         }
                     }
                 }
@@ -81,13 +87,13 @@ struct ModernDashboardView: View {
             // 3. Sensitivity Controls
             NotabilityCard {
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("SENSITIVITY & TOLERANCE")
+                    Text(L("dashboard.sensitivityTolerance"))
                         .font(.system(size: 10, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
                     
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
-                            Text("Slouch Sensitivity")
+                            Text(L("dashboard.slouchSensitivity"))
                                 .font(.system(size: 13, weight: .medium))
                             Spacer()
                             Text("\(Int(sensitivity * 100))%")
@@ -96,11 +102,14 @@ struct ModernDashboardView: View {
                         }
                         Slider(value: $sensitivity, in: 0.1...1.0)
                             .tint(NotabilityTheme.accentBlue)
+                            .onChange(of: sensitivity) { newValue in
+                                notifyStateChange(name: "SensitivityChanged", object: newValue)
+                            }
                     }
                     
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
-                            Text("Dead Zone Tolerance")
+                            Text(L("dashboard.deadZoneTolerance"))
                                 .font(.system(size: 13, weight: .medium))
                             Spacer()
                             Text("\(Int(deadZone * 100))%")
@@ -109,15 +118,18 @@ struct ModernDashboardView: View {
                         }
                         Slider(value: $deadZone, in: 0.0...1.0)
                             .tint(NotabilityTheme.accentBlue)
+                            .onChange(of: deadZone) { newValue in
+                                notifyStateChange(name: "DeadZoneChanged", object: newValue)
+                            }
                     }
                 }
             }
             
-            // 4. Action Button
+            // 4. Recalibrate Action Button
             Button(action: triggerRecalibration) {
                 HStack {
                     Image(systemName: "arrow.triangle.2.circlepath")
-                    Text("Recalibrate Sitting Posture")
+                    Text(L("dashboard.recalibrate"))
                 }
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .foregroundColor(.white)
@@ -133,6 +145,12 @@ struct ModernDashboardView: View {
         .padding(20)
         .frame(width: 360)
         .background(Color(NSColor.windowBackgroundColor).opacity(0.3))
+        // Listen for live posture state changes
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("PostureStatusChanged"))) { notification in
+            if let slouching = notification.object as? Bool {
+                isSlouching = slouching
+            }
+        }
     }
     
     private var statusColor: Color {
@@ -141,6 +159,13 @@ struct ModernDashboardView: View {
     }
     
     private func triggerRecalibration() {
-        NotificationCenter.default.post(name: NSNotification.Name("RecalibratePosture"), object: nil)
+        notifyStateChange(name: "RecalibratePosture", object: nil)
+        notifyStateChange(name: "recalibrate", object: nil)
+        notifyStateChange(name: "StartCalibration", object: nil)
+    }
+    
+    private func notifyStateChange(name: String, object: Any?) {
+        NotificationCenter.default.post(name: NSNotification.Name(name), object: object)
     }
 }
+

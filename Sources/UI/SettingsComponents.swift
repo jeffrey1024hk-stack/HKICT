@@ -1,5 +1,18 @@
 import AppKit
 import SwiftUI
+import Combine
+
+// MARK: - HelpButton Component
+
+struct HelpButton: View {
+    let text: String
+    var body: some View {
+        Image(systemName: "questionmark.circle")
+            .font(.system(size: 10))
+            .foregroundColor(.secondary)
+            .help(text)
+    }
+}
 
 // MARK: - Brand Colors
 
@@ -8,18 +21,15 @@ extension Color {
     static let brandNavy = Color(red: 0.10, green: 0.15, blue: 0.27)      // #1a2744
     static let sectionBackground = Color(NSColor.controlBackgroundColor).opacity(0.5)
 
-    // Dynamic color for text on brandCyan backgrounds - adapts to light/dark mode
     static let onBrandCyan = Color(NSColor(name: nil) { appearance in
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.10, green: 0.15, blue: 0.27, alpha: 1.0)  // brandNavy in dark
-            : NSColor.white                                             // white in light
+            ? NSColor(red: 0.10, green: 0.15, blue: 0.27, alpha: 1.0)
+            : NSColor.white
     })
 }
 
 // MARK: - Settings Card
 
-/// Section container per the brand guidelines: control-background fill,
-/// subtle border, icon + semibold header with an optional trailing control.
 struct SettingsCard<Trailing: View, Content: View>: View {
     let icon: String
     let title: String
@@ -117,10 +127,6 @@ struct CompactSlider: View {
 
 // MARK: - Stepped Slider Track
 
-/// Minimal slider replacement for stepped values: quiet capsule track,
-/// brand-cyan fill, and small step dots only when the step count is low
-/// enough to read (the system slider draws a tick per step, which turns a
-/// 30-step range into visual noise).
 struct SteppedSliderTrack: View {
     @Binding var value: Double
     let range: ClosedRange<Double>
@@ -188,10 +194,6 @@ struct SteppedSliderTrack: View {
 
 // MARK: - Brand Switch
 
-/// Pure-SwiftUI switch. The AppKit-backed Toggle loses its tint (falling
-/// back to the system accent) whenever NSApp.appearance changes at runtime;
-/// drawing it ourselves keeps the brand color stable and avoids scaling a
-/// native control.
 struct BrandSwitch: View {
     @Binding var isOn: Bool
     var isDisabled: Bool = false
@@ -309,28 +311,19 @@ struct InlineColorPicker: View {
         .buttonStyle(.plain)
         .popover(isPresented: $showPopover, arrowEdge: .bottom) {
             VStack(spacing: 12) {
-                // Color wheel
                 ColorWheelView(hue: $hue, saturation: $saturation)
-                    .frame(width: 180, height: 180)
+                    .frame(width: 150, height: 150)
                     .onChange(of: hue) { _ in updateColorFromHSB() }
                     .onChange(of: saturation) { _ in updateColorFromHSB() }
 
-                // Brightness slider
-                HStack(spacing: 8) {
-                    Image(systemName: "sun.min")
-                        .font(.system(size: 10))
+                HStack {
+                    Text("Brightness")
+                        .font(.caption)
                         .foregroundColor(.secondary)
-
-                    BrightnessSliderView(brightness: $brightness, hue: hue, saturation: saturation)
-                        .frame(height: 16)
+                    Slider(value: $brightness, in: 0...1)
                         .onChange(of: brightness) { _ in updateColorFromHSB() }
-
-                    Image(systemName: "sun.max")
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
                 }
 
-                // Hex input
                 HStack(spacing: 6) {
                     Text("#")
                         .font(.system(size: 12, weight: .medium, design: .monospaced))
@@ -348,7 +341,6 @@ struct InlineColorPicker: View {
                         )
                         .onSubmit { updateColorFromHex() }
 
-                    // Color preview
                     RoundedRectangle(cornerRadius: 4)
                         .fill(color)
                         .frame(width: 32, height: 24)
@@ -410,7 +402,6 @@ struct ColorWheelView: View {
             let radius = size / 2
 
             ZStack {
-                // Color wheel background
                 Circle()
                     .fill(
                         AngularGradient(
@@ -432,7 +423,6 @@ struct ColorWheelView: View {
                     )
                     .frame(width: size, height: size)
 
-                // White to transparent radial gradient for saturation
                 Circle()
                     .fill(
                         RadialGradient(
@@ -444,7 +434,6 @@ struct ColorWheelView: View {
                     )
                     .frame(width: size, height: size)
 
-                // Selection indicator
                 Circle()
                     .strokeBorder(Color.white, lineWidth: 2)
                     .background(Circle().fill(Color(hue: hue, saturation: saturation, brightness: 1)))
@@ -461,125 +450,15 @@ struct ColorWheelView: View {
                         let dx = value.location.x - center.x
                         let dy = value.location.y - center.y
 
-                        // Calculate hue from angle (atan2 gives angle from positive x-axis)
                         var angle = atan2(dy, dx)
                         if angle < 0 { angle += 2 * .pi }
                         hue = angle / (2 * .pi)
 
-                        // Calculate saturation from distance
                         let distance = sqrt(dx * dx + dy * dy)
                         saturation = min(1, max(0, distance / (radius - 10)))
                     }
             )
         }
-    }
-}
-
-struct BrightnessSliderView: View {
-    @Binding var brightness: Double
-    let hue: Double
-    let saturation: Double
-
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                // Gradient track
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                .black,
-                                Color(hue: hue, saturation: saturation, brightness: 1)
-                            ]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(height: 12)
-
-                // Thumb
-                Circle()
-                    .fill(Color(hue: hue, saturation: saturation, brightness: brightness))
-                    .frame(width: 16, height: 16)
-                    .overlay(Circle().strokeBorder(Color.white, lineWidth: 2))
-                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                    .position(
-                        x: 8 + (geometry.size.width - 16) * brightness,
-                        y: geometry.size.height / 2
-                    )
-            }
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        let newValue = (value.location.x - 8) / (geometry.size.width - 16)
-                        brightness = min(1, max(0, newValue))
-                    }
-            )
-        }
-    }
-}
-
-// MARK: - Compact Segmented Picker
-
-/// Generic brand-styled segmented control for small option sets.
-struct CompactSegmentedPicker<Value: Hashable>: View {
-    @Binding var selection: Value
-    let options: [(value: Value, label: String)]
-
-    var body: some View {
-        HStack(spacing: 0) {
-            ForEach(options, id: \.value) { option in
-                Button(action: { selection = option.value }) {
-                    Text(option.label)
-                        .font(.system(size: 10, weight: selection == option.value ? .semibold : .regular))
-                        .foregroundColor(selection == option.value ? .onBrandCyan : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 5)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                .fill(selection == option.value ? Color.brandCyan : Color.clear)
-                        )
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(2)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color.primary.opacity(0.06))
-        )
-    }
-}
-
-// MARK: - Compact Mode Picker
-
-struct CompactModePicker: View {
-    @Binding var selection: TrackingMode
-
-    var body: some View {
-        HStack(spacing: 0) {
-            ForEach([TrackingMode.manual, .automatic], id: \.self) { mode in
-                Button(action: { selection = mode }) {
-                    Text(mode == .manual ? L("settings.mode.manual") : L("settings.mode.automatic"))
-                        .font(.system(size: 10, weight: selection == mode ? .semibold : .regular))
-                        .foregroundColor(selection == mode ? .onBrandCyan : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 5)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                .fill(selection == mode ? Color.brandCyan : Color.clear)
-                        )
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(2)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color.primary.opacity(0.06))
-        )
     }
 }
 
@@ -590,96 +469,95 @@ struct DeviceStatusRow: View {
     let isCalibrated: Bool
     let isConnected: Bool
     let isPreferred: Bool
-    var isActive: Bool = false
-    var cameraDropdown: AnyView? = nil
-    let onCalibrate: () -> Void
+    let isActive: Bool
+    let cameraDropdown: AnyView?
+    let onCalibrate: (() -> Void)?
+
+    init(
+        source: TrackingSource,
+        isCalibrated: Bool,
+        isConnected: Bool,
+        isPreferred: Bool = false,
+        isActive: Bool = false,
+        cameraDropdown: AnyView? = nil,
+        onCalibrate: (() -> Void)? = nil
+    ) {
+        self.source = source
+        self.isCalibrated = isCalibrated
+        self.isConnected = isConnected
+        self.isPreferred = isPreferred
+        self.isActive = isActive
+        self.cameraDropdown = cameraDropdown
+        self.onCalibrate = onCalibrate
+    }
 
     var body: some View {
-        HStack(spacing: 6) {
-            // Device icon and name
-            Image(systemName: source.icon)
-                .font(.system(size: 10))
-                .foregroundColor(isPreferred ? .brandCyan : .secondary)
-                .frame(width: 14)
+        HStack(spacing: 10) {
+            Image(systemName: source == TrackingSource.camera ? "camera" : "airpodspro")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .frame(width: 20)
 
-            Text(source.displayName)
-                .font(.system(size: 11, weight: isPreferred ? .medium : .regular))
-                .frame(width: 55, alignment: .leading)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(source == TrackingSource.camera ? L("settings.source.camera") : L("settings.source.airpods"))
+                        .font(.system(size: 12, weight: .medium))
 
-            // Calibration status: icon-only when the camera picker is there
-            // to give the row context (the dropdown needs the width), icon +
-            // label on rows that would otherwise be unexplained glyphs
-            let showsDropdown = source == .camera && cameraDropdown != nil
-            HStack(spacing: 3) {
-                Image(systemName: isCalibrated ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                    .font(.system(size: 10))
-                    .foregroundColor(isCalibrated ? .green : .orange)
-                if !showsDropdown {
-                    Text(isCalibrated ? L("settings.calibrated") : L("settings.notCalibrated"))
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                    if isPreferred {
+                        Text(L("settings.preferredTag"))
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(.cyan)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(Capsule().fill(Color.cyan.opacity(0.12)))
+                    }
+
+                    if isActive {
+                        Text(L("settings.activeTag"))
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(Capsule().fill(Color.green.opacity(0.12)))
+                    }
                 }
-            }
-            .padding(.horizontal, 2)
-            .frame(minWidth: 18, minHeight: 22)
-            .contentShape(Rectangle())
-            .help(isCalibrated ? L("settings.calibrated") : L("settings.notCalibrated"))
 
-            if source == .camera, let dropdown = cameraDropdown {
-                dropdown
-            } else if source == .airpods {
-                // Connection status
-                HStack(spacing: 3) {
+                HStack(spacing: 6) {
                     Circle()
-                        .fill(isConnected ? Color.green : Color.secondary.opacity(0.3))
+                        .fill(isConnected ? (isCalibrated ? Color.green : Color.orange) : Color.red)
                         .frame(width: 6, height: 6)
-                    Text(isConnected ? L("settings.connected") : L("settings.notConnected"))
+
+                    Text(statusText)
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
                 }
-                .padding(.horizontal, 2)
-                .frame(minHeight: 22)
-                .contentShape(Rectangle())
-                .help(isConnected ? L("settings.connected") : L("settings.notConnected"))
             }
 
-            Spacer(minLength: 0)
+            Spacer()
 
-            if isActive {
-                Text(L("settings.active"))
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(.brandCyan)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1)
-                    .background(Capsule().fill(Color.brandCyan.opacity(0.12)))
-                    .fixedSize()
+            if let cameraDropdown = cameraDropdown {
+                cameraDropdown
             }
 
-            // Calibrate button
-            Button(action: onCalibrate) {
-                Text(L("settings.recalibrate"))
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.brandCyan)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(
-                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .fill(Color.brandCyan.opacity(0.1))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .strokeBorder(Color.brandCyan.opacity(0.3), lineWidth: 1)
-                    )
-                    .fixedSize()
+            if let onCalibrate = onCalibrate {
+                Button(action: onCalibrate) {
+                    Text(isCalibrated ? L("settings.recalibrate") : L("settings.calibrate"))
+                        .font(.system(size: 10, weight: .medium))
+                }
+                .buttonStyle(.borderless)
             }
-            .buttonStyle(.plain)
         }
-        .padding(.vertical, 4)
-        .padding(.horizontal, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color.primary.opacity(0.03))
-        )
+        .padding(.vertical, 3)
+    }
+
+    private var statusText: String {
+        if !isConnected {
+            return L("settings.status.disconnected")
+        } else if !isCalibrated {
+            return L("settings.status.needsCalibration")
+        } else {
+            return L("settings.status.ready")
+        }
     }
 }
 
@@ -692,7 +570,7 @@ struct CompactTrackingSourcePicker: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(TrackingSource.allCases) { source in
-                let isDisabled = source == .airpods && !airPodsAvailable
+                let isDisabled = source == TrackingSource.airpods && !airPodsAvailable
                 Button(action: {
                     if !isDisabled { selection = source }
                 }) {
@@ -747,99 +625,21 @@ extension WarningMode {
     var shortName: String { displayName }
 }
 
-// MARK: - Social Icons (Official SVG paths from Simple Icons)
+// MARK: - Social Icons
 
 struct GitHubIcon: View {
     var color: Color = .secondary
 
     var body: some View {
-        GeometryReader { geometry in
-            Path { path in
-                let scale = min(geometry.size.width, geometry.size.height) / 24
-
-                // Official GitHub Octocat path
-                path.move(to: CGPoint(x: 12 * scale, y: 0.297 * scale))
-                path.addCurve(to: CGPoint(x: 0 * scale, y: 12.297 * scale),
-                              control1: CGPoint(x: 5.37 * scale, y: 0.297 * scale),
-                              control2: CGPoint(x: 0 * scale, y: 5.67 * scale))
-                path.addCurve(to: CGPoint(x: 8.205 * scale, y: 23.682 * scale),
-                              control1: CGPoint(x: 0 * scale, y: 17.6 * scale),
-                              control2: CGPoint(x: 3.438 * scale, y: 22.097 * scale))
-                path.addCurve(to: CGPoint(x: 9.025 * scale, y: 23.105 * scale),
-                              control1: CGPoint(x: 8.805 * scale, y: 23.795 * scale),
-                              control2: CGPoint(x: 9.025 * scale, y: 23.424 * scale))
-                path.addCurve(to: CGPoint(x: 9.01 * scale, y: 21.065 * scale),
-                              control1: CGPoint(x: 9.025 * scale, y: 22.82 * scale),
-                              control2: CGPoint(x: 9.01 * scale, y: 22.145 * scale))
-                path.addCurve(to: CGPoint(x: 4.968 * scale, y: 19.455 * scale),
-                              control1: CGPoint(x: 5.672 * scale, y: 21.789 * scale),
-                              control2: CGPoint(x: 4.968 * scale, y: 19.455 * scale))
-                path.addCurve(to: CGPoint(x: 3.633 * scale, y: 17.7 * scale),
-                              control1: CGPoint(x: 4.422 * scale, y: 18.07 * scale),
-                              control2: CGPoint(x: 3.633 * scale, y: 17.7 * scale))
-                path.addCurve(to: CGPoint(x: 3.717 * scale, y: 16.971 * scale),
-                              control1: CGPoint(x: 2.546 * scale, y: 16.956 * scale),
-                              control2: CGPoint(x: 3.717 * scale, y: 16.971 * scale))
-                path.addCurve(to: CGPoint(x: 5.555 * scale, y: 18.207 * scale),
-                              control1: CGPoint(x: 4.922 * scale, y: 17.055 * scale),
-                              control2: CGPoint(x: 5.555 * scale, y: 18.207 * scale))
-                path.addCurve(to: CGPoint(x: 9.05 * scale, y: 19.205 * scale),
-                              control1: CGPoint(x: 6.625 * scale, y: 20.042 * scale),
-                              control2: CGPoint(x: 8.364 * scale, y: 19.512 * scale))
-                path.addCurve(to: CGPoint(x: 9.81 * scale, y: 17.6 * scale),
-                              control1: CGPoint(x: 9.158 * scale, y: 18.429 * scale),
-                              control2: CGPoint(x: 9.467 * scale, y: 17.9 * scale))
-                path.addCurve(to: CGPoint(x: 4.344 * scale, y: 11.67 * scale),
-                              control1: CGPoint(x: 7.145 * scale, y: 17.3 * scale),
-                              control2: CGPoint(x: 4.344 * scale, y: 16.332 * scale))
-                path.addCurve(to: CGPoint(x: 5.579 * scale, y: 8.45 * scale),
-                              control1: CGPoint(x: 4.344 * scale, y: 10.36 * scale),
-                              control2: CGPoint(x: 4.809 * scale, y: 9.14 * scale))
-                path.addCurve(to: CGPoint(x: 5.684 * scale, y: 5.274 * scale),
-                              control1: CGPoint(x: 5.444 * scale, y: 8.147 * scale),
-                              control2: CGPoint(x: 5.039 * scale, y: 6.797 * scale))
-                path.addCurve(to: CGPoint(x: 8.984 * scale, y: 6.504 * scale),
-                              control1: CGPoint(x: 5.684 * scale, y: 5.274 * scale),
-                              control2: CGPoint(x: 6.689 * scale, y: 4.952 * scale))
-                path.addCurve(to: CGPoint(x: 12 * scale, y: 6.099 * scale),
-                              control1: CGPoint(x: 9.944 * scale, y: 6.237 * scale),
-                              control2: CGPoint(x: 10.964 * scale, y: 6.093 * scale))
-                path.addCurve(to: CGPoint(x: 15 * scale, y: 6.504 * scale),
-                              control1: CGPoint(x: 13.02 * scale, y: 6.105 * scale),
-                              control2: CGPoint(x: 14.04 * scale, y: 6.237 * scale))
-                path.addCurve(to: CGPoint(x: 18.285 * scale, y: 5.274 * scale),
-                              control1: CGPoint(x: 17.28 * scale, y: 4.952 * scale),
-                              control2: CGPoint(x: 18.285 * scale, y: 5.274 * scale))
-                path.addCurve(to: CGPoint(x: 18.405 * scale, y: 8.45 * scale),
-                              control1: CGPoint(x: 18.93 * scale, y: 6.927 * scale),
-                              control2: CGPoint(x: 18.645 * scale, y: 8.147 * scale))
-                path.addCurve(to: CGPoint(x: 19.635 * scale, y: 11.67 * scale),
-                              control1: CGPoint(x: 19.17 * scale, y: 9.29 * scale),
-                              control2: CGPoint(x: 19.635 * scale, y: 10.36 * scale))
-                path.addCurve(to: CGPoint(x: 14.16 * scale, y: 17.59 * scale),
-                              control1: CGPoint(x: 19.635 * scale, y: 16.28 * scale),
-                              control2: CGPoint(x: 16.83 * scale, y: 17.29 * scale))
-                path.addCurve(to: CGPoint(x: 14.97 * scale, y: 19.81 * scale),
-                              control1: CGPoint(x: 14.58 * scale, y: 17.95 * scale),
-                              control2: CGPoint(x: 14.97 * scale, y: 18.706 * scale))
-                path.addCurve(to: CGPoint(x: 14.955 * scale, y: 23.096 * scale),
-                              control1: CGPoint(x: 14.97 * scale, y: 21.416 * scale),
-                              control2: CGPoint(x: 14.955 * scale, y: 23.096 * scale))
-                path.addCurve(to: CGPoint(x: 15.78 * scale, y: 23.67 * scale),
-                              control1: CGPoint(x: 14.955 * scale, y: 23.406 * scale),
-                              control2: CGPoint(x: 15.165 * scale, y: 23.783 * scale))
-                path.addCurve(to: CGPoint(x: 24 * scale, y: 12.297 * scale),
-                              control1: CGPoint(x: 20.565 * scale, y: 22.092 * scale),
-                              control2: CGPoint(x: 24 * scale, y: 17.592 * scale))
-                path.addCurve(to: CGPoint(x: 12 * scale, y: 0.297 * scale),
-                              control1: CGPoint(x: 24 * scale, y: 5.67 * scale),
-                              control2: CGPoint(x: 18.63 * scale, y: 0.297 * scale))
-                path.closeSubpath()
-            }
-            .fill(color)
-        }
+        Image(systemName: "code.square.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 16, height: 16)
+            .foregroundColor(color)
     }
 }
+
+// MARK: - Discord Icon
 
 struct DiscordIcon: View {
     var color: Color = .secondary
@@ -849,7 +649,6 @@ struct DiscordIcon: View {
             Path { path in
                 let scale = min(geometry.size.width, geometry.size.height) / 24
 
-                // Official Discord path
                 path.move(to: CGPoint(x: 20.317 * scale, y: 4.3698 * scale))
                 path.addCurve(to: CGPoint(x: 15.432 * scale, y: 2.8546 * scale),
                               control1: CGPoint(x: 18.7873 * scale, y: 3.6588 * scale),
@@ -904,10 +703,7 @@ struct DiscordIcon: View {
                               control2: CGPoint(x: 23.4476 * scale, y: 9.0458 * scale))
                 path.closeSubpath()
 
-                // Left eye
                 path.addEllipse(in: CGRect(x: 5.8631 * scale, y: 10.9122 * scale, width: 4.314 * scale, height: 4.838 * scale))
-
-                // Right eye
                 path.addEllipse(in: CGRect(x: 13.8369 * scale, y: 10.9122 * scale, width: 4.314 * scale, height: 4.838 * scale))
             }
             .fill(color, style: FillStyle(eoFill: true))
@@ -915,36 +711,44 @@ struct DiscordIcon: View {
     }
 }
 
-// MARK: - Help Button
+// MARK: - Compact Mode Picker
 
-struct HelpButton: View {
-    let text: String
-    @State private var showingHelp = false
-    @State private var isHovering = false
+struct CompactModePicker<T: Hashable>: View {
+    @Binding var selection: T
+    let options: [(T, String)]
 
     var body: some View {
-        Button(action: { showingHelp.toggle() }) {
-            Image(systemName: "questionmark.circle")
-                .font(.system(size: 10))
-                .foregroundColor(.secondary.opacity(isHovering ? 0.8 : 0.35))
-                .frame(width: 18, height: 18)
-                .contentShape(Rectangle())
+        Picker("", selection: $selection) {
+            ForEach(options, id: \.0) { option in
+                Text(option.1).tag(option.0)
+            }
         }
-        .buttonStyle(.plain)
-        .onHover { isHovering = $0 }
-        .popover(isPresented: $showingHelp, arrowEdge: .trailing) {
-            Text(text)
-                .font(.system(size: 11))
-                .padding(10)
-                .frame(width: 200)
+        .pickerStyle(.segmented)
+        .labelsHidden()
+    }
+}
+
+// MARK: - Compact Segmented Picker
+
+struct CompactSegmentedPicker<T: Hashable>: View {
+    @Binding var selection: T
+    let options: [(T, String)]
+
+    var body: some View {
+        Picker("", selection: $selection) {
+            ForEach(options, id: \.0) { option in
+                Text(option.1).tag(option.0)
+            }
         }
+        .pickerStyle(.segmented)
+        .labelsHidden()
     }
 }
 
 // MARK: - Compact Shortcut Recorder
 
 struct CompactShortcutRecorder: View {
-    @Binding var shortcut: KeyboardShortcut
+    @Binding var shortcut: AppKeyboardShortcut
     @Binding var isEnabled: Bool
     var onShortcutChange: () -> Void
 
@@ -1010,7 +814,7 @@ struct CompactShortcutRecorder: View {
                              modifiers.contains(.option) || modifiers.contains(.shift)
 
             if hasModifier {
-                shortcut = KeyboardShortcut(keyCode: event.keyCode, modifiers: modifiers)
+                shortcut = AppKeyboardShortcut(keyCode: event.keyCode, modifiers: modifiers)
                 stopRecording()
                 onShortcutChange()
                 return nil

@@ -4,7 +4,6 @@ import Vision
 import os.log
 import ComposableArchitecture
 import SwiftUI
-import SwiftUI
 
 extension String {
     var localized: String {
@@ -39,6 +38,7 @@ public final class PostureStateStore {
         }
     }
 }
+
 // MARK: - MenuBarIconType Conversion
 
 extension MenuBarIconType {
@@ -200,7 +200,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Global keyboard shortcut
     var toggleShortcutEnabled = true
-    var toggleShortcut = KeyboardShortcut.defaultShortcut
+    var toggleShortcut: AppKeyboardShortcut = .defaultShortcut
 
     // Frame throttling
     var frameInterval: TimeInterval {
@@ -344,11 +344,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         case .syncUI:
             syncUIToState()
-            updateShortcutsState() // Add this
+            updateShortcutsState()
 
         case .updateBlur:
             updateBlur()
-            updateShortcutsState() // Add this
+            updateShortcutsState()
 
         case .trackAnalytics(let interval, let isSlouching):
             AnalyticsManager.shared.trackTime(interval: interval, isSlouching: isSlouching)
@@ -618,12 +618,14 @@ extension AppDelegate {
 
         NSWorkspace.shared.open(url)
     }
+
     func updateShortcutsState() {
         PostureStateStore.shared.update(
             isSlouching: isCurrentlySlouching,
             isActive: state.isActive
         )
     }
+
     // MARK: - Activation Policy
 
     func restoreAccessoryActivationPolicyIfNeeded(excluding windowToIgnore: NSWindow? = nil) {

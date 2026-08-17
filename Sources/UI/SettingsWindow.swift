@@ -27,11 +27,9 @@ struct SettingsView: View {
     @State private var warningOnsetDelay: Double
     @State private var launchAtLogin: Bool
     @State private var appAppearance: AppAppearance
-    
-    // Auto-update state removed here as requested
-    
+
     @State private var toggleShortcutEnabled: Bool
-    @State private var toggleShortcut: KeyboardShortcut
+    @State private var toggleShortcut: AppKeyboardShortcut
     @State private var detectionModeSlider: Double
     @State private var trackingSource: TrackingSource
     @State private var trackingModeSelection: TrackingMode
@@ -60,6 +58,21 @@ struct SettingsView: View {
 
     let deadZoneValues: [Double] = [0.0, 0.08, 0.15, 0.25, 0.40]
     var deadZoneLabels: [String] { [L("settings.deadZone.strict"), L("settings.deadZone.tight"), L("settings.deadZone.medium"), L("settings.deadZone.relaxed"), L("settings.deadZone.loose")] }
+
+    /// Helper function to find closest index in an array of values
+    static func closestIndex(for value: Double, in array: [Double]) -> Int {
+        guard !array.isEmpty else { return 0 }
+        var closestIdx = 0
+        var minDiff = Double.greatestFiniteMagnitude
+        for (index, item) in array.enumerated() {
+            let diff = abs(item - value)
+            if diff < minDiff {
+                minDiff = diff
+                closestIdx = index
+            }
+        }
+        return closestIdx
+    }
 
     init(appDelegate: AppDelegate) {
         self.init(appDelegate: appDelegate, settingsProfileManager: appDelegate.settingsProfileManager)
@@ -96,9 +109,7 @@ struct SettingsView: View {
         _warningOnsetDelay = State(initialValue: profileWarningOnsetDelay)
         _launchAtLogin = State(initialValue: SMAppService.mainApp.status == .enabled)
         _appAppearance = State(initialValue: appDelegate.appAppearance)
-        
-        // Auto-update initialization removed here
-        
+
         _toggleShortcutEnabled = State(initialValue: appDelegate.toggleShortcutEnabled)
         _toggleShortcut = State(initialValue: appDelegate.toggleShortcut)
         _detectionModeSlider = State(initialValue: Double(detectionModes.firstIndex(of: profileDetectionMode) ?? 0))
@@ -107,12 +118,12 @@ struct SettingsView: View {
         _preferredSource = State(initialValue: appDelegate.trackingStore.withState { $0.preferredSource })
         _airPodsAvailable = State(initialValue: appDelegate.airPodsDetector.isAvailable)
         let needsAirPods = appDelegate.trackingStore.withState { $0.trackingMode } == .automatic ||
-                           appDelegate.trackingSource == .airpods
+        appDelegate.trackingSource == .airpods
         _airPodsConnected = State(initialValue: needsAirPods ? appDelegate.airPodsDetector.isBluetoothConnected : false)
         _cameraCalibrated = State(initialValue: appDelegate.cameraCalibration?.isValid ?? false)
         _airPodsCalibrated = State(initialValue: appDelegate.airPodsCalibration?.isValid ?? false)
         _activeSource = State(initialValue: appDelegate.activeTrackingSource)
-        
+
         settingsProfileManager.ensureProfilesLoaded()
         let snapshot = settingsProfileManager.profilesState()
         let profiles = snapshot.profiles
@@ -122,12 +133,10 @@ struct SettingsView: View {
         _lastSelectedSettingsProfileID = State(initialValue: initialProfileID)
     }
 
-    // MARK: - Body (Broken down for swift compiler performance)
-
     var body: some View {
         VStack(spacing: 0) {
             headerView
-            
+
             VStack(spacing: 10) {
                 trackingCardView
                 responseCardView
@@ -150,8 +159,6 @@ struct SettingsView: View {
             Text(L("settings.profile.deleteMessage"))
         }
     }
-
-    // MARK: - Header Section
 
     @ViewBuilder
     private var headerView: some View {
@@ -203,8 +210,6 @@ struct SettingsView: View {
         }
         .padding(.bottom, 12)
     }
-
-    // MARK: - Tracking Card
 
     @ViewBuilder
     private var trackingCardView: some View {
@@ -263,15 +268,15 @@ struct SettingsView: View {
                         Text(camera.name).tag(camera.id)
                     }
                 }
-                .labelsHidden()
-                .frame(minWidth: 130, maxWidth: 220)
-                .onChange(of: selectedCameraID) { newValue in
-                    if newValue != appDelegate.selectedCameraID {
-                        appDelegate.selectedCameraID = newValue
-                        appDelegate.saveSettings()
-                        appDelegate.restartCamera()
+                    .labelsHidden()
+                    .frame(minWidth: 130, maxWidth: 220)
+                    .onChange(of: selectedCameraID) { newValue in
+                        if newValue != appDelegate.selectedCameraID {
+                            appDelegate.selectedCameraID = newValue
+                            appDelegate.saveSettings()
+                            appDelegate.restartCamera()
+                        }
                     }
-                }
             ) : nil,
             onCalibrate: {
                 appDelegate.startCalibration()
@@ -313,15 +318,15 @@ struct SettingsView: View {
                         Text(camera.name).tag(camera.id)
                     }
                 }
-                .labelsHidden()
-                .frame(minWidth: 130, maxWidth: 220)
-                .onChange(of: selectedCameraID) { newValue in
-                    if newValue != appDelegate.selectedCameraID {
-                        appDelegate.selectedCameraID = newValue
-                        appDelegate.saveSettings()
-                        appDelegate.restartCamera()
+                    .labelsHidden()
+                    .frame(minWidth: 130, maxWidth: 220)
+                    .onChange(of: selectedCameraID) { newValue in
+                        if newValue != appDelegate.selectedCameraID {
+                            appDelegate.selectedCameraID = newValue
+                            appDelegate.saveSettings()
+                            appDelegate.restartCamera()
+                        }
                     }
-                }
             ),
             onCalibrate: {
                 appDelegate.startCalibration(for: .camera)
@@ -357,8 +362,6 @@ struct SettingsView: View {
             )
         }
     }
-
-    // MARK: - Posture Response Card
 
     @ViewBuilder
     private var responseCardView: some View {
@@ -503,8 +506,6 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Behavior Card
-
     @ViewBuilder
     private var behaviorCardView: some View {
         SettingsCard(icon: "switch.2", title: L("settings.section.behavior")) {
@@ -560,7 +561,7 @@ struct SettingsView: View {
                     }
                 }
 
-                #if !APP_STORE
+#if !APP_STORE
                 HStack(spacing: 0) {
                     CompactToggle(
                         title: L("settings.compatibilityMode"),
@@ -573,12 +574,11 @@ struct SettingsView: View {
                         appDelegate.saveSettings()
                         appDelegate.clearBlur()
                     }
-                    
-                    // Empty spacer to maintain layout alignment after removing the updater toggle
+
                     Spacer()
                         .frame(maxWidth: .infinity)
                 }
-                #endif
+#endif
 
                 HStack(spacing: 0) {
                     CompactToggle(
@@ -610,8 +610,8 @@ struct SettingsView: View {
                     CompactToggle(
                         title: L("settings.blurWhenAway"),
                         helpText: trackingSource == .airpods
-                            ? L("settings.blurWhenAway.help.airpods")
-                            : L("settings.blurWhenAway.help.camera"),
+                        ? L("settings.blurWhenAway.help.airpods")
+                        : L("settings.blurWhenAway.help.camera"),
                         isOn: $blurWhenAway,
                         isDisabled: trackingSource == .airpods
                     )
@@ -666,24 +666,22 @@ struct SettingsView: View {
     }
 
     private func createNewProfile() {
-            let trimmedName = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmedName.isEmpty else { return }
-            
-            // Save the returned profile object
-            let newProfile = settingsProfileManager.createProfile(
-                named: trimmedName,
-                warningMode: warningMode,
-                warningColor: NSColor(warningColor),
-                deadZone: deadZone,
-                intensity: intensity,
-                warningOnsetDelay: warningOnsetDelay,
-                detectionMode: detectionModes[Int(detectionModeSlider)]
-            )
-            
-            // Pass the newProfile.id (or newProfile.id.uuidString if your id is a UUID)
-            refreshProfilesState(selectID: newProfile.id)
-            newProfileName = ""
-        }
+        let trimmedName = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+
+        let newProfile = settingsProfileManager.createProfile(
+            named: trimmedName,
+            warningMode: warningMode,
+            warningColor: NSColor(warningColor),
+            deadZone: deadZone,
+            intensity: intensity,
+            warningOnsetDelay: warningOnsetDelay,
+            detectionMode: detectionModes[Int(detectionModeSlider)]
+        )
+
+        refreshProfilesState(selectID: newProfile.id)
+        newProfileName = ""
+    }
 
     private func deleteCurrentProfile() {
         settingsProfileManager.deleteProfile(id: selectedSettingsProfileID)
@@ -700,29 +698,458 @@ struct SettingsView: View {
     }
 
     private func syncProfileStateToUI() {
-        intensity = appDelegate.activeIntensity
-        deadZone = appDelegate.activeDeadZone
-        warningMode = appDelegate.activeWarningMode
-        warningColor = Color(appDelegate.activeWarningColor)
-        warningOnsetDelay = appDelegate.activeWarningOnsetDelay
+        guard let activeProfile = settingsProfileManager.activeProfile else { return }
+        intensity = activeProfile.intensity
+        deadZone = activeProfile.deadZone
+        intensitySlider = Double(Self.closestIndex(for: activeProfile.intensity, in: intensityValues))
+        deadZoneSlider = Double(Self.closestIndex(for: activeProfile.deadZone, in: deadZoneValues))
+        warningMode = activeProfile.warningMode
+        warningColor = Color(activeProfile.warningColor)
+        warningOnsetDelay = activeProfile.warningOnsetDelay
+        detectionModeSlider = Double(detectionModes.firstIndex(of: activeProfile.detectionMode) ?? 0)
+    }
+}
 
-        intensitySlider = Double(Self.closestIndex(for: intensity, in: intensityValues))
-        deadZoneSlider = Double(Self.closestIndex(for: deadZone, in: deadZoneValues))
-        detectionModeSlider = Double(detectionModes.firstIndex(of: appDelegate.activeDetectionMode) ?? 0)
+// MARK: - Settings Window Controller
+
+public final class SettingsWindowController: NSWindowController {
+    public convenience init() {
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 480, height: 500),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.center()
+        window.isReleasedWhenClosed = false
+        window.title = "Settings"
+        self.init(window: window)
     }
 
-    // Fixed the truncated function
-    private static func closestIndex(for value: Double, in array: [Double]) -> Int {
-        guard !array.isEmpty else { return 0 }
-        var closest = 0
-        var minDiff = Double.greatestFiniteMagnitude
-        for (index, val) in array.enumerated() {
-            let diff = abs(val - value)
-            if diff < minDiff {
-                minDiff = diff
-                closest = index
+    public func showSettings(appDelegate: AppDelegate) {
+        let settingsView = SettingsView(appDelegate: appDelegate)
+        let hostingController = NSHostingController(rootView: settingsView)
+        window?.contentViewController = hostingController
+        window?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+}
+
+// MARK: - Supporting Settings UI Controls
+
+struct SettingsCard<HeaderExtra: View, Content: View>: View {
+    let icon: String
+    let title: String
+    let helpText: String?
+    let headerExtra: HeaderExtra
+    let content: Content
+
+    init(
+        icon: String,
+        title: String,
+        helpText: String? = nil,
+        @ViewBuilder headerExtra: () -> HeaderExtra,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.icon = icon
+        self.title = title
+        self.helpText = helpText
+        self.headerExtra = headerExtra()
+        self.content = content()
+    }
+
+    init(
+        icon: String,
+        title: String,
+        helpText: String? = nil,
+        @ViewBuilder content: () -> Content
+    ) where HeaderExtra == EmptyView {
+        self.icon = icon
+        self.title = title
+        self.helpText = helpText
+        self.headerExtra = EmptyView()
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.brandCyan)
+                Text(title)
+                    .font(.system(size: 11, weight: .semibold))
+
+                if let helpText {
+                    HelpButton(text: helpText)
+                }
+
+                Spacer()
+                headerExtra
+            }
+
+            content
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color(NSColor.controlBackgroundColor))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+        )
+    }
+}
+
+struct CompactModePicker: View {
+    @Binding var selection: TrackingMode
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach([TrackingMode.automatic, .manual], id: \.self) { mode in
+                Button(action: { selection = mode }) {
+                    Text(modeTitle(for: mode))
+                        .font(.system(size: 10, weight: selection == mode ? .semibold : .regular))
+                        .foregroundColor(selection == mode ? .onBrandCyan : .primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .fill(selection == mode ? Color.brandCyan : Color.clear)
+                        )
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
         }
-        return closest
+        .padding(2)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color.primary.opacity(0.06))
+        )
+    }
+
+    private func modeTitle(for mode: TrackingMode) -> String {
+        switch mode {
+        case .automatic:
+            return L("settings.tracking.auto")
+        case .manual:
+            return L("settings.tracking.manual")
+        }
+    }
+}
+
+struct CompactTrackingSourcePicker: View {
+    @Binding var selection: TrackingSource
+    let airPodsAvailable: Bool
+
+    var body: some View {
+        Picker("", selection: $selection) {
+            Text(L("source.camera")).tag(TrackingSource.camera)
+            Text(L("source.airpods")).tag(TrackingSource.airpods)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+    }
+}
+
+struct DeviceStatusRow: View {
+    let source: TrackingSource
+    let isCalibrated: Bool
+    let isConnected: Bool
+    let isPreferred: Bool
+    let isActive: Bool
+    var cameraDropdown: AnyView? = nil
+    let onCalibrate: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: source == .camera ? "camera" : "airpodspro")
+                .font(.system(size: 12))
+                .foregroundColor(isActive ? .brandCyan : .secondary)
+
+            Text(source == .camera ? L("source.camera") : L("source.airpods"))
+                .font(.system(size: 11, weight: .medium))
+
+            if isActive {
+                Text(L("status.active"))
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundColor(.brandCyan)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(Capsule().fill(Color.brandCyan.opacity(0.12)))
+            }
+
+            Spacer()
+
+            if let cameraDropdown {
+                cameraDropdown
+            }
+
+            Button(action: onCalibrate) {
+                Text(isCalibrated ? L("common.recalibrate") : L("common.calibrate"))
+                    .font(.system(size: 10, weight: .medium))
+            }
+            .buttonStyle(.borderless)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color.primary.opacity(0.03))
+        )
+    }
+}
+
+struct CompactWarningStylePicker: View {
+    @Binding var selection: WarningMode
+
+    var body: some View {
+        Picker("", selection: $selection) {
+            ForEach(WarningMode.allCases, id: \.self) { mode in
+                Text(mode.displayName).tag(mode)
+            }
+        }
+        .labelsHidden()
+    }
+}
+
+struct InlineColorPicker: View {
+    @Binding var color: Color
+
+    var body: some View {
+        ColorPicker("", selection: $color, supportsOpacity: false)
+            .labelsHidden()
+            .frame(width: 24, height: 20)
+    }
+}
+
+struct CompactSlider: View {
+    let title: String
+    let helpText: String
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let step: Double
+    let valueLabel: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 3) {
+                Text(title)
+                    .font(.system(size: 11))
+                    .frame(width: 82, alignment: .leading)
+                HelpButton(text: helpText)
+            }
+
+            Slider(value: $value, in: range, step: step)
+
+            Text(valueLabel)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundColor(.secondary)
+                .frame(width: 60, alignment: .trailing)
+        }
+        .frame(height: 22)
+    }
+}
+
+struct CompactSegmentedPicker<T: Hashable>: View {
+    @Binding var selection: T
+    let options: [(T, String)]
+
+    var body: some View {
+        Picker("", selection: $selection) {
+            ForEach(options, id: \.0) { option in
+                Text(option.1).tag(option.0)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+    }
+}
+
+struct CompactToggle: View {
+    let title: String
+    let helpText: String
+    @Binding var isOn: Bool
+    var isDisabled: Bool = false
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Toggle(isOn: $isOn) {
+                Text(title)
+                    .font(.system(size: 11))
+            }
+            .toggleStyle(.checkbox)
+            .disabled(isDisabled)
+
+            HelpButton(text: helpText)
+        }
+        .frame(height: 22)
+    }
+}
+
+struct CompactShortcutRecorder: View {
+    @Binding var shortcut: AppKeyboardShortcut
+    @Binding var isEnabled: Bool
+    let onShortcutChange: () -> Void
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Toggle(isOn: $isEnabled) {
+                Text(L("settings.toggleShortcut"))
+                    .font(.system(size: 11))
+            }
+            .toggleStyle(.checkbox)
+            .onChange(of: isEnabled) { _ in onShortcutChange() }
+
+            Spacer()
+
+            Text(shortcut.displayString)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(Color.primary.opacity(0.06))
+                )
+        }
+        .frame(height: 22)
+    }
+}
+
+struct HelpButton: View {
+    let text: String
+    @State private var showingHelp = false
+
+    var body: some View {
+        Image(systemName: "questionmark.circle")
+            .font(.system(size: 10))
+            .foregroundColor(.secondary)
+            .help(text)
+    }
+}
+
+struct GitHubIcon: View {
+    let color: Color
+    var body: some View {
+        Image(systemName: "code")
+            .font(.system(size: 11))
+            .foregroundColor(color)
+    }
+}
+
+struct DiscordIcon: View {
+    let color: Color
+    var body: some View {
+        Image(systemName: "bubble.left.and.bubble.right")
+            .font(.system(size: 11))
+            .foregroundColor(color)
+    }
+}
+
+// MARK: - App Delegate Extensions for Settings Integration
+
+extension AppDelegate {
+    func applyActiveSettingsProfile() {
+        if activeWarningMode.usesWarningOverlay {
+            syncWarningOverlaySettings()
+        }
+        applyDetectionMode()
+    }
+
+    func switchWarningMode() {
+        if activeWarningMode.usesWarningOverlay {
+            warningOverlayManager.setupOverlayWindows()
+        }
+        applyActiveSettingsProfile()
+    }
+
+    func updateWarningColor(_ color: NSColor) {
+        warningOverlayManager.updateWarningColor(color)
+    }
+
+    func clearBlur() {
+        targetBlurRadius = 0
+        updateBlur()
+    }
+
+    func rebuildOverlayWindows() {
+        setupOverlayWindows()
+    }
+
+    func setPauseOnTheGoEnabled(_ enabled: Bool) async {
+        pauseOnTheGo = enabled
+        saveSettings()
+    }
+
+    func setPauseOnBatteryEnabled(_ enabled: Bool) async {
+        applyTrackingAction(.setPauseOnBatteryEnabled(enabled))
+        saveSettings()
+    }
+
+    func updateGlobalKeyMonitor() {
+        hotkeyManager.configure(
+            enabled: toggleShortcutEnabled,
+            shortcut: toggleShortcut,
+            onToggle: { [weak self] in
+                Task { @MainActor in
+                    await self?.toggleEnabled()
+                }
+            }
+        )
+    }
+
+    func setTrackingMode(_ mode: TrackingMode) async {
+        trackingMode = mode
+        saveSettings()
+    }
+
+    func switchTrackingSource(to source: TrackingSource) async {
+        trackingSource = source
+        saveSettings()
+    }
+
+    func setPreferredSource(_ source: TrackingSource) async {
+        applyTrackingAction(.setPreferredSource(source))
+        saveSettings()
+    }
+
+    func startCalibration(for source: TrackingSource? = nil) {
+        calibratingSource = source ?? activeTrackingSource
+        if calibrationController == nil {
+            calibrationController = CalibrationWindowController()
+        }
+        calibrationController?.showWindow(nil)
+    }
+
+    func toggleEnabled() async {
+        let newState = !state.isActive
+        state = newState ? .active : .inactive
+    }
+
+    func syncWarningOverlaySettings() {
+        warningOverlayManager.updateSettings(
+            color: activeWarningColor,
+            mode: activeWarningMode
+        )
+    }
+}
+
+// MARK: - SettingsProfileManager Extension
+
+extension SettingsProfileManager {
+    func createProfile(named name: String) -> SettingsProfile {
+        let newProfile = SettingsProfile(
+            name: name,
+            warningMode: WarningDefaults.mode,
+            warningColor: WarningDefaults.color,
+            deadZone: 0.03,
+            intensity: 1.0,
+            warningOnsetDelay: 0.0,
+            detectionMode: .balanced
+        )
+        addProfile(newProfile)
+        return newProfile
     }
 }

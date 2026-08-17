@@ -18,7 +18,7 @@ final class HotkeyManager {
         }
     }
 
-    var shortcut: KeyboardShortcut = .defaultShortcut {
+    var shortcut: AppKeyboardShortcut = .defaultShortcut {
         didSet {
             if isEnabled {
                 register()
@@ -28,7 +28,7 @@ final class HotkeyManager {
 
     // MARK: - Public API
 
-    func configure(enabled: Bool, shortcut: KeyboardShortcut, onToggle: @escaping () -> Void) {
+    func configure(enabled: Bool, shortcut: AppKeyboardShortcut, onToggle: @escaping () -> Void) {
         self.isEnabled = enabled
         self.shortcut = shortcut
         self.onToggle = onToggle
@@ -89,7 +89,7 @@ final class HotkeyManager {
         )
 
         if status != noErr {
-            // Registration failed - could log this
+            // Registration failed
         }
     }
 

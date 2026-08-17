@@ -2,6 +2,7 @@ import AppKit
 import Charts
 import SwiftUI
 
+
 // MARK: - Window Controller
 
 @MainActor
@@ -88,7 +89,7 @@ struct AnalyticsView: View {
 
             // Main Content Grid
             HStack(alignment: .top, spacing: 16) {
-                // Left Col: Stats (Including New Streak Card)
+                // Left Col: Stats
                 VStack(spacing: 10) {
                     AnalyticsStatCard(
                         title: L("analytics.monitoringTime"),
@@ -111,10 +112,10 @@ struct AnalyticsView: View {
                         color: .red
                     )
 
-                    // NEW: Streak Stat Card
+                    // Streak Stat Card
                     AnalyticsStatCard(
-                        title: "Current Streak",
-                        value: "\(manager.calculateStreak()) Days",
+                        title: L("analytics.currentStreak"),
+                        value: "\(manager.calculateStreak()) \(L("analytics.days"))",
                         icon: "flame.fill",
                         color: .orange
                     )
@@ -175,17 +176,17 @@ struct AnalyticsView: View {
                 )
             }
 
-            // NEW: Best & Worst Hours Highlights
+            // Best & Worst Hours Highlights
             HStack(spacing: 12) {
                 HourlyHighlightCard(
-                    title: "Best Hour Today",
+                    title: L("analytics.bestHour"),
                     hour: manager.todayStats.bestHour,
                     icon: "hand.thumbsup.fill",
                     color: .green
                 )
 
                 HourlyHighlightCard(
-                    title: "Worst Hour Today",
+                    title: L("analytics.worstHour"),
                     hour: manager.todayStats.worstHour,
                     icon: "exclamationmark.triangle.fill",
                     color: .orange

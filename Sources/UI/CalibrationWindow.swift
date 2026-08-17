@@ -260,9 +260,6 @@ class CalibrationWindowController: NSObject {
     // Store the original connection callback to restore later
     var originalConnectionCallback: ((Bool) -> Void)?
 
-    // Activation policy the app had before calibration started. Calibration
-    // forces .accessory because the overlay-above-fullscreen recipe only
-    // behaves reliably when PostureAI isn't a .regular app.
     private var activationPolicyToRestore: NSApplication.ActivationPolicy?
 
     struct CalibrationStep {
@@ -315,10 +312,6 @@ class CalibrationWindowController: NSObject {
     }
 
     func start(detector: PostureDetector, onComplete: @escaping ([CalibrationSample]) -> Void, onCancel: @escaping () -> Void) {
-        // Guard against reentrant start() before cleanup() has run: re-capturing
-        // `originalConnectionCallback` would snapshot a previously-wrapped
-        // callback as the "original," and cleanup would then restore the
-        // wrapper permanently.
         guard windows.isEmpty else { return }
 
         self.detector = detector
@@ -327,10 +320,6 @@ class CalibrationWindowController: NSObject {
         self.currentStep = 0
         self.capturedValues = []
 
-        // Force .accessory so calibration windows overlay cleanly above a
-        // fullscreen app on the current Space. Onboarding and Settings both
-        // flip PostureAI to .regular, and if we launched calibration while still
-        // .regular the overlay could land behind the fullscreen window.
         let currentPolicy = NSApp.activationPolicy()
         if currentPolicy != .accessory {
             activationPolicyToRestore = currentPolicy
@@ -354,14 +343,14 @@ class CalibrationWindowController: NSObject {
 
             let view = CalibrationView(frame: NSRect(origin: .zero, size: screen.frame.size))
             view.wantsLayer = true
-            view.showRing = false  // Hide by default
+            view.showRing = false
             window.contentView = view
 
             windows.append(window)
             calibrationViews.append(view)
         }
 
-        // Setup keyboard monitoring (both local and global)
+        // Setup keyboard monitoring
         localEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             if event.keyCode == 49 { // Space
                 self?.captureCurrentPosition()
@@ -381,31 +370,23 @@ class CalibrationWindowController: NSObject {
             }
         }
 
-        // Activate first so subsequent ordering happens while PostureAI is frontmost.
         NSApp.activate(ignoringOtherApps: true)
 
-        // Re-asserting .level refreshes the window-server layer; pairing it with
-        // orderFrontRegardless anchors the window on the active Space (including
-        // a fullscreen Space). Make the first window key last, so the key state
-        // doesn't precede the ordering we just set.
         for window in windows {
             window.level = .aboveFullscreen
             window.orderFrontRegardless()
         }
         windows.first?.makeKeyAndOrderFront(nil)
 
-        // Check if detector needs to wait for connection (e.g., AirPods in ears)
-        // Save the original callback to restore later
         originalConnectionCallback = detector.onConnectionStateChange
 
         checkDetectorAndProceed()
-
         startAnimation()
     }
 
     func showWaitingForConnection() {
         for view in calibrationViews {
-            view.waitingForAirPods = true  // View still uses this name for the UI state
+            view.waitingForAirPods = true
             view.showRing = false
             view.needsDisplay = true
         }
@@ -421,7 +402,7 @@ class CalibrationWindowController: NSObject {
         }
 
         for view in calibrationViews {
-            view.waitingForAirPods = false  // View still uses this name for the UI state
+            view.waitingForAirPods = false
             view.needsDisplay = true
         }
         updateStep()
@@ -432,9 +413,6 @@ class CalibrationWindowController: NSObject {
         if !detector.isConnected {
             isWaitingForConnection = true
             for window in windows {
-                // Yield to system dialogs (e.g., Bluetooth pairing / "put AirPods
-                // in ear") that open at higher levels. Restored to .aboveFullscreen
-                // once the detector reports connected.
                 window.level = .floating
             }
             showWaitingForConnection()
@@ -458,7 +436,6 @@ class CalibrationWindowController: NSObject {
 
         let step = steps[currentStep]
 
-        // Update all views
         for (index, view) in calibrationViews.enumerated() {
             if index == step.screenIndex {
                 view.showRing = true
@@ -475,7 +452,6 @@ class CalibrationWindowController: NSObject {
     }
 
     func startAnimation() {
-        // Respect accessibility reduce motion preference
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
 
         animationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { [weak self] _ in
@@ -492,10 +468,8 @@ class CalibrationWindowController: NSObject {
     }
 
     func captureCurrentPosition() {
-        // Don't capture while waiting for detector connection
         guard !isWaitingForConnection else { return }
 
-        // Get current calibration value from the detector
         if let detector {
             capturedValues.append(detector.getCurrentCalibrationValue())
         }
@@ -528,7 +502,6 @@ class CalibrationWindowController: NSObject {
             globalEventMonitor = nil
         }
 
-        // Restore original connection callback
         detector?.onConnectionStateChange = originalConnectionCallback
         originalConnectionCallback = nil
 
@@ -541,9 +514,6 @@ class CalibrationWindowController: NSObject {
         if let policy = activationPolicyToRestore {
             NSApp.setActivationPolicy(policy)
             activationPolicyToRestore = nil
-            // The window that had flipped the app to .regular may have closed
-            // during calibration; drop back to .accessory if nothing visible
-            // still needs .regular.
             (NSApp.delegate as? AppDelegate)?.restoreAccessoryActivationPolicyIfNeeded()
         }
     }

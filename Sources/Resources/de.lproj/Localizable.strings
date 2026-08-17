@@ -1,18 +1,16 @@
 /* PostureAI - German Localizable Strings */
 
-// MARK: - Menu Bar (MenuBar.swift)
-
-"menu.status.starting" = "Status: Wird gestartet...";
+// MARK: - Menu Bar
+"menu.status.starting" = "Status: Startet...";
 "menu.enable" = "Aktivieren";
-"menu.recalibrate" = "Neu kalibrieren";
+"menu.recalibrate" = "Neukalibrieren";
 "menu.support" = "Unterstützen";
-"menu.analytics" = "Statistiken";
+"menu.analytics" = "Analysen";
 "menu.settings" = "Einstellungen";
 "menu.quit" = "Beenden";
 "menu.checkForUpdates" = "Nach Updates suchen…";
 
-// MARK: - App Menu (PostureAIMain.swift)
-
+// MARK: - App Menu
 "appmenu.quit" = "PostureAI beenden";
 "appmenu.closeWindow" = "Fenster schließen";
 "appmenu.file" = "Ablage";
@@ -24,101 +22,91 @@
 "appmenu.paste" = "Einsetzen";
 "appmenu.selectAll" = "Alles auswählen";
 
-// MARK: - Status Text (PostureUIState.swift)
-
+// MARK: - Status Text
 "status.disabled" = "Status: Deaktiviert";
-"status.calibrating" = "Status: Kalibrierung...";
-"status.starting" = "Status: Wird gestartet...";
+"status.calibrating" = "Status: Kalibriere...";
+"status.starting" = "Status: Startet...";
 "status.away" = "Status: Abwesend";
-"status.slouching" = "Status: Schlechte Haltung";
+"status.slouching" = "Status: Krumme Haltung";
 "status.goodPosture" = "Status: Gute Haltung";
 "status.calibrationNeeded" = "Status: Kalibrierung erforderlich";
-"status.pausedOnTheGo" = "Status: Pausiert (unterwegs - neu kalibrieren)";
+"status.pausedOnTheGo" = "Status: Pausiert (unterwegs – neukalibrieren)";
 "status.cameraDisconnected" = "Status: Kamera getrennt";
 "status.airPodsDisconnected" = "Status: AirPods getrennt";
 "status.pausedScreenLocked" = "Status: Pausiert (Bildschirm gesperrt)";
 "status.pausedPutInAirPods" = "Status: Pausiert (AirPods einsetzen)";
 "status.pausedOnBattery" = "Status: Pausiert (Akkubetrieb)";
 
-// MARK: - Menu Bar Icon Accessibility (Models.swift)
-
+// MARK: - Accessibility
 "accessibility.goodPosture" = "Gute Haltung";
 "accessibility.badPosture" = "Schlechte Haltung";
 "accessibility.away" = "Abwesend";
 "accessibility.paused" = "Pausiert";
-"accessibility.calibrating" = "Kalibrierung";
+"accessibility.calibrating" = "Kalibriere";
 
-// MARK: - Warning Mode (SettingsWindow.swift)
-
-"warningMode.blur" = "Unschärfe";
+// MARK: - Warning Mode
+"warningMode.blur" = "Weichzeichnen";
 "warningMode.glow" = "Leuchten";
 "warningMode.border" = "Rahmen";
 "warningMode.solid" = "Vollton";
 "warningMode.none" = "Keine";
 
-// MARK: - Detection Mode (Models.swift)
-
-"detectionMode.responsive" = "Reaktiv";
+// MARK: - Detection Mode
+"detectionMode.responsive" = "Reaktionsschnell";
 "detectionMode.balanced" = "Ausgewogen";
 "detectionMode.performance" = "Leistung";
 
-// MARK: - Tracking Source (PostureDetector.swift)
-
+// MARK: - Tracking Source
 "trackingSource.camera" = "Kamera";
 "trackingSource.airpods" = "AirPods";
-"trackingSource.camera.description" = "Verwendet die Kamera zur Erfassung der Kopfposition. Funktioniert mit jeder Mac-Kamera.";
-"trackingSource.airpods.description" = "Verwendet Bewegungssensoren zur Erkennung der Kopfneigung. Erfordert AirPods Pro, Max, 3. Gen. oder 4 mit ANC.";
+"trackingSource.camera.description" = "Nutzt deine Kamera zur Erfassung der Kopfposition. Funktioniert mit jeder Mac-Kamera.";
+"trackingSource.airpods.description" = "Nutzt Bewegungssensoren zur Erfassung der Kopfneigung. Erfordert AirPods Pro, Max, 3. Gen. oder 4 mit ANC.";
 "trackingSource.camera.requirement" = "Erfordert Kamerazugriff";
 "trackingSource.airpods.requirement" = "Erfordert macOS 14+ und kompatible AirPods";
 
-// MARK: - AirPods Detector (AirPodsPostureDetector.swift)
-
+// MARK: - AirPods Detector
 "airpods.compatible" = "Kompatibel";
 "airpods.noMotionSensors" = "Keine Bewegungssensoren";
 "airpods.requiresMacOS14" = "Erfordert macOS 14.0 oder neuer";
 "airpods.noCompatibleConnected" = "Keine kompatiblen AirPods verbunden";
 "airpods.failedCreateManager" = "Bewegungsmanager konnte nicht erstellt werden";
-"airpods.noCompatiblePaired" = "Keine kompatiblen AirPods gekoppelt. Bitte koppeln Sie AirPods Pro, Max, 3. Gen. oder 4 mit ANC.";
+"airpods.noCompatiblePaired" = "Keine kompatiblen AirPods gekoppelt. Bitte koppele AirPods Pro, Max, 3. Gen. oder 4 mit ANC.";
 
-// MARK: - Alerts (AppDelegate.swift)
-
+// MARK: - Alerts
 "alert.permissionRequired" = "Berechtigung erforderlich";
-"alert.permissionRequired.airpods" = "Die Berechtigung für Bewegung und Fitness wird für das AirPods-Tracking benötigt. Aktivieren Sie diese in Systemeinstellungen > Datenschutz & Sicherheit > Bewegung & Fitness.";
-"alert.permissionRequired.camera" = "Die Kameraberechtigung ist erforderlich. Aktivieren Sie diese in Systemeinstellungen > Datenschutz & Sicherheit > Kamera.";
+"alert.permissionRequired.airpods" = "Die Berechtigung für Bewegungs- & Fitnessdaten ist für das AirPods-Tracking erforderlich. Bitte aktiviere sie unter Systemeinstellungen > Datenschutz & Sicherheit > Bewegung & Fitness.";
+"alert.permissionRequired.camera" = "Kameraberechtigung erforderlich. Bitte aktiviere sie unter Systemeinstellungen > Datenschutz & Sicherheit > Kamera.";
 "alert.openSettings" = "Einstellungen öffnen";
 "alert.cameraNotAvailable" = "Kamera nicht verfügbar";
-"alert.cameraNotAvailable.message" = "Stellen Sie sicher, dass die Kamera angeschlossen und der Kamerazugriff gewährt ist.";
+"alert.cameraNotAvailable.message" = "Stelle bitte sicher, dass deine Kamera angeschlossen ist und der Zugriff gewährt wurde.";
 "alert.tryAgain" = "Erneut versuchen";
 "support.title" = "PostureAI unterstützen";
-"support.message" = "Wenn PostureAI Ihnen mit Ihrer Haltung geholfen hat und Sie Ihre Unterstützung zeigen möchten, spendieren Sie mir bitte einen Kaffee.";
-"support.button" = "Spendiere mir einen Kaffee";
+"support.message" = "Wenn PostureAI dir geholfen hat und du uns unterstützen möchtest, spendiere uns gerne einen Kaffee.";
+"support.button" = "Kaffeespende";
 
-// MARK: - Calibration (CalibrationWindow.swift)
-
-"calibration.lookAtRing" = "Schauen Sie auf den Ring und drücken Sie Leertaste";
+// MARK: - Calibration
+"calibration.lookAtRing" = "Blicke auf den Ring und drücke die Leertaste";
 "calibration.stepOf" = "Schritt %d von %d";
-"calibration.lookAtCorner" = "Schauen Sie auf die %@ Ecke";
-"calibration.lookOtherScreen" = "Schauen Sie auf den anderen Bildschirm";
-"calibration.corner.topLeft" = "obere linke";
-"calibration.corner.topRight" = "obere rechte";
-"calibration.corner.bottomLeft" = "untere linke";
-"calibration.corner.bottomRight" = "untere rechte";
-/* {BracedText} is rendered as a keyboard keycap — keep the braces and English key name intact */
-"calibration.hint.tapSpace" = "Drücken Sie {Space} während Sie auf den Ring schauen";
-"calibration.hint.escToSkip" = "{Esc} um die Kalibrierung zu überspringen";
-"calibration.airpods.putIn" = "Setzen Sie Ihre AirPods ein";
-"calibration.airpods.autoBegin" = "Die Kalibrierung beginnt automatisch";
-"calibration.airpods.escToCancel" = "{Esc} drücken zum Abbrechen";
+"calibration.lookAtCorner" = "Blicke auf die Ecke: %@";
+"calibration.lookOtherScreen" = "Blicke auf den anderen Bildschirm";
+"calibration.corner.topLeft" = "oben links";
+"calibration.corner.topRight" = "oben rechts";
+"calibration.corner.bottomLeft" = "unten links";
+"calibration.corner.bottomRight" = "unten rechts";
+"calibration.hint.tapSpace" = "Drücke {Space}, während du auf den Ring blickst";
+"calibration.hint.escToSkip" = "{Esc} zum Überspringen der Kalibrierung";
+"calibration.airpods.putIn" = "Setze deine AirPods ein";
+"calibration.airpods.autoBegin" = "Kalibrierung startet automatisch";
+"calibration.airpods.escToCancel" = "Drücke {Esc} zum Abbrechen";
 
-// MARK: - Settings Window (SettingsWindow.swift)
-
+// MARK: - Settings Window
 "settings.title" = "Einstellungen";
 "settings.tracking" = "Tracking";
-"settings.tracking.help" = "Manuell nutzt eine Quelle. Automatisch wechselt zwischen Kamera und AirPods je nach Verfügbarkeit und bevorzugt Ihre gewählte Quelle.";
+"settings.tracking.help" = "Manuell nutzt eine Quelle. Automatisch wechselt je nach Verfügbarkeit zwischen Kamera und AirPods.";
 "settings.noCameras" = "Keine Kameras";
 "settings.connected" = "Verbunden";
 "settings.notConnected" = "Nicht verbunden";
-"settings.recalibrate" = "Neu kalibrieren";
+"settings.recalibrate" = "Neukalibrieren";
 "settings.mode.manual" = "Manuell";
 "settings.mode.automatic" = "Automatisch";
 "settings.preferred" = "Bevorzugt";
@@ -126,7 +114,7 @@
 "settings.section.response" = "Haltungsreaktion";
 "settings.section.behavior" = "Verhalten";
 "settings.appearance" = "Erscheinungsbild";
-"settings.appearance.auto" = "Auto";
+"settings.appearance.auto" = "Automatisch";
 "settings.appearance.light" = "Hell";
 "settings.appearance.dark" = "Dunkel";
 "settings.active" = "Aktiv";
@@ -135,80 +123,80 @@
 "settings.preferredNeedsCalibration" = "Bevorzugtes Gerät muss kalibriert werden";
 "settings.calibratePreferred" = "Kalibrieren";
 "settings.profile" = "Profil";
-"settings.profile.help" = "Speichern Sie verschiedene Konfigurationen für verschiedene Situationen. Wechseln Sie das Profil, um alle Einstellungen sofort anzuwenden.";
+"settings.profile.help" = "Speichere verschiedene Konfigurationen für unterschiedliche Situationen.";
 "settings.profile.new" = "Neu";
 "settings.profile.newTitle" = "Neues Profil";
-"settings.profile.namePrompt" = "Benennen Sie Ihr Einstellungsprofil.";
+"settings.profile.namePrompt" = "Gib deinem Profil einen Namen.";
 "settings.profile.namePlaceholder" = "Profilname";
 "settings.profile.create" = "Erstellen";
 "settings.profile.deleteTitle" = "Profil löschen";
-"settings.profile.deleteMessage" = "Möchten Sie dieses Profil wirklich löschen? Dies kann nicht rückgängig gemacht werden.";
+"settings.profile.deleteMessage" = "Möchtest du dieses Profil wirklich löschen?";
 "settings.profile.delete" = "Löschen";
 "settings.warning" = "Warnung";
-"settings.warning.help" = "Unschärfe verdunkelt den Bildschirm, Leuchten zeigt einen Leuchteffekt am Rand, Rahmen zeigt farbige Ränder, Vollton füllt den Bildschirm. Keine deaktiviert visuelle Warnungen.";
-"settings.deadZone" = "Toleranz";
-"settings.deadZone.help" = "Wie viel Sie sich bewegen können, bevor die Warnung beginnt. Ein lockerer Toleranzbereich erlaubt mehr natürliche Bewegung.";
+"settings.warning.help" = "Weichzeichnen verdeckt den Bildschirm, Leuchten zeigt Randleuchten, Rahmen zeigt farbige Ränder, Vollton füllt den Bildschirm.";
+"settings.deadZone" = "Toleranzbereich";
+"settings.deadZone.help" = "Wie stark du dich bewegen kannst, bevor die Warnung beginnt.";
 "settings.intensity" = "Intensität";
-"settings.intensity.help" = "Wie schnell die Warnung zunimmt, wenn Sie über den Toleranzbereich hinaus einsinken.";
+"settings.intensity.help" = "Wie schnell die Warnung zunimmt, wenn du dich weiter krümmst.";
 "settings.delay" = "Verzögerung";
-"settings.delay.help" = "Karenzzeit, bevor die Warnung aktiviert wird. Ermöglicht kurze Blicke auf die Tastatur ohne Auslösung.";
+"settings.delay.help" = "Gnadenfrist vor Aktivierung der Warnung.";
 "settings.detection" = "Erkennung";
-"settings.detection.help" = "Balance zwischen Reaktionsfähigkeit und Akku. Reaktiv erkennt schnell, Leistung schont den Akku.";
-"settings.launchAtLogin" = "Beim Anmelden starten";
+"settings.detection.help" = "Abwägung zwischen Reaktionsgeschwindigkeit und Akkulaufzeit.";
+"settings.launchAtLogin" = "Bei der Anmeldung starten";
 "settings.launchAtLogin.help" = "PostureAI automatisch beim Anmelden starten";
 "settings.autoUpdates" = "Automatische Updates";
-"settings.autoUpdates.help" = "Im Hintergrund nach neuen Versionen suchen und deren Installation anbieten";
+"settings.autoUpdates.help" = "Im Hintergrund nach neuen Versionen suchen";
 "settings.showInDock" = "Im Dock anzeigen";
-"settings.showInDock.help" = "PostureAI im Dock und bei Cmd+Tab anzeigen";
-"settings.blurWhenAway" = "Bei Abwesenheit unscharf";
-"settings.blurWhenAway.help.camera" = "Volle Unschärfe anwenden, wenn Sie sich entfernen";
-"settings.blurWhenAway.help.airpods" = "Volle Unschärfe anwenden, wenn Sie sich entfernen. Nur verfügbar bei Kamera-Erkennung.";
+"settings.showInDock.help" = "PostureAI im Dock und in Cmd+Tab anzeigen";
+"settings.blurWhenAway" = "Weichzeichnen bei Abwesenheit";
+"settings.blurWhenAway.help.camera" = "Vollständig weichzeichnen, wenn du weggehst";
+"settings.blurWhenAway.help.airpods" = "Vollständig weichzeichnen bei Abwesenheit. Nur mit Kamera verfügbar.";
 "settings.pauseOnTheGo" = "Unterwegs pausieren";
-"settings.pauseOnTheGo.help" = "Automatisch pausieren bei reinem Laptop-Display";
-"settings.pauseOnBattery" = "Im Akkubetrieb pausieren";
-"settings.pauseOnBattery.help" = "Automatisch pausieren, um im Akkubetrieb Strom zu sparen";
+"settings.pauseOnTheGo.help" = "Automatisch pausieren bei reiner Laptop-Bildschirmnutzung";
+"settings.pauseOnBattery" = "Bei Akkubetrieb pausieren";
+"settings.pauseOnBattery.help" = "Automatisch pausieren, um Akku zu sparen";
 "settings.fullScreenOverlay" = "Vollbild-Overlay";
-"settings.fullScreenOverlay.help" = "Effekte auf Dock und Menüleiste ausdehnen";
-"settings.shortcut" = "Tastenkürzel";
-"settings.shortcut.help" = "Globales Tastenkürzel zum Ein-/Ausschalten von PostureAI. Klicken Sie auf das Feld und drücken Sie die gewünschte Tastenkombination.";
+"settings.fullScreenOverlay.help" = "Effekte über Dock und Menüleiste erstrecken";
+"settings.shortcut" = "Tastaturkurzbefehl";
+"settings.shortcut.help" = "Globaler Kurzbefehl zum Ein-/Ausschalten von PostureAI.";
 "settings.shortcut.press" = "Drücken...";
 "settings.compatibilityMode" = "Kompatibilitätsmodus";
-"settings.compatibilityMode.help" = "Aktivieren, wenn die Unschärfe nicht erscheint";
+"settings.compatibilityMode.help" = "Aktivieren, falls das Weichzeichnen nicht erscheint";
 "settings.viewOnGitHub" = "Auf GitHub ansehen";
 "settings.joinDiscord" = "Discord beitreten";
 
-// Settings slider labels
 "settings.deadZone.strict" = "Streng";
 "settings.deadZone.tight" = "Eng";
 "settings.deadZone.medium" = "Mittel";
-"settings.deadZone.relaxed" = "Locker";
-"settings.deadZone.loose" = "Weit";
+"settings.deadZone.relaxed" = "Entspannt";
+"settings.deadZone.loose" = "Locker";
 "settings.intensity.gentle" = "Sanft";
 "settings.intensity.easy" = "Leicht";
 "settings.intensity.medium" = "Mittel";
-"settings.intensity.firm" = "Fest";
+"settings.intensity.firm" = "Bestimmt";
 "settings.intensity.aggressive" = "Aggressiv";
 
-// MARK: - Analytics (AnalyticsWindow.swift)
-
-"analytics.title" = "Statistiken";
-"analytics.header" = "Haltungsstatistiken";
-"analytics.tagline" = "Verfolgen Sie Ihre Gewohnheiten und Verbesserung im Laufe der Zeit";
-"analytics.todayScore" = "Heutige Bewertung";
+// MARK: - Analytics
+"analytics.title" = "Analysen";
+"analytics.header" = "Haltungsanalysen";
+"analytics.tagline" = "Verfolge deine Gewohnheiten und Fortschritte";
+"analytics.todayScore" = "Heutige Punktzahl";
 "analytics.monitoringTime" = "Überwachungszeit";
-"analytics.slouchDuration" = "Dauer schlechter Haltung";
-"analytics.slouchEvents" = "Haltungsvorfälle";
+"analytics.slouchDuration" = "Dauer krummer Haltung";
+"analytics.slouchEvents" = "Haltungsfehler";
 "analytics.last7Days" = "Letzte 7 Tage";
+"analytics.currentStreak" = "Aktuelle Serie";
+"analytics.days" = "Tage";
+"analytics.bestHour" = "Beste Stunde heute";
+"analytics.worstHour" = "Schlechteste Stunde heute";
 
-// MARK: - Onboarding (OnboardingWindow.swift)
-
+// MARK: - Onboarding
 "onboarding.title" = "Willkommen bei PostureAI";
-"onboarding.subtitle" = "Wählen Sie, wie Sie Ihre Haltung überwachen möchten";
+"onboarding.subtitle" = "Wähle, wie du deine Haltung überwachen möchtest";
 "onboarding.selectCamera" = "Kamera auswählen";
 "onboarding.pairedAirPods" = "Gekoppelte AirPods";
 "onboarding.unavailable" = "Nicht verfügbar";
 "onboarding.continue" = "Weiter";
 
 // MARK: - Common
-
 "common.cancel" = "Abbrechen";

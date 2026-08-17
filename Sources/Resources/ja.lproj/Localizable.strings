@@ -1,9 +1,8 @@
 /* PostureAI - Japanese Localizable Strings */
 
-// MARK: - Menu Bar (MenuBar.swift)
-
-"menu.status.starting" = "状態: 起動中...";
-"menu.enable" = "有効にする";
+// MARK: - Menu Bar
+"menu.status.starting" = "ステータス: 起動中...";
+"menu.enable" = "有効化";
 "menu.recalibrate" = "再キャリブレーション";
 "menu.support" = "サポート";
 "menu.analytics" = "統計";
@@ -11,204 +10,193 @@
 "menu.quit" = "終了";
 "menu.checkForUpdates" = "アップデートを確認…";
 
-// MARK: - App Menu (PostureAIMain.swift)
-
+// MARK: - App Menu
 "appmenu.quit" = "PostureAI を終了";
-"appmenu.closeWindow" = "ウインドウを閉じる";
+"appmenu.closeWindow" = "ウィンドウを閉じる";
 "appmenu.file" = "ファイル";
 "appmenu.edit" = "編集";
-"appmenu.undo" = "取り消す";
-"appmenu.redo" = "やり直す";
-"appmenu.cut" = "カット";
+"appmenu.undo" = "取り消し";
+"appmenu.redo" = "やり直し";
+"appmenu.cut" = "切り取り";
 "appmenu.copy" = "コピー";
-"appmenu.paste" = "ペースト";
-"appmenu.selectAll" = "すべてを選択";
+"appmenu.paste" = "貼り付け";
+"appmenu.selectAll" = "すべて選択";
 
-// MARK: - Status Text (PostureUIState.swift)
+// MARK: - Status Text
+"status.disabled" = "ステータス: 無効";
+"status.calibrating" = "ステータス: 調整中...";
+"status.starting" = "ステータス: 起動中...";
+"status.away" = "ステータス: 離席中";
+"status.slouching" = "ステータス: 姿勢が崩れています";
+"status.goodPosture" = "ステータス: 良い姿勢";
+"status.calibrationNeeded" = "ステータス: 調整が必要です";
+"status.pausedOnTheGo" = "ステータス: 一時停止中（移動中 - 再調整してください）";
+"status.cameraDisconnected" = "ステータス: カメラ切断";
+"status.airPodsDisconnected" = "ステータス: AirPods切断";
+"status.pausedScreenLocked" = "ステータス: 一時停止中（画面ロック）";
+"status.pausedPutInAirPods" = "ステータス: 一時停止中（AirPodsを装着してください）";
+"status.pausedOnBattery" = "ステータス: 一時停止中（バッテリー駆動）";
 
-"status.disabled" = "状態: 無効";
-"status.calibrating" = "状態: キャリブレーション中...";
-"status.starting" = "状態: 起動中...";
-"status.away" = "状態: 離席中";
-"status.slouching" = "状態: 姿勢が悪い";
-"status.goodPosture" = "状態: 良い姿勢";
-"status.calibrationNeeded" = "状態: キャリブレーションが必要";
-"status.pausedOnTheGo" = "状態: 一時停止 (移動中 - 再キャリブレーション)";
-"status.cameraDisconnected" = "状態: カメラ未接続";
-"status.airPodsDisconnected" = "状態: AirPods 未接続";
-"status.pausedScreenLocked" = "状態: 一時停止 (画面ロック中)";
-"status.pausedPutInAirPods" = "状態: 一時停止 (AirPods を装着してください)";
-"status.pausedOnBattery" = "状態: 一時停止 (バッテリー駆動中)";
-
-// MARK: - Menu Bar Icon Accessibility (Models.swift)
-
+// MARK: - Accessibility
 "accessibility.goodPosture" = "良い姿勢";
 "accessibility.badPosture" = "悪い姿勢";
 "accessibility.away" = "離席中";
 "accessibility.paused" = "一時停止";
-"accessibility.calibrating" = "キャリブレーション中";
+"accessibility.calibrating" = "調整中";
 
-// MARK: - Warning Mode (SettingsWindow.swift)
-
+// MARK: - Warning Mode
 "warningMode.blur" = "ぼかし";
 "warningMode.glow" = "グロー";
 "warningMode.border" = "枠線";
 "warningMode.solid" = "塗りつぶし";
 "warningMode.none" = "なし";
 
-// MARK: - Detection Mode (Models.swift)
-
-"detectionMode.responsive" = "高速";
+// MARK: - Detection Mode
+"detectionMode.responsive" = "高感度";
 "detectionMode.balanced" = "バランス";
-"detectionMode.performance" = "省エネ";
+"detectionMode.performance" = "省電力";
 
-// MARK: - Tracking Source (PostureDetector.swift)
-
+// MARK: - Tracking Source
 "trackingSource.camera" = "カメラ";
 "trackingSource.airpods" = "AirPods";
-"trackingSource.camera.description" = "カメラで頭の位置を追跡します。すべての Mac カメラで動作します。";
-"trackingSource.airpods.description" = "モーションセンサーで頭の傾きを検出します。AirPods Pro、Max、第3世代、またはANC付き第4世代が必要です。";
-"trackingSource.camera.requirement" = "カメラへのアクセスが必要";
-"trackingSource.airpods.requirement" = "macOS 14以降と対応する AirPods が必要";
+"trackingSource.camera.description" = "カメラを使って頭の位置を追跡します。すべてのMacカメラに対応しています。";
+"trackingSource.airpods.description" = "モーションセンサーで頭の傾きを検出します。AirPods Pro、Max、第3世代、またはANC搭載第4世代が必要です。";
+"trackingSource.camera.requirement" = "カメラへのアクセスが必要です";
+"trackingSource.airpods.requirement" = "macOS 14以降と対応AirPodsが必要です";
 
-// MARK: - AirPods Detector (AirPodsPostureDetector.swift)
-
+// MARK: - AirPods Detector
 "airpods.compatible" = "対応";
-"airpods.noMotionSensors" = "モーションセンサーなし";
-"airpods.requiresMacOS14" = "macOS 14.0 以降が必要";
-"airpods.noCompatibleConnected" = "対応する AirPods が接続されていません";
+"airpods.noMotionSensors" = "モーションセンサー非搭載";
+"airpods.requiresMacOS14" = "macOS 14.0以降が必要です";
+"airpods.noCompatibleConnected" = "対応するAirPodsが接続されていません";
 "airpods.failedCreateManager" = "モーションマネージャーの作成に失敗しました";
-"airpods.noCompatiblePaired" = "対応する AirPods がペアリングされていません。AirPods Pro、Max、第3世代、またはANC付き第4世代をペアリングしてください。";
+"airpods.noCompatiblePaired" = "対応するAirPodsがペアリングされていません。AirPods Pro、Max、第3世代、またはANC搭載第4世代をペアリングしてください。";
 
-// MARK: - Alerts (AppDelegate.swift)
-
-"alert.permissionRequired" = "許可が必要です";
-"alert.permissionRequired.airpods" = "AirPods トラッキングにはモーションとフィットネスの許可が必要です。システム設定 > プライバシーとセキュリティ > モーションとフィットネスで有効にしてください。";
-"alert.permissionRequired.camera" = "カメラの許可が必要です。システム設定 > プライバシーとセキュリティ > カメラで有効にしてください。";
+// MARK: - Alerts
+"alert.permissionRequired" = "権限が必要です";
+"alert.permissionRequired.airpods" = "AirPodsでの追跡には「モーションとフィットネス」の権限が必要です。「システム設定 > プライバシーとセキュリティ > モーションとフィットネス」で有効にしてください。";
+"alert.permissionRequired.camera" = "カメラの権限が必要です。「システム設定 > プライバシーとセキュリティ > カメラ」で有効にしてください。";
 "alert.openSettings" = "設定を開く";
-"alert.cameraNotAvailable" = "カメラを使用できません";
-"alert.cameraNotAvailable.message" = "カメラが接続されていること、カメラへのアクセスが許可されていることを確認してください。";
+"alert.cameraNotAvailable" = "カメラを利用できません";
+"alert.cameraNotAvailable.message" = "カメラが接続され、アクセス権限が許可されているか確認してください。";
 "alert.tryAgain" = "再試行";
-"support.title" = "PostureAIを応援";
-"support.message" = "PostureAIが姿勢の改善に役立ち、応援したいと思っていただけたら、コーヒーをごちそうしてください。";
-"support.button" = "コーヒーをおごる";
+"support.title" = "PostureAI をサポート";
+"support.message" = "PostureAIがお役に立った場合は、開発チームにコーヒーを奢ってサポートしていただけると幸いです。";
+"support.button" = "コーヒーを奢る";
 
-// MARK: - Calibration (CalibrationWindow.swift)
-
-"calibration.lookAtRing" = "リングを見てスペースを押してください";
+// MARK: - Calibration
+"calibration.lookAtRing" = "リングを見つめて Space キーを押してください";
 "calibration.stepOf" = "ステップ %d / %d";
-"calibration.lookAtCorner" = "%@の角を見てください";
-"calibration.lookOtherScreen" = "もう一つの画面を見てください";
+"calibration.lookAtCorner" = "%@ の角を見つめてください";
+"calibration.lookOtherScreen" = "もう一方の画面を見つめてください";
 "calibration.corner.topLeft" = "左上";
 "calibration.corner.topRight" = "右上";
 "calibration.corner.bottomLeft" = "左下";
 "calibration.corner.bottomRight" = "右下";
-/* {BracedText} is rendered as a keyboard keycap — keep the braces and English key name intact */
-"calibration.hint.tapSpace" = "リングを見ながら {Space} を押してください";
-"calibration.hint.escToSkip" = "{Esc} でキャリブレーションをスキップ";
-"calibration.airpods.putIn" = "AirPods を装着してください";
-"calibration.airpods.autoBegin" = "キャリブレーションが自動的に開始されます";
+"calibration.hint.tapSpace" = "リングを見つめながら {Space} を押します";
+"calibration.hint.escToSkip" = "{Esc} で調整をスキップ";
+"calibration.airpods.putIn" = "AirPodsを装着してください";
+"calibration.airpods.autoBegin" = "自動的にキャリブレーションが始まります";
 "calibration.airpods.escToCancel" = "{Esc} でキャンセル";
 
-// MARK: - Settings Window (SettingsWindow.swift)
-
+// MARK: - Settings Window
 "settings.title" = "設定";
 "settings.tracking" = "トラッキング";
-"settings.tracking.help" = "手動は1つのソースを使用します。自動はカメラとAirPodsの間で切り替え、優先ソースを可能な限り使用します。";
+"settings.tracking.help" = "手動モードでは1つのソースを使用します。自動モードでは使用状況に応じてカメラとAirPodsを自動で切り替えます。";
 "settings.noCameras" = "カメラなし";
 "settings.connected" = "接続済み";
 "settings.notConnected" = "未接続";
-"settings.recalibrate" = "再キャリブレーション";
+"settings.recalibrate" = "再調整";
 "settings.mode.manual" = "手動";
 "settings.mode.automatic" = "自動";
 "settings.preferred" = "優先";
 "settings.source" = "ソース";
-"settings.section.response" = "姿勢への反応";
+"settings.section.response" = "警告フィードバック";
 "settings.section.behavior" = "動作";
 "settings.appearance" = "外観";
 "settings.appearance.auto" = "自動";
 "settings.appearance.light" = "ライト";
 "settings.appearance.dark" = "ダーク";
-"settings.active" = "使用中";
-"settings.calibrated" = "校正済み";
-"settings.notCalibrated" = "未校正";
-"settings.preferredNeedsCalibration" = "優先デバイスの校正が必要です";
-"settings.calibratePreferred" = "校正する";
+"settings.active" = "有効";
+"settings.calibrated" = "調整済み";
+"settings.notCalibrated" = "未調整";
+"settings.preferredNeedsCalibration" = "優先デバイスの調整が必要です";
+"settings.calibratePreferred" = "調整する";
 "settings.profile" = "プロファイル";
-"settings.profile.help" = "異なる状況に合わせた設定を保存できます。プロファイルを切り替えて、すべての設定を即座に適用できます。";
-"settings.profile.new" = "新規";
+"settings.profile.help" = "利用シーンに合わせて設定を保存し、瞬時に切り替えることができます。";
+"settings.profile.new" = "新規作成";
 "settings.profile.newTitle" = "新規プロファイル";
-"settings.profile.namePrompt" = "設定プロファイルの名前を入力してください。";
+"settings.profile.namePrompt" = "プロファイル名を入力してください。";
 "settings.profile.namePlaceholder" = "プロファイル名";
 "settings.profile.create" = "作成";
 "settings.profile.deleteTitle" = "プロファイルを削除";
-"settings.profile.deleteMessage" = "このプロファイルを削除しますか？この操作は取り消せません。";
+"settings.profile.deleteMessage" = "このプロファイルを削除してもよろしいですか？";
 "settings.profile.delete" = "削除";
-"settings.warning" = "警告";
-"settings.warning.help" = "ぼかしは画面を不鮮明にし、グローは端に光彩を表示し、枠線は色付きの枠を表示し、塗りつぶしは画面を覆います。なしで視覚警告を無効にします。";
-"settings.deadZone" = "デッドゾーン";
-"settings.deadZone.help" = "警告が始まるまでの許容される動きの範囲。ゆるいデッドゾーンはより自然な動きを許容します。";
-"settings.intensity" = "強度";
-"settings.intensity.help" = "デッドゾーンを超えて姿勢が崩れた時の警告の増加速度。";
-"settings.delay" = "遅延";
-"settings.delay.help" = "警告が有効になるまでの猶予時間。キーボードへのちらっとした視線で警告が出ないようにします。";
-"settings.detection" = "検出";
-"settings.detection.help" = "応答速度とバッテリーのバランス。高速は素早く検出し、省エネはバッテリーを節約します。";
+"settings.warning" = "警告スタイル";
+"settings.warning.help" = "「ぼかし」は画面を曇らせ、「グロー」は外周を光らせ、「枠線」は枠を表示し、「塗りつぶし」は画面を覆います。";
+"settings.deadZone" = "許容範囲 (デッドゾーン)";
+"settings.deadZone.help" = "警告が始まるまでに許容される体の動きの範囲です。";
+"settings.intensity" = "警告の強さ";
+"settings.intensity.help" = "姿勢が崩れたときに警告が強くなる速度です。";
+"settings.delay" = "ディレイ時間";
+"settings.delay.help" = "姿勢が崩れてから警告が発生するまでの猶予時間です。";
+"settings.detection" = "検出モード";
+"settings.detection.help" = "反応速度とバッテリー消費のバランスを設定します。";
 "settings.launchAtLogin" = "ログイン時に起動";
-"settings.launchAtLogin.help" = "ログイン時に PostureAI を自動的に起動";
+"settings.launchAtLogin.help" = "Macのログイン時に PostureAI を自動起動します";
 "settings.autoUpdates" = "自動アップデート";
-"settings.autoUpdates.help" = "バックグラウンドで新しいバージョンを確認し、インストールを提案";
-"settings.showInDock" = "Dock に表示";
-"settings.showInDock.help" = "PostureAI を Dock と Cmd+Tab に表示";
-"settings.blurWhenAway" = "離席時にぼかす";
-"settings.blurWhenAway.help.camera" = "離席時に完全なぼかしを適用";
-"settings.blurWhenAway.help.airpods" = "離席時に完全なぼかしを適用。カメラでの検出時のみ利用可能です。";
-"settings.pauseOnTheGo" = "移動中は一時停止";
-"settings.pauseOnTheGo.help" = "ノートパソコンのディスプレイのみの場合に自動一時停止";
-"settings.pauseOnBattery" = "バッテリー駆動中は一時停止";
-"settings.pauseOnBattery.help" = "バッテリー駆動中は自動的に一時停止して電力を節約";
-"settings.fullScreenOverlay" = "全画面オーバーレイ";
-"settings.fullScreenOverlay.help" = "Dockとメニューバーにも効果を広げる";
-"settings.shortcut" = "ショートカット";
-"settings.shortcut.help" = "PostureAI の有効/無効を切り替えるグローバルキーボードショートカット。フィールドをクリックして、お好みのキーの組み合わせを押してください。";
-"settings.shortcut.press" = "押す...";
+"settings.autoUpdates.help" = "バックグラウンドで新バージョンを確認します";
+"settings.showInDock" = "Dockに表示";
+"settings.showInDock.help" = "PostureAI を Dock と Cmd+Tab の切り替え画面に表示します";
+"settings.blurWhenAway" = "離席時に画面をぼかす";
+"settings.blurWhenAway.help.camera" = "席を離れたときに画面全体をぼかします";
+"settings.blurWhenAway.help.airpods" = "離席時に画面をぼかします（カメラ使用時のみ利用可能）。";
+"settings.pauseOnTheGo" = "外出時に一時停止";
+"settings.pauseOnTheGo.help" = "MacBook単体使用時に自動で一時停止します";
+"settings.pauseOnBattery" = "バッテリー駆動時に一時停止";
+"settings.pauseOnBattery.help" = "バッテリー使用時に省電力のため自動停止します";
+"settings.fullScreenOverlay" = "フルスクリーンオーバーレイ";
+"settings.fullScreenOverlay.help" = "Dockやメニューバーの上にも警告エフェクトを拡大します";
+"settings.shortcut" = "ショートカットキー";
+"settings.shortcut.help" = "PostureAI を切り替えるグローバルショートカットキーです。";
+"settings.shortcut.press" = "キーを押してください...";
 "settings.compatibilityMode" = "互換モード";
 "settings.compatibilityMode.help" = "ぼかしが表示されない場合に有効にしてください";
-"settings.viewOnGitHub" = "GitHub で見る";
+"settings.viewOnGitHub" = "GitHub で表示";
 "settings.joinDiscord" = "Discord に参加";
 
-// Settings slider labels
 "settings.deadZone.strict" = "厳格";
-"settings.deadZone.tight" = "狭い";
-"settings.deadZone.medium" = "中間";
-"settings.deadZone.relaxed" = "ゆるい";
-"settings.deadZone.loose" = "広い";
-"settings.intensity.gentle" = "穏やか";
-"settings.intensity.easy" = "軽い";
-"settings.intensity.medium" = "中間";
-"settings.intensity.firm" = "強い";
-"settings.intensity.aggressive" = "最強";
+"settings.deadZone.tight" = "狭め";
+"settings.deadZone.medium" = "標準";
+"settings.deadZone.relaxed" = "広め";
+"settings.deadZone.loose" = "寛容";
+"settings.intensity.gentle" = "控えめ";
+"settings.intensity.easy" = "弱め";
+"settings.intensity.medium" = "標準";
+"settings.intensity.firm" = "強め";
+"settings.intensity.aggressive" = "強力";
 
-// MARK: - Analytics (AnalyticsWindow.swift)
-
+// MARK: - Analytics
 "analytics.title" = "統計";
-"analytics.header" = "姿勢の統計";
-"analytics.tagline" = "習慣と改善を追跡しましょう";
+"analytics.header" = "姿勢のアナリティクス";
+"analytics.tagline" = "姿勢の習慣と改善の経過を記録します";
 "analytics.todayScore" = "今日のスコア";
-"analytics.monitoringTime" = "モニタリング時間";
+"analytics.monitoringTime" = "記録時間";
 "analytics.slouchDuration" = "姿勢悪化の時間";
 "analytics.slouchEvents" = "姿勢悪化の回数";
-"analytics.last7Days" = "過去7日間";
+"analytics.last7Days" = "過去 7 日間";
+"analytics.currentStreak" = "連続達成日数";
+"analytics.days" = "日";
+"analytics.bestHour" = "今日のベスト時間帯";
+"analytics.worstHour" = "今日のワースト時間帯";
 
-// MARK: - Onboarding (OnboardingWindow.swift)
-
+// MARK: - Onboarding
 "onboarding.title" = "PostureAI へようこそ";
-"onboarding.subtitle" = "姿勢の追跡方法を選択してください";
+"onboarding.subtitle" = "姿勢の測定方法を選択してください";
 "onboarding.selectCamera" = "カメラを選択";
-"onboarding.pairedAirPods" = "ペアリング済み AirPods";
+"onboarding.pairedAirPods" = "ペアリング済みAirPods";
 "onboarding.unavailable" = "利用不可";
-"onboarding.continue" = "続ける";
+"onboarding.continue" = "次へ";
 
 // MARK: - Common
-
 "common.cancel" = "キャンセル";

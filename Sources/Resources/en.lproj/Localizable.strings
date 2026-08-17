@@ -199,6 +199,10 @@
 "analytics.slouchDuration" = "Slouch Duration";
 "analytics.slouchEvents" = "Slouch Events";
 "analytics.last7Days" = "Last 7 Days";
+"analytics.currentStreak" = "Current Streak";
+"analytics.days" = "Days";
+"analytics.bestHour" = "Best Hour Today";
+"analytics.worstHour" = "Worst Hour Today";
 
 // MARK: - Onboarding (OnboardingWindow.swift)
 

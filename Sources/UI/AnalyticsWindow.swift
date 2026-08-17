@@ -292,14 +292,14 @@ struct HourlyHighlightCard: View {
     let hour: Int?
     let icon: String
     let color: Color
-
+    
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(color)
                 .frame(width: 24)
-
+            
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(size: 11))
@@ -320,11 +320,11 @@ struct HourlyHighlightCard: View {
                 .stroke(Color.primary.opacity(0.06), lineWidth: 1)
         )
     }
-
+    
     private func formattedHour(_ hour: Int?) -> String {
-        guard let hour else { return "N/A (< 5m data)" }
+        guard let hour else { return L("analytics.insufficientData") }
         let components = DateComponents(hour: hour)
-        guard let date = Calendar.current.date(from: components) else { return "N/A" }
+        guard let date = Calendar.current.date(from: components) else { return L("analytics.insufficientData") }
         return date.formatted(.dateTime.hour())
     }
 }

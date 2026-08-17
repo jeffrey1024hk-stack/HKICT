@@ -7,9 +7,8 @@ import SwiftUI
 import SwiftUI
 
 extension String {
-    /// Helper to look up keys directly in SPM's Bundle.module
     var localized: String {
-        NSLocalizedString(self, bundle: .module, comment: "")
+        L(self)
     }
 }
 

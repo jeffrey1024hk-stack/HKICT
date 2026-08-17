@@ -27,9 +27,9 @@ struct SettingsView: View {
     @State private var warningOnsetDelay: Double
     @State private var launchAtLogin: Bool
     @State private var appAppearance: AppAppearance
-    #if !APP_STORE
-    @State private var autoCheckForUpdates: Bool
-    #endif
+    
+    // Auto-update state removed here as requested
+    
     @State private var toggleShortcutEnabled: Bool
     @State private var toggleShortcut: KeyboardShortcut
     @State private var detectionModeSlider: Double
@@ -69,7 +69,6 @@ struct SettingsView: View {
         self.appDelegate = appDelegate
         self.settingsProfileManager = settingsProfileManager
 
-        // Initialize all state from appDelegate synchronously to ensure correct sizing
         let cameras = appDelegate.cameraDetector.getAvailableCameras()
         let cameraList = cameras.map { (id: $0.uniqueID, name: $0.localizedName) }
 
@@ -97,9 +96,9 @@ struct SettingsView: View {
         _warningOnsetDelay = State(initialValue: profileWarningOnsetDelay)
         _launchAtLogin = State(initialValue: SMAppService.mainApp.status == .enabled)
         _appAppearance = State(initialValue: appDelegate.appAppearance)
-        #if !APP_STORE
-        _autoCheckForUpdates = State(initialValue: appDelegate.updaterManager?.automaticallyChecksForUpdates ?? false)
-        #endif
+        
+        // Auto-update initialization removed here
+        
         _toggleShortcutEnabled = State(initialValue: appDelegate.toggleShortcutEnabled)
         _toggleShortcut = State(initialValue: appDelegate.toggleShortcut)
         _detectionModeSlider = State(initialValue: Double(detectionModes.firstIndex(of: profileDetectionMode) ?? 0))
@@ -113,6 +112,7 @@ struct SettingsView: View {
         _cameraCalibrated = State(initialValue: appDelegate.cameraCalibration?.isValid ?? false)
         _airPodsCalibrated = State(initialValue: appDelegate.airPodsCalibration?.isValid ?? false)
         _activeSource = State(initialValue: appDelegate.activeTrackingSource)
+        
         settingsProfileManager.ensureProfilesLoaded()
         let snapshot = settingsProfileManager.profilesState()
         let profiles = snapshot.profiles
@@ -122,270 +122,301 @@ struct SettingsView: View {
         _lastSelectedSettingsProfileID = State(initialValue: initialProfileID)
     }
 
+    // MARK: - Body (Broken down for swift compiler performance)
+
     var body: some View {
         VStack(spacing: 0) {
-            // Compact Header
-            HStack(spacing: 8) {
-                if let appIcon = NSImage(named: NSImage.applicationIconName) {
-                    Image(nsImage: appIcon)
-                        .resizable()
-                        .frame(width: 28, height: 28)
-                }
-                Text("PostureAI")
-                    .font(.system(size: 15, weight: .semibold))
-
-                Spacer()
-
-                // Social links
-                HStack(spacing: 4) {
-                    Link(destination: URL(string: "https://github.com/jeffrey1024hk-stack/HKICT")!) {
-                        GitHubIcon(color: Color.secondary.opacity(0.6))
-                            .frame(width: 14, height: 14)
-                            .padding(3)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .onHover { hovering in
-                        if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-                    }
-                    .help(L("settings.viewOnGitHub"))
-
-                    Link(destination: URL(string: "https://discord.gg/6Ufy2SnXDW")!) {
-                        DiscordIcon(color: Color.secondary.opacity(0.6))
-                            .frame(width: 14, height: 14)
-                            .padding(3)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .onHover { hovering in
-                        if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
-                    }
-                    .help(L("settings.joinDiscord"))
-                }
-
-                if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-                    Text("v\(version)")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.primary.opacity(0.05)))
-                }
-            }
-            .padding(.bottom, 12)
-
+            headerView
+            
             VStack(spacing: 10) {
+                trackingCardView
+                responseCardView
+                behaviorCardView
+            }
+        }
+        .padding(16)
+        .frame(width: 480)
+        .fixedSize(horizontal: false, vertical: true)
+        .alert(L("settings.profile.newTitle"), isPresented: $showingNewProfilePrompt) {
+            TextField(L("settings.profile.namePlaceholder"), text: $newProfileName)
+            Button(L("common.cancel"), role: .cancel) { newProfileName = "" }
+            Button(L("common.create")) { createNewProfile() }
+                .disabled(newProfileName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .alert(L("settings.profile.deleteTitle"), isPresented: $showingDeleteConfirmation) {
+            Button(L("common.cancel"), role: .cancel) {}
+            Button(L("common.delete"), role: .destructive) { deleteCurrentProfile() }
+        } message: {
+            Text(L("settings.profile.deleteMessage"))
+        }
+    }
 
-            // Tracking card: mode picker in the header, source + device below
-            SettingsCard(icon: "scope", title: L("settings.tracking"), helpText: L("settings.tracking.help")) {
-                CompactModePicker(selection: $trackingModeSelection)
-                    .frame(width: 170)
-                    .onChange(of: trackingModeSelection) { newValue in
-                        Task { @MainActor in
-                            await appDelegate.setTrackingMode(newValue)
-                            activeSource = appDelegate.activeTrackingSource
-                        }
-                    }
-            } content: {
-                VStack(spacing: 6) {
+    // MARK: - Header Section
 
-                if trackingModeSelection == .manual {
-                    // Manual mode: source picker + device row for selected source
-                    HStack(spacing: 8) {
-                        Text(L("settings.source"))
-                            .font(.system(size: 11))
+    @ViewBuilder
+    private var headerView: some View {
+        HStack(spacing: 8) {
+            if let appIcon = NSImage(named: NSImage.applicationIconName) {
+                Image(nsImage: appIcon)
+                    .resizable()
+                    .frame(width: 28, height: 28)
+            }
+            Text("PostureAI")
+                .font(.system(size: 15, weight: .semibold))
 
-                        Spacer()
+            Spacer()
 
-                        CompactTrackingSourcePicker(
-                            selection: $trackingSource,
-                            airPodsAvailable: airPodsAvailable
-                        )
-                        .frame(width: 170)
-                        .onChange(of: trackingSource) { newValue in
-                            if newValue != appDelegate.trackingSource {
-                                Task { @MainActor in
-                                    await appDelegate.switchTrackingSource(to: newValue)
-                                }
-                            }
-                        }
-                    }
-                    .frame(height: 26)
-
-                    DeviceStatusRow(
-                        source: trackingSource,
-                        isCalibrated: trackingSource == .camera ? cameraCalibrated : airPodsCalibrated,
-                        isConnected: trackingSource == .camera ? !availableCameras.isEmpty : airPodsConnected,
-                        isPreferred: false,
-                        isActive: appDelegate.state.isActive,
-                        cameraDropdown: trackingSource == .camera && !availableCameras.isEmpty ? AnyView(
-                            Picker("", selection: $selectedCameraID) {
-                                ForEach(availableCameras, id: \.id) { camera in
-                                    Text(camera.name).tag(camera.id)
-                                }
-                            }
-                            .labelsHidden()
-                            .frame(minWidth: 130, maxWidth: 220)
-                            .onChange(of: selectedCameraID) { newValue in
-                                if newValue != appDelegate.selectedCameraID {
-                                    appDelegate.selectedCameraID = newValue
-                                    appDelegate.saveSettings()
-                                    appDelegate.restartCamera()
-                                }
-                            }
-                        ) : nil,
-                        onCalibrate: {
-                            appDelegate.startCalibration()
-                        }
-                    )
-                } else {
-                    // Automatic mode layout
-                    VStack(spacing: 6) {
-                        // Preferred source picker
-                        HStack(spacing: 8) {
-                            Text(L("settings.preferred"))
-                                .font(.system(size: 11))
-
-                            Spacer()
-
-                            CompactTrackingSourcePicker(
-                                selection: $preferredSource,
-                                airPodsAvailable: true
-                            )
-                            .frame(width: 170)
-                            .onChange(of: preferredSource) { newValue in
-                                Task { @MainActor in
-                                    await appDelegate.setPreferredSource(newValue)
-                                    activeSource = appDelegate.activeTrackingSource
-                                }
-                            }
-                        }
-                        .frame(height: 26)
-
-                        // Device status rows
-                        DeviceStatusRow(
-                            source: .camera,
-                            isCalibrated: cameraCalibrated,
-                            isConnected: !availableCameras.isEmpty,
-                            isPreferred: preferredSource == .camera,
-                            isActive: activeSource == .camera && appDelegate.state.isActive,
-                            cameraDropdown: availableCameras.isEmpty ? nil : AnyView(
-                                Picker("", selection: $selectedCameraID) {
-                                    ForEach(availableCameras, id: \.id) { camera in
-                                        Text(camera.name).tag(camera.id)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(minWidth: 130, maxWidth: 220)
-                                .onChange(of: selectedCameraID) { newValue in
-                                    if newValue != appDelegate.selectedCameraID {
-                                        appDelegate.selectedCameraID = newValue
-                                        appDelegate.saveSettings()
-                                        appDelegate.restartCamera()
-                                    }
-                                }
-                            ),
-                            onCalibrate: {
-                                appDelegate.startCalibration(for: .camera)
-                            }
-                        )
-
-                        DeviceStatusRow(
-                            source: .airpods,
-                            isCalibrated: airPodsCalibrated,
-                            isConnected: airPodsConnected,
-                            isPreferred: preferredSource == .airpods,
-                            isActive: activeSource == .airpods && appDelegate.state.isActive,
-                            onCalibrate: {
-                                appDelegate.startCalibration(for: .airpods)
-                            }
-                        )
-
-                        // Warning banner when preferred device not calibrated
-                        if (preferredSource == .camera && !cameraCalibrated)
-                            || (preferredSource == .airpods && !airPodsCalibrated)
-                        {
-                            HStack(spacing: 6) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.orange)
-                                Text(L("settings.preferredNeedsCalibration"))
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 6)
-                            .background(
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .fill(Color.orange.opacity(0.08))
-                            )
-                        }
-                    }
+            HStack(spacing: 4) {
+                Link(destination: URL(string: "https://github.com/jeffrey1024hk-stack/HKICT")!) {
+                    GitHubIcon(color: Color.secondary.opacity(0.6))
+                        .frame(width: 14, height: 14)
+                        .padding(3)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .onHover { hovering in
+                    if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
                 }
+                .help(L("settings.viewOnGitHub"))
+
+                Link(destination: URL(string: "https://discord.gg/6Ufy2SnXDW")!) {
+                    DiscordIcon(color: Color.secondary.opacity(0.6))
+                        .frame(width: 14, height: 14)
+                        .padding(3)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .onHover { hovering in
+                    if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                }
+                .help(L("settings.joinDiscord"))
             }
 
-            // Posture response card: profile management in the header,
-            // warning style + tuning sliders below
-            SettingsCard(icon: "slider.horizontal.3", title: L("settings.section.response"), helpText: L("settings.profile.help")) {
-                    HStack(spacing: 4) {
-                        Picker("", selection: $selectedSettingsProfileID) {
-                            ForEach(settingsProfiles) { profile in
-                                Text(profile.name).tag(profile.id)
-                            }
-                        }
-                        .labelsHidden()
-                        .frame(width: 100)
-                        .onChange(of: selectedSettingsProfileID) { newValue in
-                            handleProfileSelectionChange(newValue)
-                        }
+            if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                Text("v\(version)")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.primary.opacity(0.05)))
+            }
+        }
+        .padding(.bottom, 12)
+    }
 
-                        Button(action: {
-                            newProfileName = ""
-                            showingNewProfilePrompt = true
-                        }) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.brandCyan)
-                                .frame(width: 24, height: 20)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                        .fill(Color.brandCyan.opacity(0.1))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                        .strokeBorder(Color.brandCyan.opacity(0.3), lineWidth: 1)
-                                )
-                        }
-                        .buttonStyle(.plain)
-                        .help(L("settings.profile.new"))
+    // MARK: - Tracking Card
 
-                        // Delete button - only enabled for non-Default profiles when more than one exists
-                        Button(action: {
-                            showingDeleteConfirmation = true
-                        }) {
-                            Image(systemName: "trash")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(canDeleteCurrentProfile ? .red.opacity(0.8) : .secondary.opacity(0.4))
-                                .frame(width: 24, height: 20)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                        .fill(canDeleteCurrentProfile ? Color.red.opacity(0.08) : Color.primary.opacity(0.04))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                        .strokeBorder(canDeleteCurrentProfile ? Color.red.opacity(0.25) : Color.primary.opacity(0.06), lineWidth: 1)
-                                )
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(!canDeleteCurrentProfile)
-                        .help(L("settings.profile.deleteTitle"))
+    @ViewBuilder
+    private var trackingCardView: some View {
+        SettingsCard(icon: "scope", title: L("settings.tracking"), helpText: L("settings.tracking.help")) {
+            CompactModePicker(selection: $trackingModeSelection)
+                .frame(width: 170)
+                .onChange(of: trackingModeSelection) { newValue in
+                    Task { @MainActor in
+                        await appDelegate.setTrackingMode(newValue)
+                        activeSource = appDelegate.activeTrackingSource
                     }
-            } content: {
-                VStack(spacing: 6) {
+                }
+        } content: {
+            VStack(spacing: 6) {
+                if trackingModeSelection == .manual {
+                    manualTrackingContent
+                } else {
+                    automaticTrackingContent
+                }
+            }
+        }
+    }
 
-                // Warning row
+    @ViewBuilder
+    private var manualTrackingContent: some View {
+        HStack(spacing: 8) {
+            Text(L("settings.source"))
+                .font(.system(size: 11))
+
+            Spacer()
+
+            CompactTrackingSourcePicker(
+                selection: $trackingSource,
+                airPodsAvailable: airPodsAvailable
+            )
+            .frame(width: 170)
+            .onChange(of: trackingSource) { newValue in
+                if newValue != appDelegate.trackingSource {
+                    Task { @MainActor in
+                        await appDelegate.switchTrackingSource(to: newValue)
+                    }
+                }
+            }
+        }
+        .frame(height: 26)
+
+        DeviceStatusRow(
+            source: trackingSource,
+            isCalibrated: trackingSource == .camera ? cameraCalibrated : airPodsCalibrated,
+            isConnected: trackingSource == .camera ? !availableCameras.isEmpty : airPodsConnected,
+            isPreferred: false,
+            isActive: appDelegate.state.isActive,
+            cameraDropdown: trackingSource == .camera && !availableCameras.isEmpty ? AnyView(
+                Picker("", selection: $selectedCameraID) {
+                    ForEach(availableCameras, id: \.id) { camera in
+                        Text(camera.name).tag(camera.id)
+                    }
+                }
+                .labelsHidden()
+                .frame(minWidth: 130, maxWidth: 220)
+                .onChange(of: selectedCameraID) { newValue in
+                    if newValue != appDelegate.selectedCameraID {
+                        appDelegate.selectedCameraID = newValue
+                        appDelegate.saveSettings()
+                        appDelegate.restartCamera()
+                    }
+                }
+            ) : nil,
+            onCalibrate: {
+                appDelegate.startCalibration()
+            }
+        )
+    }
+
+    @ViewBuilder
+    private var automaticTrackingContent: some View {
+        HStack(spacing: 8) {
+            Text(L("settings.preferred"))
+                .font(.system(size: 11))
+
+            Spacer()
+
+            CompactTrackingSourcePicker(
+                selection: $preferredSource,
+                airPodsAvailable: true
+            )
+            .frame(width: 170)
+            .onChange(of: preferredSource) { newValue in
+                Task { @MainActor in
+                    await appDelegate.setPreferredSource(newValue)
+                    activeSource = appDelegate.activeTrackingSource
+                }
+            }
+        }
+        .frame(height: 26)
+
+        DeviceStatusRow(
+            source: .camera,
+            isCalibrated: cameraCalibrated,
+            isConnected: !availableCameras.isEmpty,
+            isPreferred: preferredSource == .camera,
+            isActive: activeSource == .camera && appDelegate.state.isActive,
+            cameraDropdown: availableCameras.isEmpty ? nil : AnyView(
+                Picker("", selection: $selectedCameraID) {
+                    ForEach(availableCameras, id: \.id) { camera in
+                        Text(camera.name).tag(camera.id)
+                    }
+                }
+                .labelsHidden()
+                .frame(minWidth: 130, maxWidth: 220)
+                .onChange(of: selectedCameraID) { newValue in
+                    if newValue != appDelegate.selectedCameraID {
+                        appDelegate.selectedCameraID = newValue
+                        appDelegate.saveSettings()
+                        appDelegate.restartCamera()
+                    }
+                }
+            ),
+            onCalibrate: {
+                appDelegate.startCalibration(for: .camera)
+            }
+        )
+
+        DeviceStatusRow(
+            source: .airpods,
+            isCalibrated: airPodsCalibrated,
+            isConnected: airPodsConnected,
+            isPreferred: preferredSource == .airpods,
+            isActive: activeSource == .airpods && appDelegate.state.isActive,
+            onCalibrate: {
+                appDelegate.startCalibration(for: .airpods)
+            }
+        )
+
+        if (preferredSource == .camera && !cameraCalibrated) || (preferredSource == .airpods && !airPodsCalibrated) {
+            HStack(spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 10))
+                    .foregroundColor(.orange)
+                Text(L("settings.preferredNeedsCalibration"))
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(Color.orange.opacity(0.08))
+            )
+        }
+    }
+
+    // MARK: - Posture Response Card
+
+    @ViewBuilder
+    private var responseCardView: some View {
+        SettingsCard(icon: "slider.horizontal.3", title: L("settings.section.response"), helpText: L("settings.profile.help")) {
+            HStack(spacing: 4) {
+                Picker("", selection: $selectedSettingsProfileID) {
+                    ForEach(settingsProfiles) { profile in
+                        Text(profile.name).tag(profile.id)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 100)
+                .onChange(of: selectedSettingsProfileID) { newValue in
+                    handleProfileSelectionChange(newValue)
+                }
+
+                Button(action: {
+                    newProfileName = ""
+                    showingNewProfilePrompt = true
+                }) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.brandCyan)
+                        .frame(width: 24, height: 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(Color.brandCyan.opacity(0.1))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .strokeBorder(Color.brandCyan.opacity(0.3), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+                .help(L("settings.profile.new"))
+
+                Button(action: {
+                    showingDeleteConfirmation = true
+                }) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(canDeleteCurrentProfile ? .red.opacity(0.8) : .secondary.opacity(0.4))
+                        .frame(width: 24, height: 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(canDeleteCurrentProfile ? Color.red.opacity(0.08) : Color.primary.opacity(0.04))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .strokeBorder(canDeleteCurrentProfile ? Color.red.opacity(0.25) : Color.primary.opacity(0.06), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+                .disabled(!canDeleteCurrentProfile)
+                .help(L("settings.profile.deleteTitle"))
+            }
+        } content: {
+            VStack(spacing: 6) {
                 HStack(spacing: 8) {
                     HStack(spacing: 3) {
                         Text(L("settings.warning"))
@@ -401,8 +432,6 @@ struct SettingsView: View {
                             appDelegate.switchWarningMode()
                         }
 
-                    // Color only applies to the drawn warning styles, so the
-                    // swatch would be dead weight next to Blur/None
                     if warningMode.usesWarningOverlay {
                         InlineColorPicker(color: $warningColor)
                             .onChange(of: warningColor) { newValue in
@@ -414,7 +443,6 @@ struct SettingsView: View {
                 }
                 .frame(height: 26)
 
-                // Sliders
                 CompactSlider(
                     title: L("settings.deadZone"),
                     helpText: L("settings.deadZone.help"),
@@ -471,32 +499,31 @@ struct SettingsView: View {
                     settingsProfileManager.updateActiveProfile(detectionMode: detectionModes[index])
                     appDelegate.applyActiveSettingsProfile()
                 }
-                }
             }
+        }
+    }
 
-            // Behavior card: appearance in the header (matching the other
-            // cards' header-control pattern), app-level toggles below
-            SettingsCard(icon: "switch.2", title: L("settings.section.behavior")) {
-                CompactSegmentedPicker(
-                    // Side effects live in the binding so they run inside the
-                    // click action itself; the custom-drawn controls keep
-                    // their brand colors through the appearance change
-                    selection: Binding(
-                        get: { appAppearance },
-                        set: { newValue in
-                            appDelegate.appAppearance = newValue
-                            appDelegate.saveSettings()
-                            appDelegate.applyAppearance()
-                            appAppearance = newValue
-                        }
-                    ),
-                    options: AppAppearance.allCases.map { ($0, $0.displayName) }
-                )
-                .frame(width: 170)
-                .help(L("settings.appearance"))
-            } content: {
-                VStack(spacing: 6) {
+    // MARK: - Behavior Card
 
+    @ViewBuilder
+    private var behaviorCardView: some View {
+        SettingsCard(icon: "switch.2", title: L("settings.section.behavior")) {
+            CompactSegmentedPicker(
+                selection: Binding(
+                    get: { appAppearance },
+                    set: { newValue in
+                        appDelegate.appAppearance = newValue
+                        appDelegate.saveSettings()
+                        appDelegate.applyAppearance()
+                        appAppearance = newValue
+                    }
+                ),
+                options: AppAppearance.allCases.map { ($0, $0.displayName) }
+            )
+            .frame(width: 170)
+            .help(L("settings.appearance"))
+        } content: {
+            VStack(spacing: 6) {
                 HStack(spacing: 0) {
                     CompactToggle(
                         title: L("settings.launchAtLogin"),
@@ -536,16 +563,6 @@ struct SettingsView: View {
                 #if !APP_STORE
                 HStack(spacing: 0) {
                     CompactToggle(
-                        title: L("settings.autoUpdates"),
-                        helpText: L("settings.autoUpdates.help"),
-                        isOn: $autoCheckForUpdates
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .onChange(of: autoCheckForUpdates) { newValue in
-                        appDelegate.updaterManager?.automaticallyChecksForUpdates = newValue
-                    }
-
-                    CompactToggle(
                         title: L("settings.compatibilityMode"),
                         helpText: L("settings.compatibilityMode.help"),
                         isOn: $useCompatibilityMode
@@ -554,12 +571,12 @@ struct SettingsView: View {
                     .onChange(of: useCompatibilityMode) { newValue in
                         appDelegate.useCompatibilityMode = newValue
                         appDelegate.saveSettings()
-                        // Clear both blur mechanisms, not just the visual
-                        // effect views: the CGS background blur radius of the
-                        // outgoing private-API path survives alpha resets and
-                        // would otherwise stay on screen indefinitely
                         appDelegate.clearBlur()
                     }
+                    
+                    // Empty spacer to maintain layout alignment after removing the updater toggle
+                    Spacer()
+                        .frame(maxWidth: .infinity)
                 }
                 #endif
 
@@ -617,8 +634,6 @@ struct SettingsView: View {
                     }
                 }
 
-                // Shortcut row (full width so the recorder chip doesn't
-                // disrupt the toggle grid rhythm)
                 HStack(spacing: 0) {
                     CompactShortcutRecorder(
                         shortcut: $toggleShortcut,
@@ -632,112 +647,82 @@ struct SettingsView: View {
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                }
-            }
-
             }
         }
-        .padding(16)
-        .frame(width: 480)
-        .fixedSize(horizontal: false, vertical: true)
-        .alert(L("settings.profile.newTitle"), isPresented: $showingNewProfilePrompt) {
-            TextField(L("settings.profile.namePlaceholder"), text: $newProfileName)
-            Button(L("common.cancel"), role: .cancel) {}
-            Button(L("settings.profile.create")) {
-                let trimmedName = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
-                let profileName = trimmedName.isEmpty ? nextDefaultProfileName() : trimmedName
-                let profile = settingsProfileManager.createProfile(
-                    named: profileName,
-                    warningMode: appDelegate.activeWarningMode,
-                    warningColor: appDelegate.activeWarningColor,
-                    deadZone: appDelegate.activeDeadZone,
-                    intensity: appDelegate.activeIntensity,
-                    warningOnsetDelay: appDelegate.activeWarningOnsetDelay,
-                    detectionMode: appDelegate.activeDetectionMode
-                )
-                settingsProfiles = settingsProfileManager.settingsProfiles
-                selectedSettingsProfileID = profile.id
-                lastSelectedSettingsProfileID = profile.id
-                syncProfileSettings()
-            }
-        } message: {
-            Text(L("settings.profile.namePrompt"))
-        }
-        .alert(L("settings.profile.deleteTitle"), isPresented: $showingDeleteConfirmation) {
-            Button(L("common.cancel"), role: .cancel) {}
-            Button(L("settings.profile.delete"), role: .destructive) {
-                if settingsProfileManager.deleteProfile(id: selectedSettingsProfileID) {
-                    settingsProfiles = settingsProfileManager.settingsProfiles
-                    if let newID = settingsProfileManager.currentSettingsProfileID {
-                        selectedSettingsProfileID = newID
-                        lastSelectedSettingsProfileID = newID
-                    }
-                    appDelegate.applyActiveSettingsProfile()
-                    syncProfileSettings()
-                }
-            }
-        } message: {
-            Text(L("settings.profile.deleteMessage"))
-        }
-        .onAppear {
-            appDelegate.onCalibrationComplete = {
-                cameraCalibrated = appDelegate.cameraCalibration?.isValid ?? false
-                airPodsCalibrated = appDelegate.airPodsCalibration?.isValid ?? false
-                airPodsConnected = appDelegate.airPodsDetector.isBluetoothConnected
-                activeSource = appDelegate.activeTrackingSource
-            }
-            appDelegate.onActiveSourceChanged = {
-                activeSource = appDelegate.activeTrackingSource
-            }
-        }
-        .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
-            if trackingModeSelection == .automatic || trackingSource == .airpods {
-                airPodsConnected = appDelegate.airPodsDetector.isBluetoothConnected
-            }
-        }
-        // Cleanup happens in SettingsWindowController.windowWillClose
-        // (not onDisappear, which fires when calibration window covers this view)
     }
 
-    private func syncProfileSettings() {
+    // MARK: - Private Helpers
+
+    private func handleProfileSelectionChange(_ newID: String) {
+        guard !isApplyingProfileSelection, newID != lastSelectedSettingsProfileID else { return }
+        isApplyingProfileSelection = true
+
+        settingsProfileManager.selectProfile(id: newID)
+        lastSelectedSettingsProfileID = newID
+        appDelegate.applyActiveSettingsProfile()
+        syncProfileStateToUI()
+
+        isApplyingProfileSelection = false
+    }
+
+    private func createNewProfile() {
+            let trimmedName = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedName.isEmpty else { return }
+            
+            // Save the returned profile object
+            let newProfile = settingsProfileManager.createProfile(
+                named: trimmedName,
+                warningMode: warningMode,
+                warningColor: NSColor(warningColor),
+                deadZone: deadZone,
+                intensity: intensity,
+                warningOnsetDelay: warningOnsetDelay,
+                detectionMode: detectionModes[Int(detectionModeSlider)]
+            )
+            
+            // Pass the newProfile.id (or newProfile.id.uuidString if your id is a UUID)
+            refreshProfilesState(selectID: newProfile.id)
+            newProfileName = ""
+        }
+
+    private func deleteCurrentProfile() {
+        settingsProfileManager.deleteProfile(id: selectedSettingsProfileID)
+        refreshProfilesState()
+    }
+
+    private func refreshProfilesState(selectID: String? = nil) {
+        let snapshot = settingsProfileManager.profilesState()
+        settingsProfiles = snapshot.profiles
+        let targetID = selectID ?? snapshot.selectedID ?? settingsProfiles.first?.id ?? ""
+        selectedSettingsProfileID = targetID
+        lastSelectedSettingsProfileID = targetID
+        syncProfileStateToUI()
+    }
+
+    private func syncProfileStateToUI() {
         intensity = appDelegate.activeIntensity
         deadZone = appDelegate.activeDeadZone
-        intensitySlider = Double(Self.closestIndex(for: Double(appDelegate.activeIntensity), in: intensityValues))
-        deadZoneSlider = Double(Self.closestIndex(for: Double(appDelegate.activeDeadZone), in: deadZoneValues))
         warningMode = appDelegate.activeWarningMode
         warningColor = Color(appDelegate.activeWarningColor)
         warningOnsetDelay = appDelegate.activeWarningOnsetDelay
+
+        intensitySlider = Double(Self.closestIndex(for: intensity, in: intensityValues))
+        deadZoneSlider = Double(Self.closestIndex(for: deadZone, in: deadZoneValues))
         detectionModeSlider = Double(detectionModes.firstIndex(of: appDelegate.activeDetectionMode) ?? 0)
     }
 
-    private static func closestIndex(for value: Double, in values: [Double]) -> Int {
-        values.enumerated().min(by: { abs($0.element - value) < abs($1.element - value) })?.offset ?? 0
-    }
-
-    private func handleProfileSelectionChange(_ newValue: String) {
-        guard !isApplyingProfileSelection else { return }
-        guard newValue != lastSelectedSettingsProfileID else { return }
-        isApplyingProfileSelection = true
-        defer { isApplyingProfileSelection = false }
-        let previousSelection = lastSelectedSettingsProfileID
-        if let profile = settingsProfileManager.selectProfile(id: newValue) {
-            appDelegate.applyActiveSettingsProfile()
-            settingsProfiles = settingsProfileManager.settingsProfiles
-            selectedSettingsProfileID = profile.id
-            lastSelectedSettingsProfileID = profile.id
-        } else {
-            selectedSettingsProfileID = previousSelection
+    // Fixed the truncated function
+    private static func closestIndex(for value: Double, in array: [Double]) -> Int {
+        guard !array.isEmpty else { return 0 }
+        var closest = 0
+        var minDiff = Double.greatestFiniteMagnitude
+        for (index, val) in array.enumerated() {
+            let diff = abs(val - value)
+            if diff < minDiff {
+                minDiff = diff
+                closest = index
+            }
         }
-        syncProfileSettings()
-    }
-
-    private func nextDefaultProfileName() -> String {
-        let existingNames = Set(settingsProfiles.map { $0.name })
-        var index = 1
-        while existingNames.contains("Profile \(index)") {
-            index += 1
-        }
-        return "Profile \(index)"
+        return closest
     }
 }
-

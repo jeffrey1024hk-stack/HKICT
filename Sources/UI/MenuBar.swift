@@ -2,13 +2,12 @@ import AppKit
 import SwiftUI
 
 @MainActor
-public class MenuBarManager: NSObject {
-    // Public statusItem for popup window anchoring in AppDelegate
-    public var statusItem: NSStatusItem!
+public class MenuBarManager: NSObject, NSWindowDelegate {
     
-    // Window references to keep views alive
-    private var dashboardWindow: NSWindow?
-    private var analyticsWindowController: AnalyticsWindowController?
+    // MARK: - Public Properties
+    
+    /// Public statusItem for popup window anchoring in AppDelegate
+    public var statusItem: NSStatusItem!
     
     // Callback closures expected by AppDelegate
     public var onToggleEnabled: (() -> Void)?
@@ -22,6 +21,13 @@ public class MenuBarManager: NSObject {
     public var onCheckForUpdates: (() -> Void)?
     public var onQuit: (() -> Void)?
     
+    // MARK: - Private Window References
+    
+    private var dashboardWindow: NSWindow?
+    private var analyticsWindowController: AnalyticsWindowController?
+    
+    // MARK: - Initialization
+    
     public override init() {
         super.init()
         setupMenuBar()
@@ -33,6 +39,8 @@ public class MenuBarManager: NSObject {
             setupMenuBar()
         }
     }
+    
+    // MARK: - Menu Bar Setup
     
     private func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -56,7 +64,7 @@ public class MenuBarManager: NSObject {
         dashboardItem.target = self
         menu.addItem(dashboardItem)
 
-        // 2. NEW: Analytics Menu Item
+        // 2. Analytics Menu Item
         let analyticsItem = NSMenuItem(
             title: "Analytics...",
             action: #selector(openAnalytics),
@@ -101,8 +109,15 @@ public class MenuBarManager: NSObject {
         statusItem.menu = menu
     }
     
+    // MARK: - Actions
+    
     /// Opens the modern SwiftUI Dashboard window
     @objc public func openDashboard() {
+        if let onOpenSettings = onOpenSettings {
+            onOpenSettings()
+            return
+        }
+        
         if dashboardWindow == nil {
             let dashboardView = ModernDashboardView()
             let hostingController = NSHostingController(rootView: dashboardView)
@@ -120,21 +135,21 @@ public class MenuBarManager: NSObject {
             window.isReleasedWhenClosed = false
             window.titlebarAppearsTransparent = true
             window.isMovableByWindowBackground = true
+            window.delegate = self
             
             self.dashboardWindow = window
         }
         
+        NSApp.setActivationPolicy(.regular)
         dashboardWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    /// NEW: Opens the Analytics window
+    /// Opens the Analytics window
     @objc public func openAnalytics() {
         if let onShowAnalytics = onShowAnalytics {
-            // Call AppDelegate callback if provided
             onShowAnalytics()
         } else {
-            // Fallback: Directly present AnalyticsWindowController
             if analyticsWindowController == nil {
                 analyticsWindowController = AnalyticsWindowController()
             }
@@ -153,7 +168,11 @@ public class MenuBarManager: NSObject {
     }
     
     @objc private func handleCheckForUpdates() {
-        onCheckForUpdates?()
+        if let onCheckForUpdates = onCheckForUpdates {
+            onCheckForUpdates()
+        } else if let url = URL(string: "https://github.com/jeffrey1024hk-stack/HKICT/releases") {
+            NSWorkspace.shared.open(url)
+        }
     }
     
     @objc private func handleQuit() {
@@ -164,11 +183,53 @@ public class MenuBarManager: NSObject {
         }
     }
     
-    // Helper hooks called by AppDelegate
+    // MARK: - NSWindowDelegate
+    
+    public func windowWillClose(_ notification: Notification) {
+        if let closingWindow = notification.object as? NSWindow, closingWindow == dashboardWindow {
+            dashboardWindow = nil
+            
+            // Check if any other visible titled windows exist before hiding from dock
+            let hasOtherVisibleWindows = NSApp.windows.contains { window in
+                window != closingWindow && window.isVisible && !window.isMiniaturized && window.styleMask.contains(.titled)
+            }
+            
+            if !hasOtherVisibleWindows {
+                NSApp.setActivationPolicy(.accessory)
+            }
+        }
+    }
+    
+    // MARK: - Status & UI Updates
+    
     public func updateShortcut(enabled: Bool, shortcut: Any? = nil) {}
     public func updateEnabledState(_ isEnabled: Bool) {}
     public func updateRecalibrateEnabled(_ canRecalibrate: Bool) {}
-    public func updateStatus(text: String? = nil, icon: Any? = nil) {}
-    public func updateStatus(isSlouching: Bool = false) {}
-    public func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {}
+    
+    public func updateStatus(text: String? = nil, icon: Any? = nil) {
+        guard let button = statusItem?.button else { return }
+        
+        if let iconName = icon as? String {
+            button.image = NSImage(systemSymbolName: iconName, accessibilityDescription: "PostureAI")
+        } else if let image = icon as? NSImage {
+            button.image = image
+        }
+        
+        if let text = text {
+            button.title = text
+        }
+    }
+    
+    public func updateStatus(isSlouching: Bool = false) {
+        let iconName = isSlouching ? "figure.fall" : "figure.walk"
+        updateStatus(icon: iconName)
+    }
+    
+    public func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {
+        if isPaused {
+            updateStatus(icon: "pause.circle")
+        } else {
+            updateStatus(isSlouching: isSlouching)
+        }
+    }
 }

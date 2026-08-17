@@ -4,11 +4,43 @@ import Vision
 import os.log
 import ComposableArchitecture
 import SwiftUI
+import SwiftUI
 
-//private let log = OSLog(subsystem: "chill..PostureAI", category: "AppDelegate")
-private var dashboardWindow: NSWindow?
+extension String {
+    /// Helper to look up keys directly in SPM's Bundle.module
+    var localized: String {
+        NSLocalizedString(self, bundle: .module, comment: "")
+    }
+}
 
-// MARK: - MenuBarIconType to MenuBarIcon Conversion
+extension LocalizedStringKey {
+    /// Helper for SwiftUI views using SPM Bundle.module
+    static func module(_ key: String) -> LocalizedStringKey {
+        LocalizedStringKey(key)
+    }
+}
+
+// MARK: - Posture State Store for Shortcuts
+
+@MainActor
+public final class PostureStateStore {
+    public static let shared = PostureStateStore()
+    
+    public var currentStatus: String = "inactive"
+    public var isSlouching: Bool = false
+    
+    private init() {}
+    
+    public func update(isSlouching: Bool, isActive: Bool) {
+        self.isSlouching = isSlouching
+        if !isActive {
+            self.currentStatus = "inactive"
+        } else {
+            self.currentStatus = isSlouching ? "bad" : "good"
+        }
+    }
+}
+// MARK: - MenuBarIconType Conversion
 
 extension MenuBarIconType {
     var menuBarIcon: MenuBarIcon {
@@ -21,6 +53,7 @@ extension MenuBarIconType {
         }
     }
 }
+
 // MARK: - App Delegate
 
 @MainActor
@@ -32,18 +65,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     // UI Components
     let menuBarManager = MenuBarManager()
 
-    #if !APP_STORE
-    /// Sparkle auto-updater. Created in applicationDidFinishLaunching (not
-    /// init) so headless tests constructing AppDelegate never start the
-    /// update machinery.
-    var updaterManager: UpdaterManager?
-    #endif
-
     // Overlay windows and blur
     var windows: [NSWindow] = []
     var blurViews: [NSVisualEffectView] = []
     var currentBlurRadius: Int32 = 0
     var targetBlurRadius: Int32 = 0
+    private var blurAnimationTimer: Timer?
 
     // Warning overlay (alternative to blur)
     var warningOverlayManager = WarningOverlayManager()
@@ -129,6 +156,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     var supportWindowController = SupportWindowController()
     var analyticsWindowController: AnalyticsWindowController?
     var onboardingWindowController: OnboardingWindowController?
+    var dashboardWindow: NSWindow?
 
     // Observers and monitors
     let displayMonitor = DisplayMonitor()
@@ -148,8 +176,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }()
 
     // MARK: - Test Seams
-    // Closures installed by integration tests to observe reducer effects and
-    // stub side effects that would touch real devices, alerts, or windows.
 
     var trackingEffectIntentObserver: ((TrackingFeature.EffectIntent) -> Void)?
     var calibrationPermissionDeniedAlertDecision: ((TrackingSource) -> Bool)?
@@ -162,7 +188,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     var initialSetupContextOverride: (() -> InitialSetupContext)?
     var syncDetectorToStateOverride: (() -> Void)?
 
-    // Convenience accessors into the tracking store's monitoring state
+    // Convenience accessors into tracking store
     var isCurrentlySlouching: Bool {
         trackingStore.withState { $0.monitoringState.isCurrentlySlouching }
     }
@@ -233,9 +259,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Tracking Store Dispatch
 
-    /// Synchronously sends an action to the tracking store and applies the
-    /// resulting transition (detector/UI sync). Effects requested by the
-    /// reducer run asynchronously after this returns.
     @discardableResult
     func applyTrackingAction(
         _ action: TrackingFeature.Action,
@@ -252,8 +275,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         return (oldState, newState)
     }
 
-    /// Sends an action to the tracking store, waits for its effects to
-    /// finish, then applies the resulting transition.
     @discardableResult
     func sendTrackingAction(
         _ action: TrackingFeature.Action,
@@ -273,8 +294,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Reducer Effect Execution
 
-    /// The single funnel through which every reducer-requested side effect
-    /// runs. Fires the test observer, then executes the effect.
     func performTrackingEffect(_ intent: TrackingFeature.EffectIntent) async {
         trackingEffectIntentObserver?(intent)
 
@@ -326,9 +345,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         case .syncUI:
             syncUIToState()
+            updateShortcutsState() // Add this
 
         case .updateBlur:
             updateBlur()
+            updateShortcutsState() // Add this
 
         case .trackAnalytics(let interval, let isSlouching):
             AnalyticsManager.shared.trackTime(interval: interval, isSlouching: isSlouching)
@@ -379,11 +400,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - App Lifecycle
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
-        // Ensure analytics storage migration runs as soon as the app launches.
         _ = AnalyticsManager.shared
 
-        // Snappier tooltips: AppKit's ~1.8s default delay makes the compact
-        // status glyphs in Settings feel unexplained
         UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 250])
 
         loadSettings()
@@ -398,20 +416,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.applicationIconImage = applyMacOSIconMask(to: icon)
         }
 
-        #if !APP_STORE
-        // UI preview launches must not start the updater: with silent
-        // updates enabled it can stage and install a store build over the
-        // dev build mid-iteration
-        if !CommandLine.arguments.contains("--open-settings") {
-            updaterManager = UpdaterManager()
-        }
-        #endif
-
         setupDetectors()
         setupMenuBar()
         withAccessoryActivationPolicy {
             setupOverlayWindows()
-
             syncWarningOverlaySettings()
             appliedWarningColorData = activeSettingsProfile?.warningColorData
             if activeWarningMode.usesWarningOverlay {
@@ -420,19 +428,15 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         setupObservers()
+        startBlurDisplayLink()
 
-        Timer.scheduledTimer(withTimeInterval: 0.033, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.updateBlur()
-            }
-        }
+        // Sync default posture state for Shortcuts on launch
+        updateShortcutsState()
 
         if isMarketingMode {
             AnalyticsManager.shared.injectMarketingData()
         }
 
-        // Dev affordance for UI iteration: open Settings immediately and skip
-        // the tracking setup flow so no camera/permission prompts fire.
         if CommandLine.arguments.contains("--open-settings") {
             if CommandLine.arguments.contains("--appearance-dark") {
                 NSApp.appearance = NSAppearance(named: .darkAqua)
@@ -448,127 +452,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        menuBarManager.statusItem.button?.performClick(nil)
-        return false
-    }
-
-    // MARK: - Observers Setup
-
-    private func setupObservers() {
-        // Display configuration changes
-        displayMonitor.onDisplayConfigurationChange = { [weak self] in
-            Task { @MainActor in
-                await self?.handleDisplayConfigurationChange()
-            }
-        }
-        displayMonitor.startMonitoring()
-
-        // Camera hot-plug
-        cameraObserver.onCameraConnected = { [weak self] device in
-            Task { @MainActor in
-                await self?.handleCameraConnected(device)
-            }
-        }
-        cameraObserver.onCameraDisconnected = { [weak self] device in
-            Task { @MainActor in
-                await self?.handleCameraDisconnected(device)
-            }
-        }
-        cameraObserver.startObserving()
-
-        // Screen lock/unlock
-        screenLockObserver.onScreenLocked = { [weak self] in
-            Task { @MainActor in
-                await self?.handleScreenLocked()
-            }
-        }
-        screenLockObserver.onScreenUnlocked = { [weak self] in
-            Task { @MainActor in
-                await self?.handleScreenUnlocked()
-            }
-        }
-        screenLockObserver.startObserving()
-
-        // AC/battery power source
-        powerSourceObserver.onPowerSourceChanged = { [weak self] isOnBattery in
-            Task { @MainActor in
-                await self?.handlePowerSourceChanged(isOnBattery)
-            }
-        }
-        powerSourceObserver.startObserving()
-
-        // Global hotkey
-        hotkeyManager.configure(
-            enabled: toggleShortcutEnabled,
-            shortcut: toggleShortcut,
-            onToggle: { [weak self] in
-                Task { @MainActor in
-                    await self?.toggleEnabled()
-                }
-            }
-        )
-    }
-
-    // MARK: - Menu Bar
-
-    private func setupMenuBar() {
-        menuBarManager.setup()
-        menuBarManager.updateShortcut(enabled: toggleShortcutEnabled, shortcut: toggleShortcut)
-
-        menuBarManager.onToggleEnabled = { [weak self] in
-            Task { @MainActor in
-                await self?.toggleEnabled()
-            }
-        }
-        menuBarManager.onRecalibrate = { [weak self] in
-            Task { @MainActor in
-                self?.startCalibration()
-            }
-        }
-        menuBarManager.onShowAnalytics = { [weak self] in
-            Task { @MainActor in
-                self?.showAnalytics()
-            }
-        }
-        menuBarManager.onOpenSettings = { [weak self] in
-            Task { @MainActor in
-                self?.openSettings()
-            }
-        }
-        menuBarManager.onOpenSupport = { [weak self] in
-            Task { @MainActor in
-                self?.showSupport()
-            }
-        }
-        menuBarManager.onQuit = { [weak self] in
-            Task { @MainActor in
-                self?.quit()
-            }
-        }
-        #if !APP_STORE
-        menuBarManager.onCheckForUpdates = { [weak self] in
-            Task { @MainActor in
-                self?.updaterManager?.checkForUpdates()
-            }
-        }
-        #endif
-    }
-
-    // MARK: - Menu Actions
-
-    private func showAnalytics() {
-        if analyticsWindowController == nil {
-            analyticsWindowController = AnalyticsWindowController()
-        }
-        analyticsWindowController?.appDelegate = self
-        analyticsWindowController?.showWindow(nil)
-        NSApp.setActivationPolicy(.regular)
-        NSApp.activate(ignoringOtherApps: true)
-    }
-
-    @objc public func openSettings() {
-        if AppDelegate.dashboardWindow == nil {
+    @objc public func openDashboard() {
+        if dashboardWindow == nil {
             let dashboardView = ModernDashboardView()
             let hostingController = NSHostingController(rootView: dashboardView)
             
@@ -586,19 +471,135 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             window.titlebarAppearsTransparent = true
             window.isMovableByWindowBackground = true
             
-            AppDelegate.dashboardWindow = window
+            dashboardWindow = window
         }
         
-        AppDelegate.dashboardWindow?.makeKeyAndOrderFront(nil)
+        NSApp.setActivationPolicy(.regular)
+        dashboardWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        menuBarManager.statusItem.button?.performClick(nil)
+        return false
+    }
+
+    deinit {
+        blurAnimationTimer?.invalidate()
+    }
+
+    private func startBlurDisplayLink() {
+        blurAnimationTimer = Timer.scheduledTimer(withTimeInterval: 0.033, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self, self.currentBlurRadius != self.targetBlurRadius else { return }
+                self.updateBlur()
+            }
+        }
+    }
+
+    // MARK: - Observers Setup
+
+    private func setupObservers() {
+        displayMonitor.onDisplayConfigurationChange = { [weak self] in
+            Task { @MainActor in
+                await self?.handleDisplayConfigurationChange()
+            }
+        }
+        displayMonitor.startMonitoring()
+
+        cameraObserver.onCameraConnected = { [weak self] device in
+            Task { @MainActor in
+                await self?.handleCameraConnected(device)
+            }
+        }
+        cameraObserver.onCameraDisconnected = { [weak self] device in
+            Task { @MainActor in
+                await self?.handleCameraDisconnected(device)
+            }
+        }
+        cameraObserver.startObserving()
+
+        screenLockObserver.onScreenLocked = { [weak self] in
+            Task { @MainActor in
+                await self?.handleScreenLocked()
+            }
+        }
+        screenLockObserver.onScreenUnlocked = { [weak self] in
+            Task { @MainActor in
+                await self?.handleScreenUnlocked()
+            }
+        }
+        screenLockObserver.startObserving()
+
+        powerSourceObserver.onPowerSourceChanged = { [weak self] isOnBattery in
+            Task { @MainActor in
+                await self?.handlePowerSourceChanged(isOnBattery)
+            }
+        }
+        powerSourceObserver.startObserving()
+
+        hotkeyManager.configure(
+            enabled: toggleShortcutEnabled,
+            shortcut: toggleShortcut,
+            onToggle: { [weak self] in
+                Task { @MainActor in
+                    await self?.toggleEnabled()
+                }
+            }
+        )
+    }
+
+    // MARK: - Menu Bar Setup
+
+    private func setupMenuBar() {
+        menuBarManager.setup()
+        menuBarManager.updateShortcut(enabled: toggleShortcutEnabled, shortcut: toggleShortcut)
+
+        menuBarManager.onToggleEnabled = { [weak self] in
+            Task { @MainActor in await self?.toggleEnabled() }
+        }
+
+        menuBarManager.onOpenSettings = { [weak self] in
+            self?.openDashboard()
+        }
+
+        menuBarManager.onShowAnalytics = { [weak self] in
+            self?.showAnalytics()
+        }
+
+        menuBarManager.onRecalibrate = { [weak self] in
+            self?.startCalibration()
+        }
+
+        menuBarManager.onQuit = { [weak self] in
+            NSApp.terminate(nil)
+        }
+    }
+
+    // MARK: - Window Management
+
+    private func showAnalytics() {
+        if analyticsWindowController == nil {
+            analyticsWindowController = AnalyticsWindowController()
+        }
+        analyticsWindowController?.appDelegate = self
+        analyticsWindowController?.showWindow(nil)
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc public func openSettings() {
+        openDashboard()
     }
 }
 
-// MARK: - Helpers & Compatibility Extensions
-// MARK: - Helpers & Compatibility Extensions
+// MARK: - Helpers & Extension Methods
+
 extension AppDelegate {
 
     @objc func quit() {
+        blurAnimationTimer?.invalidate()
+        blurAnimationTimer = nil
         cameraDetector.stop()
         airPodsDetector.stop()
         NSApplication.shared.terminate(nil)
@@ -609,7 +610,7 @@ extension AppDelegate {
     }
 
     func openSupportPage() {
-        guard let url = URL(string: "https://buymeacoffee.com/tjohnell") else { return }
+        guard let url = URL(string: "https://github.com/jeffrey1024hk-stack/HKICT") else { return }
 
         if let openSupportURLHandler = self.openSupportURLHandler {
             openSupportURLHandler(url)
@@ -618,7 +619,12 @@ extension AppDelegate {
 
         NSWorkspace.shared.open(url)
     }
-
+    func updateShortcutsState() {
+        PostureStateStore.shared.update(
+            isSlouching: isCurrentlySlouching,
+            isActive: state.isActive
+        )
+    }
     // MARK: - Activation Policy
 
     func restoreAccessoryActivationPolicyIfNeeded(excluding windowToIgnore: NSWindow? = nil) {

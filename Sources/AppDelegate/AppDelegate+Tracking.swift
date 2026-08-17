@@ -10,7 +10,37 @@ struct InitialSetupContext {
     let hasValidAirPodsCalibration: Bool
 }
 
+// MARK: - Associated Property Box
+
+private final class PostureUIStateBox {
+    let value: PostureUIState
+    init(_ value: PostureUIState) { self.value = value }
+}
+
+private struct AssociatedKeys {
+    static var lastRenderedUIStateKey: UInt8 = 0
+}
+
 extension AppDelegate {
+
+    // MARK: - Associated Storage
+
+    @MainActor
+    private var lastRenderedUIState: PostureUIState? {
+        get {
+            (objc_getAssociatedObject(self, &AssociatedKeys.lastRenderedUIStateKey) as? PostureUIStateBox)?.value
+        }
+        set {
+            let box = newValue.map { PostureUIStateBox($0) }
+            objc_setAssociatedObject(
+                self,
+                &AssociatedKeys.lastRenderedUIStateKey,
+                box,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
+        }
+    }
+
     // MARK: - Store Transition Application
 
     /// Applies the observable consequences of a tracking-store state change:
@@ -100,6 +130,7 @@ extension AppDelegate {
         }
     }
 
+    @MainActor
     func syncUIToState() {
         let uiState = PostureUIState.derive(
             from: state,
@@ -109,6 +140,10 @@ extension AppDelegate {
             trackingSource: activeTrackingSource,
             isOnFallback: trackingStore.withState { $0.isOnFallback }
         )
+
+        // DIFF CHECK: Only hit AppKit if the state actually changed!
+        guard uiState != lastRenderedUIState else { return }
+        lastRenderedUIState = uiState
 
         menuBarManager.updateStatus(text: uiState.statusText, icon: uiState.icon.menuBarIcon)
         menuBarManager.updateEnabledState(uiState.isEnabled)

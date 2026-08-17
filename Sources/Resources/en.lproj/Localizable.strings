@@ -213,15 +213,7 @@
 
 "common.cancel" = "Cancel";
 
-/* Analytics Dashboard */
-"analytics.title" = "Posture Analytics";
-"analytics.header" = "Your Posture Trends";
-"analytics.tagline" = "Track your daily habits and improve posture consistency over time.";
-"analytics.todayScore" = "Today's Score";
-"analytics.monitoringTime" = "Tracked Time";
-"analytics.slouchDuration" = "Time Slouched";
-"analytics.slouchEvents" = "Slouch Count";
-"analytics.last7Days" = "7-Day History";
+
 
 /* Onboarding & Status Fallbacks */
 "status.disabled" = "Tracking Disabled";

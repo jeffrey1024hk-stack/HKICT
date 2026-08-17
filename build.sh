@@ -13,15 +13,10 @@ set -e
 
 # Configuration
 APP_NAME="PostureAI"
-BUNDLE_ID="chill..PostureAI"
-VERSION="1.15.1"
-BUILD_NUMBER="17"
+BUNDLE_ID="chill.PostureAI"
+VERSION="1.0.0"
+BUILD_NUMBER="1"
 MIN_MACOS="13.0"
-
-# Sparkle auto-update (direct-distribution builds only; App Store builds
-# exclude Sparkle entirely and rely on the App Store for updates)
-SPARKLE_FEED_URL="https://raw.githubusercontent.com/jeffrey1024hk-stack/HKICT/main/appcast.xml"
-SPARKLE_PUBLIC_ED_KEY="DGZFLiX7GOAurNDYQQQaoR4Hb4csYScDIIiui74ZvLY="
 
 # Check for App Store build flag
 APP_STORE_BUILD=false

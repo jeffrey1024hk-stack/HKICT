@@ -6,8 +6,9 @@ import ComposableArchitecture
 import SwiftUI
 
 extension String {
+    /// Helper to look up keys directly in SPM's Bundle.module
     var localized: String {
-        L(self)
+        NSLocalizedString(self, bundle: .module, comment: "")
     }
 }
 

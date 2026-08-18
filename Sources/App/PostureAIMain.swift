@@ -18,12 +18,6 @@ struct PostureAIMain {
         app.delegate = delegate
         app.setActivationPolicy(.accessory)
 
-        print("--- LOCALIZATION DEBUG ---")
-                print("Module Bundle Path: \(Bundle.module.bundlePath)")
-                print("Found Strings File: \(Bundle.module.path(forResource: "Localizable", ofType: "strings", inDirectory: "en.lproj") ?? "NOT FOUND")")
-                print("Test Key Lookup: \(L("analytics.title"))")
-                print("--------------------------")
-        
         // Set up main menu for standard keyboard shortcuts (Cmd+W, Cmd+Q, etc.)
         let mainMenu = NSMenu()
 

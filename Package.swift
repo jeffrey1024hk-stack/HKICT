@@ -15,6 +15,7 @@ let package = Package(
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.4")
     ],
     targets: [
+        // Core logic library - testable, no main entry point
         .target(
             name: "PostureAICore",
             dependencies: [
@@ -35,11 +36,13 @@ let package = Package(
                 .linkedFramework("IOBluetooth")
             ]
         ),
+        // Executable target
         .executableTarget(
             name: "PostureAI",
             dependencies: ["PostureAICore"],
             path: "Sources/App"
         ),
+        // Test target
         .testTarget(
             name: "PostureAITests",
             dependencies: [

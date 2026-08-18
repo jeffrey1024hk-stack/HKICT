@@ -1,5 +1,6 @@
 import Foundation
 
+<<<<<<< HEAD
 private final class LocalizationToken {}
 
 private let fallbackStrings: [String: String] = [
@@ -238,9 +239,32 @@ public func L(_ key: String) -> String {
 
     // 3. Last-resort key string
     return key
+=======
+private var localizationBundle: Bundle {
+    // In an app bundle, .lproj files live in Contents/Resources/ (Bundle.main).
+    // SwiftPM's Bundle.module only works when the .build directory exists (dev/test).
+    if Bundle.main.bundlePath.hasSuffix(".app") {
+        return Bundle.main
+    }
+    return Bundle.module
+}
+
+private func localizedString(_ key: String) -> String {
+    let value = NSLocalizedString(key, bundle: localizationBundle, comment: "")
+    #if DEBUG
+    if value == key {
+        NSLog("Missing localization for key: %@", key)
+    }
+    #endif
+    return value
+}
+
+public func L(_ key: String) -> String {
+    localizedString(key)
+>>>>>>> parent of 20dfe83 (Fix localization lookup, build script signing, and DMG creation)
 }
 
 public func L(_ key: String, _ args: CVarArg...) -> String {
-    let format = L(key)
+    let format = localizedString(key)
     return String(format: format, locale: Locale.current, arguments: args)
 }

@@ -10,7 +10,7 @@
 
 [![macOS](https://img.shields.io/badge/macOS-13.0%2B-333333?style=for-the-badge&logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/Swift-5.9-FA7343?style=for-the-badge&logo=swift&logoColor=white)](https://www.swift.org)
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg?style=for-the-badge)](LICENSE)
 
 ---
 
@@ -179,7 +179,7 @@ Contributions are welcome! Feel free to open issues and pull requests.
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+Copyright (c) 2026 PostureAI. All rights reserved — see [LICENSE](LICENSE).
 
 ---
 

@@ -696,7 +696,7 @@ final class AppDelegateTrackingIntegrationTests: XCTestCase {
 
         appDelegate.openSupportPage()
 
-        XCTAssertEqual(openedURL?.absoluteString, "https://buymeacoffee.com/tjohnell")
+        XCTAssertEqual(openedURL?.absoluteString, "https://github.com/jeffrey1024hk-stack/HKICT")
     }
 
     @MainActor

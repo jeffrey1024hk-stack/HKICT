@@ -186,8 +186,8 @@ struct SettingsView: View {
                 }
                 .help(L("settings.viewOnGitHub"))
 
-                Link(destination: URL(string: "https://discord.gg/6Ufy2SnXDW")!) {
-                    DiscordIcon(color: Color.secondary.opacity(0.6))
+                Link(destination: URL(string: "https://github.com/jeffrey1024hk-stack/HKICT")!) {
+                    GitHubIcon(color: Color.secondary.opacity(0.6))
                         .frame(width: 14, height: 14)
                         .padding(3)
                         .contentShape(Rectangle())
@@ -196,7 +196,7 @@ struct SettingsView: View {
                 .onHover { hovering in
                     if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
                 }
-                .help(L("settings.joinDiscord"))
+                .help(L("settings.viewOnGitHub"))
             }
 
             if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {

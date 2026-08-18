@@ -39,13 +39,13 @@ DerivedData/
 .claude/
 
 # Runtime files
-posturr-command
-posturr-capture.jpg
-posturr-pose-data.txt
-posturr-response
+postureai-command
+postureai-capture.jpg
+postureai-pose-data.txt
+postureai-response
 
 # Icon generation (keep AppIcon.icns)
-Posturr.iconset/
+PostureAI.iconset/
 
 # Release artifacts
 *.zip

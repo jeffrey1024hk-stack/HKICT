@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct ModernDashboardView: View {
     // AppStorage hooks

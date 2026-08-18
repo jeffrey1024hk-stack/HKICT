@@ -81,7 +81,7 @@ extension AppDelegate {
         if defaults.object(forKey: SettingsKeys.toggleShortcutKeyCode) != nil {
             let keyCode = UInt16(defaults.integer(forKey: SettingsKeys.toggleShortcutKeyCode))
             let modifiers = NSEvent.ModifierFlags(rawValue: UInt(defaults.integer(forKey: SettingsKeys.toggleShortcutModifiers)))
-            toggleShortcut = KeyboardShortcut(keyCode: keyCode, modifiers: modifiers)
+            toggleShortcut = AppKeyboardShortcut(keyCode: keyCode, modifiers: modifiers)
         }
     }
 

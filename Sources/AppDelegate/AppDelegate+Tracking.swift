@@ -141,6 +141,10 @@ extension AppDelegate {
             isOnFallback: trackingStore.withState { $0.isOnFallback }
         )
 
+        // Notify observers (e.g. the Dashboard) of the latest UI state, even
+        // when nothing menu-related changed, so they can refresh live status.
+        NotificationCenter.default.post(name: .postureUIStateChanged, object: uiState)
+
         // DIFF CHECK: Only hit AppKit if the state actually changed!
         guard uiState != lastRenderedUIState else { return }
         lastRenderedUIState = uiState

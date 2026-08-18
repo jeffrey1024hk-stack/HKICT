@@ -8,7 +8,7 @@ extension AppDelegate {
     @MainActor
     @objc func showDashboardWindow() {
         if AppDelegate.dashboardWindow == nil {
-            let dashboardView = ModernDashboardView()
+            let dashboardView = ModernDashboardView(appDelegate: self)
             let hostingController = NSHostingController(rootView: dashboardView)
             
             let window = NSWindow(

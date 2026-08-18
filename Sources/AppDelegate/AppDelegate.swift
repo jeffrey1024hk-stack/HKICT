@@ -454,7 +454,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc public func openDashboard() {
         if dashboardWindow == nil {
-            let dashboardView = ModernDashboardView()
+            let dashboardView = ModernDashboardView(appDelegate: self)
             let hostingController = NSHostingController(rootView: dashboardView)
             
             let window = NSWindow(

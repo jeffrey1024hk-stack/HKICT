@@ -117,31 +117,9 @@ public class MenuBarManager: NSObject, NSWindowDelegate {
             onOpenSettings()
             return
         }
-        
-        if dashboardWindow == nil {
-            let dashboardView = ModernDashboardView()
-            let hostingController = NSHostingController(rootView: dashboardView)
-            
-            let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 850, height: 600),
-                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-                backing: .buffered,
-                defer: false
-            )
-            
-            window.center()
-            window.contentViewController = hostingController
-            window.title = "PostureAI Dashboard"
-            window.isReleasedWhenClosed = false
-            window.titlebarAppearsTransparent = true
-            window.isMovableByWindowBackground = true
-            window.delegate = self
-            
-            self.dashboardWindow = window
-        }
-        
+
+        // No delegate wired (headless/fallback): nothing to show.
         NSApp.setActivationPolicy(.regular)
-        dashboardWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 

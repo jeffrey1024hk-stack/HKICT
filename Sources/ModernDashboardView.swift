@@ -1,39 +1,52 @@
 import SwiftUI
 import AppKit
 
+extension Notification.Name {
+    /// Posted by `AppDelegate.syncUIToState()` whenever the tracking UI state
+    /// changes (enabled state, slouching, active source, profile settings).
+    static let postureUIStateChanged = Notification.Name("PostureUIStateChanged")
+}
+
+@MainActor
 struct ModernDashboardView: View {
-    // AppStorage hooks
-    @AppStorage("sensitivity") private var sensitivity: Double = 0.5
-    @AppStorage("deadZone") private var deadZone: Double = 0.2
-    @AppStorage("isTrackingPaused") private var isPaused: Bool = false
-    @AppStorage("trackingMethod") private var trackingMethod: String = "camera"
-    
+    let appDelegate: AppDelegate
+
+    @State private var sensitivity: Double
+    @State private var deadZone: Double
+    @State private var isActive: Bool = false
     @State private var isSlouching: Bool = false
-    
+    @State private var activeSource: TrackingSource = .camera
+
+    init(appDelegate: AppDelegate) {
+        self.appDelegate = appDelegate
+        _sensitivity = State(initialValue: Double(appDelegate.activeIntensity))
+        _deadZone = State(initialValue: Double(appDelegate.activeDeadZone))
+    }
+
     var body: some View {
         VStack(spacing: 16) {
-            
+
             // 1. Header & Live Status Card
             NotabilityCard {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(L("dashboard.title"))
                             .font(.system(size: 22, weight: .bold, design: .rounded))
-                        
-                        Text(isPaused ? L("dashboard.status.paused") : (isSlouching ? L("dashboard.status.slouching") : L("dashboard.status.good")))
+
+                        Text(isActive ? (isSlouching ? L("dashboard.status.slouching") : L("dashboard.status.good")) : L("dashboard.status.paused"))
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundColor(statusColor)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Live Pill Indicator
                     HStack(spacing: 6) {
                         Circle()
                             .fill(statusColor)
                             .frame(width: 8, height: 8)
-                        
-                        Text(isPaused ? L("dashboard.live.off") : L("dashboard.live.on"))
+
+                        Text(isActive ? L("dashboard.live.on") : L("dashboard.live.off"))
                             .font(.system(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(statusColor)
                     }
@@ -41,57 +54,62 @@ struct ModernDashboardView: View {
                     .padding(.vertical, 5)
                     .background(statusColor.opacity(0.12))
                     .clipShape(Capsule())
-                    
+
                     // Main Toggle Switch
                     Toggle("", isOn: Binding(
-                        get: { !isPaused },
+                        get: { isActive },
                         set: { newValue in
-                            isPaused = !newValue
-                            notifyStateChange(name: "TogglePause", object: isPaused)
-                            notifyStateChange(name: "TrackingStateChanged", object: !isPaused)
+                            guard newValue != appDelegate.state.isActive else { return }
+                            Task { @MainActor in
+                                await appDelegate.toggleEnabled()
+                            }
                         }
                     ))
                     .toggleStyle(.switch)
                     .labelsHidden()
                 }
             }
-            
+
             // 2. Input Source Selector
             NotabilityCard {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(L("dashboard.inputSource"))
                         .font(.system(size: 10, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
-                    
+
                     HStack(spacing: 8) {
                         MethodButton(
                             title: L("dashboard.camera"),
                             icon: "camera.fill",
-                            isSelected: trackingMethod == "camera"
+                            isSelected: activeSource == .camera
                         ) {
-                            trackingMethod = "camera"
-                            notifyStateChange(name: "TrackingMethodChanged", object: "camera")
+                            guard activeSource != .camera else { return }
+                            Task { @MainActor in
+                                await appDelegate.switchTrackingSource(to: .camera)
+                            }
                         }
-                        
+
                         MethodButton(
                             title: L("dashboard.airpods"),
                             icon: "airpodspro",
-                            isSelected: trackingMethod == "airpods"
+                            isSelected: activeSource == .airpods
                         ) {
-                            trackingMethod = "airpods"
-                            notifyStateChange(name: "TrackingMethodChanged", object: "airpods")
+                            guard activeSource != .airpods else { return }
+                            Task { @MainActor in
+                                await appDelegate.switchTrackingSource(to: .airpods)
+                            }
                         }
                     }
                 }
             }
-            
+
             // 3. Sensitivity Controls
             NotabilityCard {
                 VStack(alignment: .leading, spacing: 14) {
                     Text(L("dashboard.sensitivityTolerance"))
                         .font(.system(size: 10, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
-                    
+
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Text(L("dashboard.slouchSensitivity"))
@@ -101,13 +119,14 @@ struct ModernDashboardView: View {
                                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
-                        Slider(value: $sensitivity, in: 0.1...1.0)
+                        Slider(value: $sensitivity, in: 0.08...1.2)
                             .tint(NotabilityTheme.accentBlue)
                             .onChange(of: sensitivity) { newValue in
-                                notifyStateChange(name: "SensitivityChanged", object: newValue)
+                                appDelegate.settingsProfileManager.updateActiveProfile(intensity: newValue)
+                                appDelegate.applyActiveSettingsProfile()
                             }
                     }
-                    
+
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Text(L("dashboard.deadZoneTolerance"))
@@ -117,17 +136,20 @@ struct ModernDashboardView: View {
                                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
-                        Slider(value: $deadZone, in: 0.0...1.0)
+                        Slider(value: $deadZone, in: 0.0...0.5)
                             .tint(NotabilityTheme.accentBlue)
                             .onChange(of: deadZone) { newValue in
-                                notifyStateChange(name: "DeadZoneChanged", object: newValue)
+                                appDelegate.settingsProfileManager.updateActiveProfile(deadZone: newValue)
+                                appDelegate.applyActiveSettingsProfile()
                             }
                     }
                 }
             }
-            
+
             // 4. Recalibrate Action Button
-            Button(action: triggerRecalibration) {
+            Button(action: {
+                appDelegate.startCalibration()
+            }) {
                 HStack {
                     Image(systemName: "arrow.triangle.2.circlepath")
                     Text(L("dashboard.recalibrate"))
@@ -141,32 +163,30 @@ struct ModernDashboardView: View {
                 .shadow(color: NotabilityTheme.accentBlue.opacity(0.3), radius: 6, x: 0, y: 3)
             }
             .buttonStyle(.plain)
-            
+
         }
         .padding(20)
         .frame(width: 360)
         .background(Color(NSColor.windowBackgroundColor).opacity(0.3))
         // Listen for live posture state changes
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("PostureStatusChanged"))) { notification in
-            if let slouching = notification.object as? Bool {
-                isSlouching = slouching
-            }
+        .onReceive(NotificationCenter.default.publisher(for: .postureUIStateChanged)) { _ in
+            refreshState()
+        }
+        .onAppear {
+            refreshState()
         }
     }
-    
+
     private var statusColor: Color {
-        if isPaused { return .gray }
+        if !isActive { return .gray }
         return isSlouching ? NotabilityTheme.warningOrange : NotabilityTheme.successGreen
     }
-    
-    private func triggerRecalibration() {
-        notifyStateChange(name: "RecalibratePosture", object: nil)
-        notifyStateChange(name: "recalibrate", object: nil)
-        notifyStateChange(name: "StartCalibration", object: nil)
-    }
-    
-    private func notifyStateChange(name: String, object: Any?) {
-        NotificationCenter.default.post(name: NSNotification.Name(name), object: object)
+
+    private func refreshState() {
+        isActive = appDelegate.state.isActive
+        isSlouching = appDelegate.isCurrentlySlouching
+        activeSource = appDelegate.activeTrackingSource
+        sensitivity = Double(appDelegate.activeIntensity)
+        deadZone = Double(appDelegate.activeDeadZone)
     }
 }
-

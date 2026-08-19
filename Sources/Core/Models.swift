@@ -72,29 +72,9 @@ enum MenuBarIcon: String, CaseIterable {
         }
     }
 
-    /// Returns the menu bar icon, preferring custom PDF if available
+    /// Returns the menu bar icon as an SF Symbol (template image), so it
+    /// automatically adapts to light/dark menu bar appearance.
     var image: NSImage? {
-        // Try to load custom PDF icon from Resources/Icons/
-        if let url = Bundle.main.url(forResource: rawValue, withExtension: "pdf", subdirectory: "Icons"),
-           let customImage = NSImage(contentsOf: url) {
-            // Resize to menu bar height (18pt) while preserving aspect ratio
-            let targetHeight: CGFloat = 18
-            let aspectRatio = customImage.size.width / customImage.size.height
-            let targetWidth = targetHeight * aspectRatio
-            let targetSize = NSSize(width: targetWidth, height: targetHeight)
-
-            let resizedImage = NSImage(size: targetSize)
-            resizedImage.lockFocus()
-            customImage.draw(in: NSRect(origin: .zero, size: targetSize),
-                           from: NSRect(origin: .zero, size: customImage.size),
-                           operation: .copy,
-                           fraction: 1.0)
-            resizedImage.unlockFocus()
-            resizedImage.isTemplate = true
-            return resizedImage
-        }
-
-        // Fall back to SF Symbol
         let image = NSImage(systemSymbolName: fallbackSymbol, accessibilityDescription: accessibilityDescription)
         image?.isTemplate = true
         return image
@@ -122,6 +102,13 @@ extension NSWindow.Level {
     /// collection-behavior + Space-ordering dance above. We use a value
     /// just under `.popUpMenu` so system menu dropdowns still open on top.
     static let aboveFullscreen = NSWindow.Level(rawValue: 100)
+
+    /// One below the system notification-banner level (~24), but still above
+    /// normal/fullscreen app content when combined with
+    /// `.canJoinAllSpaces` + `.fullScreenAuxiliary`. Used for blur/warning
+    /// overlays so system notifications (banners/alerts) stay visible on top
+    /// while the screen is blurred.
+    static let belowNotifications = NSWindow.Level(rawValue: 23)
 }
 
 // MARK: - Warning Mode

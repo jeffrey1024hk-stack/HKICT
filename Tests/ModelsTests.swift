@@ -256,49 +256,49 @@ final class ModelsTests: XCTestCase {
         }
     }
 
-    // MARK: - KeyboardShortcut Tests
+    // MARK: - AppKeyboardShortcut Tests
 
     func testDefaultShortcutKeyCode() {
-        XCTAssertEqual(KeyboardShortcut.defaultShortcut.keyCode, 35)
+        XCTAssertEqual(AppKeyboardShortcut.defaultShortcut.keyCode, 35)
     }
 
     func testDefaultShortcutModifiers() {
-        XCTAssertTrue(KeyboardShortcut.defaultShortcut.modifiers.contains(.control))
-        XCTAssertTrue(KeyboardShortcut.defaultShortcut.modifiers.contains(.option))
+        XCTAssertTrue(AppKeyboardShortcut.defaultShortcut.modifiers.contains(.control))
+        XCTAssertTrue(AppKeyboardShortcut.defaultShortcut.modifiers.contains(.option))
     }
 
     func testDefaultShortcutDisplayString() {
-        XCTAssertEqual(KeyboardShortcut.defaultShortcut.displayString, "⌃⌥P")
+        XCTAssertEqual(AppKeyboardShortcut.defaultShortcut.displayString, "⌃⌥P")
     }
 
     func testDisplayStringWithCommandShift() {
-        let shortcut = KeyboardShortcut(keyCode: 0, modifiers: [.command, .shift])
+        let shortcut = AppKeyboardShortcut(keyCode: 0, modifiers: [.command, .shift])
         XCTAssertEqual(shortcut.displayString, "⇧⌘A")
     }
 
     func testDisplayStringWithAllModifiers() {
-        let shortcut = KeyboardShortcut(keyCode: 0, modifiers: [.control, .option, .shift, .command])
+        let shortcut = AppKeyboardShortcut(keyCode: 0, modifiers: [.control, .option, .shift, .command])
         XCTAssertEqual(shortcut.displayString, "⌃⌥⇧⌘A")
     }
 
     func testDisplayStringWithNoModifiers() {
-        let shortcut = KeyboardShortcut(keyCode: 49, modifiers: [])
+        let shortcut = AppKeyboardShortcut(keyCode: 49, modifiers: [])
         XCTAssertEqual(shortcut.displayString, "Space")
     }
 
     func testKeyCharacterReturnsLowercase() {
-        XCTAssertEqual(KeyboardShortcut.defaultShortcut.keyCharacter, "p")
+        XCTAssertEqual(AppKeyboardShortcut.defaultShortcut.keyCharacter, "p")
     }
 
     func testKeyCharacterForLetterA() {
-        let shortcut = KeyboardShortcut(keyCode: 0, modifiers: [.command])
+        let shortcut = AppKeyboardShortcut(keyCode: 0, modifiers: [.command])
         XCTAssertEqual(shortcut.keyCharacter, "a")
     }
 
-    func testKeyboardShortcutEquatable() {
-        let a = KeyboardShortcut(keyCode: 35, modifiers: [.control, .option])
-        let b = KeyboardShortcut(keyCode: 35, modifiers: [.control, .option])
-        let c = KeyboardShortcut(keyCode: 0, modifiers: [.command])
+    func testAppKeyboardShortcutEquatable() {
+        let a = AppKeyboardShortcut(keyCode: 35, modifiers: [.control, .option])
+        let b = AppKeyboardShortcut(keyCode: 35, modifiers: [.control, .option])
+        let c = AppKeyboardShortcut(keyCode: 0, modifiers: [.command])
         XCTAssertEqual(a, b)
         XCTAssertNotEqual(a, c)
     }

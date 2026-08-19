@@ -10,7 +10,7 @@ extension AppDelegate {
             let window = NSWindow(contentRect: frame, styleMask: [.borderless], backing: .buffered, defer: false)
             window.isOpaque = false
             window.backgroundColor = .clear
-            window.level = .aboveFullscreen
+            window.level = .belowNotifications
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             window.ignoresMouseEvents = true
             window.hasShadow = false
@@ -117,11 +117,13 @@ extension AppDelegate {
             targetBlurRadius = Int32(combinedIntensity * 64)
             warningOverlayManager.targetIntensity = 0
         case .none:
-            targetBlurRadius = Int32(privacyBlurIntensity * 64)
+            targetBlurRadius = 0
             warningOverlayManager.targetIntensity = 0
         case .glow, .border, .solid:
-            targetBlurRadius = Int32(privacyBlurIntensity * 64)
-            warningOverlayManager.targetIntensity = postureWarningIntensity
+            // Away/privacy is expressed through the selected warning style,
+            // never a blur overlay.
+            targetBlurRadius = 0
+            warningOverlayManager.targetIntensity = max(privacyBlurIntensity, postureWarningIntensity)
         }
 
         // Skip work if nothing is changing

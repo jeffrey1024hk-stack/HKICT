@@ -243,6 +243,18 @@ class AirPodsPostureDetector: NSObject, PostureDetector {
         }
     }
 
+    /// Number of AirPods Bluetooth devices currently connected (excluding the
+    /// Find My tracker on the case). A count of 1 means only one bud is in use.
+    var connectedAirPodsDeviceCount: Int {
+        guard let devices = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] else {
+            return 0
+        }
+        return devices.filter { device in
+            guard device.isConnected(), let name = device.name?.lowercased() else { return false }
+            return name.contains("airpods") && !name.contains("find my")
+        }.count
+    }
+
     var onPostureReading: ((PostureReading) -> Void)?
     var onCalibrationUpdate: ((CalibrationSample) -> Void)?
 
@@ -488,7 +500,8 @@ class AirPodsPostureDetector: NSObject, PostureDetector {
         let reading = PostureReading(
             timestamp: Date(),
             isBadPosture: isBadPosture,
-            severity: severity
+            severity: severity,
+            source: .airpods
         )
 
         onPostureReading?(reading)

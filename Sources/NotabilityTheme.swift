@@ -6,6 +6,7 @@ struct NotabilityTheme {
     static let accentBlue = Color(red: 0.0, green: 0.48, blue: 1.0)
     static let successGreen = Color(red: 0.2, green: 0.78, blue: 0.35)
     static let warningOrange = Color(red: 1.0, green: 0.58, blue: 0.0)
+    static let dangerRed = Color(red: 0.86, green: 0.25, blue: 0.23)
     
     // Layout parameters
     static let cornerRadius: CGFloat = 16
@@ -25,13 +26,46 @@ struct NotabilityCard<Content: View>: View {
             content
         }
         .padding(NotabilityTheme.cardPadding)
-        .background(.ultraThinMaterial)
+        .background {
+            if #available(macOS 26.0, *) {
+                RoundedRectangle(cornerRadius: NotabilityTheme.cornerRadius, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .glassEffect(in: RoundedRectangle(cornerRadius: NotabilityTheme.cornerRadius, style: .continuous))
+            } else {
+                RoundedRectangle(cornerRadius: NotabilityTheme.cornerRadius, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: NotabilityTheme.cornerRadius, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: NotabilityTheme.cornerRadius, style: .continuous)
                 .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 4)
+    }
+}
+
+// Reusable Liquid Glass background (macOS 26) with ultraThinMaterial fallback
+struct LiquidGlassBackground: ViewModifier {
+    var radius: CGFloat = 14
+
+    func body(content: Content) -> some View {
+        content.background {
+            if #available(macOS 26.0, *) {
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .glassEffect(in: RoundedRectangle(cornerRadius: radius, style: .continuous))
+            } else {
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .fill(Color.primary.opacity(0.06))
+            }
+        }
+    }
+}
+
+extension View {
+    func liquidGlass(radius: CGFloat = 14) -> some View {
+        modifier(LiquidGlassBackground(radius: radius))
     }
 }
 
@@ -52,7 +86,15 @@ struct MethodButton: View {
             .foregroundColor(isSelected ? .white : .primary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
-            .background(isSelected ? NotabilityTheme.accentBlue : Color.primary.opacity(0.05))
+            .background {
+                if isSelected {
+                    Capsule().fill(NotabilityTheme.accentBlue)
+                } else if #available(macOS 26.0, *) {
+                    Capsule().fill(.ultraThinMaterial).glassEffect(in: Capsule())
+                } else {
+                    Capsule().fill(Color.primary.opacity(0.05))
+                }
+            }
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)

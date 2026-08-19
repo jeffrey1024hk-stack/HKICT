@@ -12,7 +12,6 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         if let existingWindow = window {
             // Show existing window where user left it (position is auto-saved)
             existingWindow.makeKeyAndOrderFront(nil)
-            NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
             return
         }
@@ -45,7 +44,6 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         }
 
         self.window = window
-        NSApp.setActivationPolicy(.regular)
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 

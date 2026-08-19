@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import ServiceManagement
 
 extension AppDelegate {
     // MARK: - Global Keyboard Shortcut
@@ -17,13 +18,21 @@ extension AppDelegate {
         defaults.set(useCompatibilityMode, forKey: SettingsKeys.useCompatibilityMode)
         defaults.set(appAppearance.rawValue, forKey: SettingsKeys.appAppearance)
         defaults.set(blurWhenAway, forKey: SettingsKeys.blurWhenAway)
-        defaults.set(showInDock, forKey: SettingsKeys.showInDock)
         defaults.set(pauseOnTheGo, forKey: SettingsKeys.pauseOnTheGo)
         defaults.set(pauseOnBattery, forKey: SettingsKeys.pauseOnBattery)
         defaults.set(useFullScreenOverlay, forKey: SettingsKeys.useFullScreenOverlay)
         defaults.set(toggleShortcutEnabled, forKey: SettingsKeys.toggleShortcutEnabled)
-        defaults.set(Int(toggleShortcut.keyCode), forKey: SettingsKeys.toggleShortcutKeyCode)
-        defaults.set(Int(toggleShortcut.modifiers.rawValue), forKey: SettingsKeys.toggleShortcutModifiers)
+        defaults.set(SMAppService.mainApp.status == .enabled, forKey: SettingsKeys.launchAtLogin)
+        defaults.set(postureAlertManager.showAlertEnabled, forKey: SettingsKeys.showAlert)
+        defaults.set(postureAlertManager.soundMode.rawValue, forKey: SettingsKeys.alertSoundMode)
+        defaults.set(postureAlertManager.voiceAnnouncementEnabled, forKey: SettingsKeys.voiceAnnouncementEnabled)
+        defaults.set(breakReminderEnabled, forKey: SettingsKeys.breakReminderEnabled)
+        defaults.set(breakReminderInterval, forKey: SettingsKeys.breakReminderInterval)
+        defaults.set(dailyReminderEnabled, forKey: SettingsKeys.dailyReminderEnabled)
+        defaults.set(focusPauseModes, forKey: SettingsKeys.focusPauseModes)
+        defaults.set(meetingPauseEnabled, forKey: SettingsKeys.meetingPauseEnabled)
+        defaults.set(focusPauseEnabled, forKey: SettingsKeys.focusPauseEnabled)
+        defaults.set(dualSensorEnabled, forKey: SettingsKeys.dualSensorEnabled)
         if let cameraID = selectedCameraID {
             defaults.set(cameraID, forKey: SettingsKeys.lastCameraID)
         }
@@ -43,18 +52,44 @@ extension AppDelegate {
         settingsProfileManager.loadProfiles()
         applyActiveSettingsProfile()
 
+        // First-run defaults: everything on except pause-on-battery.
+        defaults.register(defaults: [
+            SettingsKeys.launchAtLogin: true,
+            SettingsKeys.blurWhenAway: true,
+            SettingsKeys.useFullScreenOverlay: true,
+            SettingsKeys.toggleShortcutEnabled: true,
+            SettingsKeys.showAlert: true,
+            SettingsKeys.alertSoundMode: AlertSoundMode.on.rawValue,
+            SettingsKeys.voiceAnnouncementEnabled: true,
+            SettingsKeys.breakReminderEnabled: true,
+            SettingsKeys.breakReminderInterval: 20.0,
+            SettingsKeys.dailyReminderEnabled: true,
+            SettingsKeys.meetingPauseEnabled: true,
+            SettingsKeys.focusPauseEnabled: true,
+            SettingsKeys.dualSensorEnabled: false
+        ])
+
+        // Keep the login item in sync with the persisted preference (default on).
+        let shouldLaunchAtLogin = defaults.object(forKey: SettingsKeys.launchAtLogin) as? Bool ?? true
+        if shouldLaunchAtLogin {
+            if SMAppService.mainApp.status != .enabled {
+                try? SMAppService.mainApp.register()
+            }
+        } else if SMAppService.mainApp.status == .enabled {
+            try? SMAppService.mainApp.unregister()
+        }
+
         useCompatibilityMode = defaults.bool(forKey: SettingsKeys.useCompatibilityMode)
         if let appearanceString = defaults.string(forKey: SettingsKeys.appAppearance),
            let appearance = AppAppearance(rawValue: appearanceString) {
             appAppearance = appearance
         }
         blurWhenAway = defaults.bool(forKey: SettingsKeys.blurWhenAway)
-        showInDock = defaults.bool(forKey: SettingsKeys.showInDock)
         pauseOnTheGo = defaults.bool(forKey: SettingsKeys.pauseOnTheGo)
         if defaults.object(forKey: SettingsKeys.pauseOnBattery) != nil {
             applyTrackingAction(.setPauseOnBatteryEnabled(defaults.bool(forKey: SettingsKeys.pauseOnBattery)))
         }
-        useFullScreenOverlay = defaults.bool(forKey: SettingsKeys.useFullScreenOverlay)
+        useFullScreenOverlay = true
         cameraDetector.selectedCameraID = defaults.string(forKey: SettingsKeys.lastCameraID)
         if let sourceString = defaults.string(forKey: SettingsKeys.trackingSource),
            let source = TrackingSource(rawValue: sourceString) {
@@ -78,10 +113,32 @@ extension AppDelegate {
         if defaults.object(forKey: SettingsKeys.toggleShortcutEnabled) != nil {
             toggleShortcutEnabled = defaults.bool(forKey: SettingsKeys.toggleShortcutEnabled)
         }
-        if defaults.object(forKey: SettingsKeys.toggleShortcutKeyCode) != nil {
-            let keyCode = UInt16(defaults.integer(forKey: SettingsKeys.toggleShortcutKeyCode))
-            let modifiers = NSEvent.ModifierFlags(rawValue: UInt(defaults.integer(forKey: SettingsKeys.toggleShortcutModifiers)))
-            toggleShortcut = AppKeyboardShortcut(keyCode: keyCode, modifiers: modifiers)
+        // Shortcut is fixed to Ctrl+Option+P; the user cannot change it.
+        toggleShortcut = .defaultShortcut
+
+        postureAlertManager.showAlertEnabled = defaults.object(forKey: SettingsKeys.showAlert) as? Bool ?? true
+        if let modeRaw = defaults.string(forKey: SettingsKeys.alertSoundMode),
+           let mode = AlertSoundMode(rawValue: modeRaw) {
+            postureAlertManager.soundMode = mode
+        }
+        postureAlertManager.voiceAnnouncementEnabled = defaults.object(forKey: SettingsKeys.voiceAnnouncementEnabled) as? Bool ?? true
+        breakReminderEnabled = defaults.bool(forKey: SettingsKeys.breakReminderEnabled)
+        breakReminderInterval = defaults.double(forKey: SettingsKeys.breakReminderInterval)
+        if breakReminderInterval < 1 { breakReminderInterval = 20 }
+        dailyReminderEnabled = defaults.bool(forKey: SettingsKeys.dailyReminderEnabled)
+        if let savedModes = defaults.stringArray(forKey: SettingsKeys.focusPauseModes) {
+            focusPauseModes = savedModes
+        } else {
+            focusPauseModes = FocusModeReader.configuredModes().map { $0.identifier }
+        }
+        if defaults.object(forKey: SettingsKeys.meetingPauseEnabled) != nil {
+            applyTrackingAction(.setMeetingPauseEnabled(defaults.bool(forKey: SettingsKeys.meetingPauseEnabled)))
+        }
+        if defaults.object(forKey: SettingsKeys.focusPauseEnabled) != nil {
+            applyTrackingAction(.setFocusPauseEnabled(defaults.bool(forKey: SettingsKeys.focusPauseEnabled)))
+        }
+        if defaults.object(forKey: SettingsKeys.dualSensorEnabled) != nil {
+            applyTrackingAction(.setDualSensorEnabled(defaults.bool(forKey: SettingsKeys.dualSensorEnabled)))
         }
     }
 

@@ -374,7 +374,7 @@ class WarningOverlayManager {
             )
             window.isOpaque = false
             window.backgroundColor = .clear
-            window.level = .aboveFullscreen
+            window.level = .belowNotifications
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             window.ignoresMouseEvents = true
             window.hasShadow = false

@@ -57,6 +57,11 @@ struct TrackingFeature: Reducer {
         var lastPostureReadingTime: Date?
         var pauseOnBatteryEnabled: Bool = false
         var isOnBattery: Bool = false
+        var meetingPauseEnabled: Bool = false
+        var focusPauseEnabled: Bool = false
+        var isInMeeting: Bool = false
+        var isInFocus: Bool = false
+        var dualSensorEnabled: Bool = false
 
         init(
             appState: AppState = .disabled,
@@ -72,7 +77,12 @@ struct TrackingFeature: Reducer {
             postureConfig: PostureConfig = PostureConfig(),
             lastPostureReadingTime: Date? = nil,
             pauseOnBatteryEnabled: Bool = false,
-            isOnBattery: Bool = false
+            isOnBattery: Bool = false,
+            meetingPauseEnabled: Bool = false,
+            focusPauseEnabled: Bool = false,
+            isInMeeting: Bool = false,
+            isInFocus: Bool = false,
+            dualSensorEnabled: Bool = false
         ) {
             self.appState = appState
             self.trackingMode = trackingMode
@@ -88,6 +98,11 @@ struct TrackingFeature: Reducer {
             self.lastPostureReadingTime = lastPostureReadingTime
             self.pauseOnBatteryEnabled = pauseOnBatteryEnabled
             self.isOnBattery = isOnBattery
+            self.meetingPauseEnabled = meetingPauseEnabled
+            self.focusPauseEnabled = focusPauseEnabled
+            self.isInMeeting = isInMeeting
+            self.isInFocus = isInFocus
+            self.dualSensorEnabled = dualSensorEnabled
         }
 
         func readiness(for source: TrackingSource) -> TrackingSourceReadiness {
@@ -156,6 +171,11 @@ struct TrackingFeature: Reducer {
         case screenUnlocked
         case powerSourceChanged(isOnBattery: Bool)
         case setPauseOnBatteryEnabled(Bool)
+        case setMeetingPauseEnabled(Bool)
+        case setFocusPauseEnabled(Bool)
+        case meetingStateChanged(Bool)
+        case focusStateChanged(Bool)
+        case setDualSensorEnabled(Bool)
         case displayConfigurationChanged(
             pauseOnTheGoEnabled: Bool,
             isLaptopOnlyConfiguration: Bool,
@@ -309,6 +329,13 @@ struct TrackingFeature: Reducer {
                     case .updateBlur:
                         intents.append(.updateBlur)
                     }
+                }
+                // In dual-sensor fusion, readings from the secondary detector drive
+                // slouch state but must not double-count analytics monitoring time.
+                if state.dualSensorEnabled,
+                   let readingSource = reading.source,
+                   readingSource != state.activeSource {
+                    intents.removeAll { if case .trackAnalytics = $0 { return true } else { return false } }
                 }
                 return finish(perform(intents))
 
@@ -545,6 +572,52 @@ struct TrackingFeature: Reducer {
                 if result.shouldRestartMonitoring {
                     return finish(perform(.startMonitoring))
                 }
+                return finish()
+
+            case .setMeetingPauseEnabled(let isEnabled):
+                state.meetingPauseEnabled = isEnabled
+                if !isEnabled, state.appState == .paused(.inMeeting) {
+                    state.appState = .monitoring
+                    return finish(perform(.startMonitoring))
+                }
+                return finish()
+
+            case .setFocusPauseEnabled(let isEnabled):
+                state.focusPauseEnabled = isEnabled
+                if !isEnabled, state.appState == .paused(.inFocus) {
+                    state.appState = .monitoring
+                    return finish(perform(.startMonitoring))
+                }
+                return finish()
+
+            case .meetingStateChanged(let isInMeeting):
+                state.isInMeeting = isInMeeting
+                guard state.meetingPauseEnabled else { return finish() }
+                let meetingResult = PostureEngine.stateWhenMeetingChanges(
+                    currentState: state.appState,
+                    isInMeeting: isInMeeting
+                )
+                state.appState = meetingResult.newState
+                if meetingResult.shouldRestartMonitoring {
+                    return finish(perform(.startMonitoring))
+                }
+                return finish()
+
+            case .focusStateChanged(let isInFocus):
+                state.isInFocus = isInFocus
+                guard state.focusPauseEnabled else { return finish() }
+                let focusResult = PostureEngine.stateWhenFocusChanges(
+                    currentState: state.appState,
+                    isInFocus: isInFocus
+                )
+                state.appState = focusResult.newState
+                if focusResult.shouldRestartMonitoring {
+                    return finish(perform(.startMonitoring))
+                }
+                return finish()
+
+            case .setDualSensorEnabled(let isEnabled):
+                state.dualSensorEnabled = isEnabled
                 return finish()
 
             case let .displayConfigurationChanged(

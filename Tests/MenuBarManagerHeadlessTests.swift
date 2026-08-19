@@ -7,9 +7,12 @@ import XCTest
 @MainActor
 final class MenuBarManagerHeadlessTests: XCTestCase {
     private enum ItemIndex {
-        static let status = 0
-        static let enabled = 2
-        static let recalibrate = 3
+        static let about = 0
+        static let settings = 2
+        static let analytics = 3
+        static let checkForUpdates = 5
+        static let help = 6
+        static let quit = 8
     }
 
     func testUpdatesBeforeMenuExistsAreSafeNoOps() {
@@ -20,49 +23,29 @@ final class MenuBarManagerHeadlessTests: XCTestCase {
         manager.updateShortcut(enabled: true, shortcut: .defaultShortcut)
     }
 
-    func testUpdateStatusSetsStatusMenuItemTitle() {
+    func testMenuStructureMatchesSpec() {
         let manager = MenuBarManager()
         let menu = manager.makeMenu()
 
-        manager.updateStatus(text: "Monitoring posture", icon: .good)
+        XCTAssertEqual(menu.items[ItemIndex.about].title, "About PostureAI")
+        XCTAssertTrue(menu.items[1].isSeparatorItem)
 
-        XCTAssertEqual(menu.items[ItemIndex.status].title, "Monitoring posture")
-    }
+        XCTAssertEqual(menu.items[ItemIndex.settings].title, "Settings...")
+        XCTAssertEqual(menu.items[ItemIndex.settings].keyEquivalent, ",")
+        XCTAssertEqual(menu.items[ItemIndex.settings].keyEquivalentModifierMask, .command)
 
-    func testUpdateEnabledStateTogglesMenuItemState() {
-        let manager = MenuBarManager()
-        let menu = manager.makeMenu()
+        XCTAssertEqual(menu.items[ItemIndex.analytics].title, "Analytics...")
+        XCTAssertEqual(menu.items[ItemIndex.analytics].keyEquivalent, "")
 
-        manager.updateEnabledState(false)
-        XCTAssertEqual(menu.items[ItemIndex.enabled].state, .off)
+        XCTAssertTrue(menu.items[4].isSeparatorItem)
 
-        manager.updateEnabledState(true)
-        XCTAssertEqual(menu.items[ItemIndex.enabled].state, .on)
-    }
+        XCTAssertEqual(menu.items[ItemIndex.checkForUpdates].title, "Check for Updates...")
+        XCTAssertEqual(menu.items[ItemIndex.help].title, "Help...")
 
-    func testUpdateRecalibrateEnabledTogglesItem() {
-        let manager = MenuBarManager()
-        let menu = manager.makeMenu()
+        XCTAssertTrue(menu.items[7].isSeparatorItem)
 
-        manager.updateRecalibrateEnabled(false)
-        XCTAssertFalse(menu.items[ItemIndex.recalibrate].isEnabled)
-
-        manager.updateRecalibrateEnabled(true)
-        XCTAssertTrue(menu.items[ItemIndex.recalibrate].isEnabled)
-    }
-
-    func testUpdateShortcutAppliesAndClearsKeyEquivalent() {
-        let manager = MenuBarManager()
-        let menu = manager.makeMenu()
-        let shortcut = KeyboardShortcut.defaultShortcut
-
-        manager.updateShortcut(enabled: true, shortcut: shortcut)
-        XCTAssertEqual(menu.items[ItemIndex.enabled].keyEquivalent, shortcut.keyCharacter)
-        XCTAssertEqual(menu.items[ItemIndex.enabled].keyEquivalentModifierMask, shortcut.modifiers)
-
-        manager.updateShortcut(enabled: false, shortcut: shortcut)
-        XCTAssertEqual(menu.items[ItemIndex.enabled].keyEquivalent, "")
-        XCTAssertEqual(menu.items[ItemIndex.enabled].keyEquivalentModifierMask, [])
+        XCTAssertEqual(menu.items[ItemIndex.quit].title, "Quit")
+        XCTAssertEqual(menu.items[ItemIndex.quit].keyEquivalent, "q")
     }
 
     func testEveryMenuBarIconResolvesToAnImage() {

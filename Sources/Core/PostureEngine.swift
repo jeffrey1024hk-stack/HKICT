@@ -72,6 +72,12 @@ struct PowerSourceTransitionResult: Equatable {
     let shouldRestartMonitoring: Bool
 }
 
+/// Result of an auto-pause change (video call meeting or Focus mode)
+struct AutoPauseTransitionResult: Equatable {
+    let newState: AppState
+    let shouldRestartMonitoring: Bool
+}
+
 /// Result of camera-connect handling
 struct CameraConnectedTransitionResult: Equatable {
     let newState: AppState
@@ -538,6 +544,43 @@ struct PostureEngine {
             return PowerSourceTransitionResult(newState: currentState, shouldRestartMonitoring: false)
         }
         return PowerSourceTransitionResult(newState: .monitoring, shouldRestartMonitoring: true)
+    }
+
+    /// Determine state impact when a video call starts or ends.
+    /// Pausing during a meeting prevents screen blurs during presentations.
+    static func stateWhenMeetingChanges(
+        currentState: AppState,
+        isInMeeting: Bool
+    ) -> AutoPauseTransitionResult {
+        if isInMeeting {
+            guard currentState == .monitoring else {
+                return AutoPauseTransitionResult(newState: currentState, shouldRestartMonitoring: false)
+            }
+            return AutoPauseTransitionResult(newState: .paused(.inMeeting), shouldRestartMonitoring: false)
+        }
+
+        guard currentState == .paused(.inMeeting) else {
+            return AutoPauseTransitionResult(newState: currentState, shouldRestartMonitoring: false)
+        }
+        return AutoPauseTransitionResult(newState: .monitoring, shouldRestartMonitoring: true)
+    }
+
+    /// Determine state impact when a macOS Focus (DND) turns on or off.
+    static func stateWhenFocusChanges(
+        currentState: AppState,
+        isInFocus: Bool
+    ) -> AutoPauseTransitionResult {
+        if isInFocus {
+            guard currentState == .monitoring else {
+                return AutoPauseTransitionResult(newState: currentState, shouldRestartMonitoring: false)
+            }
+            return AutoPauseTransitionResult(newState: .paused(.inFocus), shouldRestartMonitoring: false)
+        }
+
+        guard currentState == .paused(.inFocus) else {
+            return AutoPauseTransitionResult(newState: currentState, shouldRestartMonitoring: false)
+        }
+        return AutoPauseTransitionResult(newState: .monitoring, shouldRestartMonitoring: true)
     }
 
     /// Determine state impact of an AirPods in-ear connection change.

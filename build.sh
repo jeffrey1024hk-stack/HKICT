@@ -118,6 +118,136 @@ else
     rm "$MACOS_DIR/${APP_NAME}_arm64" "$MACOS_DIR/${APP_NAME}_x86"
 fi
 
+# ---------------------------------------------------------------------------
+# App Intents metadata (Shortcuts)
+# ---------------------------------------------------------------------------
+# SwiftPM does not generate AppIntents.metadata (Xcode does). Without it the
+# app has no App Intents discoverable by Shortcuts. We emit the compiler
+# const-values for the intents file (with a stub of PostureStateStore so the
+# file compiles standalone), then run appintentsmetadataprocessor to produce
+# the Metadata.appintents bundle, mirroring the layout of a normal Xcode app.
+INTENTS_FILE="$SOURCES_DIR/AppDelegate/PostureAppIntents.swift"
+if [ -f "$INTENTS_FILE" ]; then
+    echo "Generating App Intents metadata..."
+    TOOLCHAIN_DIR="$(dirname "$(dirname "$(dirname "$(xcrun --find swift)")")")"
+    GATHER_JSON="$TOOLCHAIN_DIR/usr/share/swift/SwiftConstantValues/AppIntents.json"
+    if [ -f "$GATHER_JSON" ]; then
+        /usr/bin/python3 -c "
+import json
+d = json.load(open('$GATHER_JSON'))
+open('$BUILD_DIR/appintents_gather.json', 'w').write(json.dumps(d['constValueProtocols']))
+"
+        cat > "$BUILD_DIR/appintents_stub.swift" << 'STUB'
+import Foundation
+@MainActor
+public final class PostureStateStore {
+    public static let shared = PostureStateStore()
+    public var currentStatus = "inactive"
+    public var isSlouching = false
+    public var onToggleMonitoring: (() async -> Void)?
+    public var onStartMonitoring: (() async -> Void)?
+    public var onStopMonitoring: (() async -> Void)?
+    public var onStartScreenBreak: ((Int) -> Void)?
+    func currentAnalytics() -> PostureAnalytics {
+        PostureAnalytics(id: "today", minutesTracked: 0, slouchCount: 0, streakDays: 0)
+    }
+}
+STUB
+        {
+            cat "$INTENTS_FILE"
+            echo
+            cat "$BUILD_DIR/appintents_stub.swift"
+        } > "$BUILD_DIR/appintents_constvals_src.swift"
+        if swiftc -c "$BUILD_DIR/appintents_constvals_src.swift" \
+            -o "$BUILD_DIR/appintents_constvals_src.o" \
+            -module-name PostureAICore \
+            -Xfrontend -emit-const-values-path -Xfrontend "$BUILD_DIR/PostureAICore.swiftconstvalues" \
+            -Xfrontend -const-gather-protocols-file -Xfrontend "$BUILD_DIR/appintents_gather.json" \
+            > /dev/null 2>&1 && [ -s "$BUILD_DIR/PostureAICore.swiftconstvalues" ]; then
+            # Point the const-values entries at the real source file (the
+            # standalone compile used a combined temp source)
+            /usr/bin/sed -i '' \
+                "s|$BUILD_DIR/appintents_constvals_src.swift|$INTENTS_FILE|g" \
+                "$BUILD_DIR/PostureAICore.swiftconstvalues"
+            echo "$BUILD_DIR/PostureAICore.swiftconstvalues" > "$BUILD_DIR/constvals_list.txt"
+            find "$SOURCES_DIR" -name "*.swift" -not -path "*/App/*" -type f | sort > "$BUILD_DIR/srcs.txt"
+            XCODE_VERSION="$(xcodebuild -version 2>/dev/null | awk '/Build version/ {print $3}')"
+            APPINTENTS_ARCH="$(uname -m)"
+            if xcrun appintentsmetadataprocessor \
+                --output "$BUILD_DIR/AppIntents.metadata" \
+                --toolchain-dir "$TOOLCHAIN_DIR" \
+                --module-name PostureAICore \
+                --sdk-root "$(xcrun --sdk macosx --show-sdk-path)" \
+                --xcode-version "$XCODE_VERSION" \
+                --platform-family macOS \
+                --deployment-target "$MIN_MACOS" \
+                --target-triple "$APPINTENTS_ARCH-apple-macosx$MIN_MACOS" \
+                --source-file-list "$BUILD_DIR/srcs.txt" \
+                --swift-const-vals-list "$BUILD_DIR/constvals_list.txt" \
+                --force > /dev/null 2>&1 && \
+                [ -d "$BUILD_DIR/AppIntents.metadata/Metadata.appintents" ]; then
+                cp -R "$BUILD_DIR/AppIntents.metadata/Metadata.appintents" \
+                    "$RESOURCES_DIR/Metadata.appintents"
+                echo -e "${GREEN}App Intents metadata embedded.${NC}"
+            else
+                echo -e "${YELLOW}Warning: App Intents metadata generation failed. Shortcuts will not see the app's actions.${NC}"
+            fi
+        else
+            echo -e "${YELLOW}Warning: App Intents const-values extraction failed. Shortcuts will not see the app's actions.${NC}"
+        fi
+    else
+        echo -e "${YELLOW}Warning: AppIntents.json not found in toolchain; skipping App Intents metadata.${NC}"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Desktop widget extension (WidgetKit)
+# ---------------------------------------------------------------------------
+WIDGET_NAME="PostureAIWidget"
+WIDGET_PLUGINS_DIR="$CONTENTS/PlugIns"
+WIDGET_APPEX="$WIDGET_PLUGINS_DIR/$WIDGET_NAME.appex"
+
+echo ""
+echo "Building widget extension ($WIDGET_NAME) with Xcode..."
+mkdir -p "$WIDGET_APPEX"
+if [ "$DEV_BUILD" = true ]; then
+    WIDGET_CONFIG="Debug"
+    WIDGET_ARCHS="$(uname -m)"
+    WIDGET_ONLY_ACTIVE="YES"
+else
+    WIDGET_CONFIG="Release"
+    WIDGET_ARCHS="arm64 x86_64"
+    WIDGET_ONLY_ACTIVE="NO"
+fi
+xcodebuild \
+    -project "$SCRIPT_DIR/PostureAIWidget.xcodeproj" \
+    -scheme "$WIDGET_NAME" \
+    -configuration "$WIDGET_CONFIG" \
+    -derivedDataPath "$SCRIPT_DIR/build/widget-dd" \
+    ARCHS="$WIDGET_ARCHS" \
+    ONLY_ACTIVE_ARCH="$WIDGET_ONLY_ACTIVE" \
+    CODE_SIGNING_ALLOWED=NO \
+    build > /dev/null
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Error: xcodebuild failed for widget extension${NC}"
+    exit 1
+fi
+WIDGET_BUILT="$SCRIPT_DIR/build/widget-dd/Build/Products/$WIDGET_CONFIG/$WIDGET_NAME.appex"
+if [ ! -d "$WIDGET_BUILT" ]; then
+    echo -e "${RED}Error: xcodebuild appex not found at $WIDGET_BUILT${NC}"
+    exit 1
+fi
+# ditto preserves the code signature and resource forks
+ditto "$WIDGET_BUILT" "$WIDGET_APPEX"
+
+# Embed provisioning profile for App Store widget extensions
+if [ "$APP_STORE_BUILD" = true ]; then
+    PROFILE_PATH="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/eb353b46-54c5-48f3-ac94-8f7ba507c43f.provisionprofile"
+    if [ -f "$PROFILE_PATH" ]; then
+        cp "$PROFILE_PATH" "$WIDGET_APPEX/Contents/embedded.provisionprofile"
+    fi
+fi
+
 # Embed Sparkle.framework (direct-distribution builds only)
 if [ "$APP_STORE_BUILD" = false ]; then
     SPARKLE_FRAMEWORK="$SCRIPT_DIR/.build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
@@ -183,7 +313,7 @@ cat > "$CONTENTS/Info.plist" << EOF
         <string>fr</string>
         <string>de</string>
         <string>ja</string>
-        <string>zh-Hans</string>
+        <string>zh-Hant</string>
     </array>
 </dict>
 </plist>
@@ -266,6 +396,10 @@ if [ "$APP_STORE_BUILD" = true ]; then
     <true/>
     <key>com.apple.security.device.bluetooth</key>
     <true/>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.chill.PostureAI</string>
+    </array>
     <key>com.apple.application-identifier</key>
     <string>KBF2YGT2KP.$BUNDLE_ID</string>
     <key>com.apple.developer.team-identifier</key>
@@ -282,10 +416,30 @@ else
 <dict>
     <key>com.apple.security.device.camera</key>
     <true/>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.chill.PostureAI</string>
+    </array>
 </dict>
 </plist>
 EOF
 fi
+
+# Widget extension entitlements (app group shared with the main app)
+cat > "$BUILD_DIR/PostureAIWidget.entitlements" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.chill.PostureAI</string>
+    </array>
+</dict>
+</plist>
+EOF
 
 # Set executable permission
 chmod +x "$MACOS_DIR/$APP_NAME"
@@ -295,9 +449,21 @@ chmod +x "$MACOS_DIR/$APP_NAME"
 # error 91109; notarization can also complain. Must run before signing.
 xattr -cr "$APP_BUNDLE"
 
-# Ad-hoc sign the app bundle for macOS Gatekeeper compatibility
+# Sign the widget extension first (with its app-group entitlement), then the
+# app bundle. The app's seal covers the nested extension. Ad-hoc signing
+# (no hardened runtime) so dyld's library validation does not reject
+# Sparkle.framework's third-party signature.
+echo "Signing widget extension..."
+codesign --force \
+    --entitlements "$BUILD_DIR/PostureAIWidget.entitlements" \
+    --sign - \
+    "$WIDGET_APPEX"
+
 echo "Signing app bundle..."
-codesign --force --deep --sign - "$APP_BUNDLE"
+codesign --force \
+    --entitlements "$BUILD_DIR/PostureAI.entitlements" \
+    --sign - \
+    "$APP_BUNDLE"
 
 # Verify the build
 echo ""

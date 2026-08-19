@@ -87,6 +87,7 @@ extension AppDelegate {
 
         let activeSource = activeTrackingSource
         let shouldRun = PostureEngine.shouldDetectorRun(for: state, trackingSource: activeSource)
+        let usingFusion = dualSensorEnabled
 
         // Always stop the other detector so in-flight starts are cancelled
         // even if that detector has not flipped isActive=true yet.
@@ -94,7 +95,7 @@ extension AppDelegate {
         let calSource = calibratingSource
         let isAutomatic = trackingMode == .automatic
         if activeSource == .camera {
-            if calSource != .airpods {
+            if calSource != .airpods && !usingFusion {
                 airPodsDetector.stop()
                 // In automatic mode, keep AirPods connection monitoring alive
                 // so we can detect when they're put back in for auto-return.
@@ -103,9 +104,11 @@ extension AppDelegate {
                 }
             }
         } else {
-            if calSource != .camera { cameraDetector.stop() }
-            // Stop connection-only monitoring since AirPods detector is now active
-            airPodsDetector.stopConnectionMonitoring()
+            if calSource != .camera && !usingFusion { cameraDetector.stop() }
+            if !usingFusion {
+                // Stop connection-only monitoring since AirPods detector is now active
+                airPodsDetector.stopConnectionMonitoring()
+            }
         }
 
         // Start/stop the active detector
@@ -123,11 +126,49 @@ extension AppDelegate {
                     }
                 }
             }
+
+            // Dual-sensor fusion: also run the secondary detector (when it is
+            // calibrated) so AirPods tilt + camera positioning combine.
+            if usingFusion {
+                let secondary = dualSensorDetector
+                let secondaryCalibration: CalibrationData? = dualSensorSource == .camera
+                    ? cameraCalibration
+                    : airPodsCalibration
+                let secondaryReady = isMarketingMode || (secondaryCalibration?.isValid ?? false)
+                if secondaryReady && !secondary.isActive {
+                    secondary.start { success, error in
+                        if !success, let error = error {
+                            os_log(.error, log: log, "Failed to start secondary detector: %{public}@", error)
+                        }
+                    }
+                }
+                // Ensure the secondary detector evaluates readings (beginMonitoring
+                // is idempotent, so this is safe to call on every sync).
+                if let secondaryCalibration, secondaryCalibration.isValid {
+                    secondary.beginMonitoring(
+                        with: secondaryCalibration,
+                        intensity: activeIntensity,
+                        deadZone: activeDeadZone
+                    )
+                }
+            }
         } else {
             // Always call stop() so in-flight starts are cancelled even if
             // the detector has not yet flipped isActive=true.
             activeDetector.stop()
+            if usingFusion {
+                dualSensorDetector.stop()
+            }
         }
+    }
+
+    /// The secondary detector used in dual-sensor fusion mode.
+    var dualSensorSource: TrackingSource {
+        activeTrackingSource == .camera ? .airpods : .camera
+    }
+
+    var dualSensorDetector: PostureDetector {
+        detector(for: dualSensorSource)
     }
 
     @MainActor
@@ -145,13 +186,104 @@ extension AppDelegate {
         // when nothing menu-related changed, so they can refresh live status.
         NotificationCenter.default.post(name: .postureUIStateChanged, object: uiState)
 
+        // Drive slouch alerts (notification + spatial sound).
+        updateSlouchAlerts()
+
+        // Drive the 20/20/20 break reminder countdown.
+        breakReminderManager.update(isMonitoring: state == .monitoring)
+
+        // Publish a compact snapshot for the desktop widget.
+        let pauseReason: PauseReason? = {
+            if case .paused(let reason) = state { return reason }
+            return nil
+        }()
+        WidgetSnapshot.update(
+            isMonitoring: state == .monitoring,
+            isSlouching: isCurrentlySlouching,
+            source: activeTrackingSource,
+            pauseReason: pauseReason,
+            minutesToday: WidgetSnapshot.todayMinutes(),
+            nextBreakMinutes: breakReminderManager.nextBreakMinutesForWidget()
+        )
+
         // DIFF CHECK: Only hit AppKit if the state actually changed!
         guard uiState != lastRenderedUIState else { return }
         lastRenderedUIState = uiState
 
         menuBarManager.updateStatus(text: uiState.statusText, icon: uiState.icon.menuBarIcon)
+        menuBarManager.refreshNextBreak()
         menuBarManager.updateEnabledState(uiState.isEnabled)
         menuBarManager.updateRecalibrateEnabled(uiState.canRecalibrate)
+    }
+
+    /// Re-evaluates slouch alerts (notification + spatial sound) against the
+    /// current slouch state and whether AirPods are the audio output. Alerts
+    /// are suppressed while a screen break blur is on screen.
+    @MainActor
+    func updateSlouchAlerts() {
+        guard !isScreenBreakActive else { return }
+        postureAlertManager.update(
+            isSlouching: isCurrentlySlouching,
+            isAirPodsOutput: AudioOutput.isAirPodsOutput
+        )
+    }
+
+    // MARK: - Screen Break (20/20/20 blur)
+
+    /// Begins the screen break blur for the 20/20/20 reminder: the screen is
+    /// blurred for the break duration while the user looks 20 feet away.
+    func beginScreenBreak() {
+        guard breakReminderEnabled, !isScreenBreakActive else { return }
+        isScreenBreakActive = true
+        screenBreakOverlayManager.show(duration: 20) { [weak self] in
+            Task { @MainActor in
+                self?.endScreenBreak()
+            }
+        }
+    }
+
+    /// Begins the screen break blur regardless of the 20/20/20 reminder
+    /// setting, for explicit requests (e.g. a Shortcut action).
+    func beginScreenBreakNow(durationSeconds: Int = 20) {
+        guard !isScreenBreakActive else { return }
+        isScreenBreakActive = true
+        screenBreakOverlayManager.show(duration: durationSeconds) { [weak self] in
+            Task { @MainActor in
+                self?.endScreenBreak()
+            }
+        }
+    }
+
+    /// Schedules a screen break to begin after the given number of minutes,
+    /// or starts it immediately when `inMinutes` is zero.
+    func scheduleScreenBreak(inMinutes: Double, durationSeconds: Int) {
+        breakScheduledTimer?.invalidate()
+        breakScheduledTimer = nil
+        guard inMinutes > 0 else {
+            beginScreenBreakNow(durationSeconds: durationSeconds)
+            return
+        }
+        breakScheduledTimer = Timer.scheduledTimer(withTimeInterval: inMinutes * 60, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                self?.beginScreenBreakNow(durationSeconds: durationSeconds)
+            }
+        }
+    }
+
+    private func endScreenBreak() {
+        isScreenBreakActive = false
+        updateSlouchAlerts()
+    }
+
+    // MARK: - Single AirPod Detection
+
+    /// Polls Bluetooth to detect when only one AirPod is in use (macOS does
+    /// not expose which bud is worn, only the connection count).
+    func refreshSingleBudState() {
+        let single = airPodsDetector.connectedAirPodsDeviceCount == 1
+        guard single != isSingleBudInUse else { return }
+        isSingleBudInUse = single
+        NotificationCenter.default.post(name: .postureUIStateChanged, object: nil)
     }
 
     func updateSourceReadiness() {
@@ -232,6 +364,18 @@ extension AppDelegate {
             .awayStateChanged(isAway, isMarketingMode: isMarketingMode),
             applyStateTransition: false
         )
+    }
+
+    // MARK: - Auto-Pause Events
+
+    func handleMeetingStateChange(_ isInMeeting: Bool) async {
+        applyTrackingAction(.meetingStateChanged(isInMeeting))
+        syncUIToState()
+    }
+
+    func handleFocusStateChange(_ isInFocus: Bool) async {
+        applyTrackingAction(.focusStateChanged(isInFocus))
+        syncUIToState()
     }
 
     // MARK: - Enable/Disable
@@ -365,6 +509,17 @@ extension AppDelegate {
             )
         )
 
+        // If a meeting/Focus is already active, pause immediately so the user
+        // doesn't get a blur while presenting.
+        if meetingPauseEnabled, videoCallDetector.isInMeeting,
+           transition.newState.appState == .monitoring {
+            applyTrackingAction(.meetingStateChanged(true))
+        }
+        if focusPauseEnabled, focusObserver.isInFocus,
+           transition.newState.appState == .monitoring {
+            applyTrackingAction(.focusStateChanged(true))
+        }
+
         if transition.newState.appState == .paused(.airPodsRemoved) {
             os_log(.info, log: log, "AirPods not in ears - pausing instead of monitoring")
         }
@@ -380,6 +535,9 @@ extension AppDelegate {
             )
         )
         activeDetector.updateParameters(intensity: activeIntensity, deadZone: activeDeadZone)
+        if dualSensorEnabled {
+            dualSensorDetector.updateParameters(intensity: activeIntensity, deadZone: activeDeadZone)
+        }
         applyDetectionMode()
 
         guard setupComplete else { return }

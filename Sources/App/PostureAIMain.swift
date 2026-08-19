@@ -27,7 +27,13 @@ struct PostureAIMain {
         let appMenu = NSMenu()
         appMenuItem.submenu = appMenu
 
-        let quitItem = NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(AppDelegate.openSettings), keyEquivalent: ",")
+        settingsItem.target = delegate
+        appMenu.addItem(settingsItem)
+
+        appMenu.addItem(NSMenuItem.separator())
+
+        let quitItem = NSMenuItem(title: "Quit PostureAI", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenu.addItem(quitItem)
 
         // File menu (for Cmd+W)

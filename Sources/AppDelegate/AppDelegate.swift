@@ -1,6 +1,7 @@
 import AppKit
 import AVFoundation
 import Vision
+import IOKit
 import os.log
 import ComposableArchitecture
 import SwiftUI
@@ -27,6 +28,12 @@ public final class PostureStateStore {
     
     public var currentStatus: String = "inactive"
     public var isSlouching: Bool = false
+
+    // Action hooks wired up by AppDelegate so App Intents can control the app.
+    public var onToggleMonitoring: (@MainActor () async -> Void)?
+    public var onStartMonitoring: (@MainActor () async -> Void)?
+    public var onStopMonitoring: (@MainActor () async -> Void)?
+    public var onStartScreenBreak: (@MainActor (Int) -> Void)?
     
     private init() {}
     
@@ -37,6 +44,16 @@ public final class PostureStateStore {
         } else {
             self.currentStatus = isSlouching ? "bad" : "good"
         }
+    }
+
+    func currentAnalytics() -> PostureAnalytics {
+        let stats = AnalyticsManager.shared.todayStats
+        return PostureAnalytics(
+            id: DailyStats.dayKey(for: stats.date),
+            minutesTracked: Int(stats.totalSeconds / 60),
+            slouchCount: stats.slouchCount,
+            streakDays: AnalyticsManager.shared.calculateStreak()
+        )
     }
 }
 
@@ -76,6 +93,17 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     var warningOverlayManager = WarningOverlayManager()
     let settingsProfileManager = SettingsProfileManager()
     var appliedWarningColorData: Data?
+
+    // Slouch alerts (notification + spatial sound)
+    let postureAlertManager = PostureAlertManager()
+
+    // Gentle pause reminder (20/20/20)
+    let breakReminderManager = BreakReminderManager()
+    /// Timer for a user-scheduled screen break ("start screen break in X minutes").
+    var breakScheduledTimer: Timer?
+    // Auto-pause during video calls and Focus (DND)
+    let videoCallDetector = VideoCallDetector()
+    let focusObserver = FocusObserver()
 
     // MARK: - Posture Detectors
 
@@ -145,7 +173,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
-    var showInDock = false
     var appAppearance = AppAppearance.auto
     var pauseOnTheGo = false
     var pauseOnBattery: Bool {
@@ -154,9 +181,64 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     var useFullScreenOverlay = false
     var settingsWindowController = SettingsWindowController()
     var supportWindowController = SupportWindowController()
+    var aboutWindowController = AboutWindowController()
     var analyticsWindowController: AnalyticsWindowController?
     var onboardingWindowController: OnboardingWindowController?
     var dashboardWindow: NSWindow?
+
+    // Gentle pause reminder (20/20/20) settings
+    var breakReminderEnabled = true {
+        didSet {
+            breakReminderManager.enabled = breakReminderEnabled
+            breakReminderManager.restart()
+        }
+    }
+    var breakReminderInterval: Double = 20 {
+        didSet {
+            breakReminderManager.intervalMinutes = breakReminderInterval
+            breakReminderManager.restart()
+        }
+    }
+    // Daily "Start monitoring?" reminder
+    var dailyReminderEnabled = true
+
+    // Single AirPod in use (auto-detected; macOS doesn't expose which side)
+    var isSingleBudInUse = false
+    private var singleBudTimer: Timer?
+
+    // Which Focus modes the user wants to pause during (identifiers).
+    var focusPauseModes: [String] = [] {
+        didSet { focusObserver.selectedModeIdentifiers = Set(focusPauseModes) }
+    }
+
+    // Screen break (blur) overlay shown by the 20/20/20 reminder
+    let screenBreakOverlayManager = ScreenBreakOverlayManager()
+    var isScreenBreakActive = false
+
+    // Store-backed settings
+    var meetingPauseEnabled: Bool {
+        get { trackingStore.withState { $0.meetingPauseEnabled } }
+        set { applyTrackingAction(.setMeetingPauseEnabled(newValue)) }
+    }
+    var focusPauseEnabled: Bool {
+        get { trackingStore.withState { $0.focusPauseEnabled } }
+        set { applyTrackingAction(.setFocusPauseEnabled(newValue)) }
+    }
+    var dualSensorEnabled: Bool {
+        get { trackingStore.withState { $0.dualSensorEnabled } }
+        set { applyTrackingAction(.setDualSensorEnabled(newValue)) }
+    }
+
+    /// Whether this Mac has a battery (MacBooks only). Desktops (iMac, Mac
+    /// mini, Mac Studio) have no battery and cannot pause "on battery".
+    var hasBattery: Bool {
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
+        if service != 0 {
+            IOObjectRelease(service)
+            return true
+        }
+        return false
+    }
 
     // Observers and monitors
     let displayMonitor = DisplayMonitor()
@@ -312,6 +394,19 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
                 intensity: activeIntensity,
                 deadZone: activeDeadZone
             )
+            // Dual-sensor fusion: also configure the secondary detector.
+            if dualSensorEnabled {
+                let secondaryCalibration: CalibrationData? = dualSensorSource == .camera
+                    ? cameraCalibration
+                    : airPodsCalibration
+                if let secondaryCalibration, secondaryCalibration.isValid {
+                    dualSensorDetector.beginMonitoring(
+                        with: secondaryCalibration,
+                        intensity: activeIntensity,
+                        deadZone: activeDeadZone
+                    )
+                }
+            }
 
         case .applyStartupCameraProfile(let profile):
             guard let profile else { return }
@@ -402,14 +497,32 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     public func applicationDidFinishLaunching(_ notification: Notification) {
         _ = AnalyticsManager.shared
 
+        // Request notification permission up front for slouch alerts.
+        postureAlertManager.requestAuthorizationIfNeeded()
+
+        // Wire App Intents action hooks so Shortcuts automations can control the app.
+        let shortcutsStore = PostureStateStore.shared
+        shortcutsStore.onToggleMonitoring = { [weak self] in
+            guard let self else { return }
+            await self.toggleEnabled()
+        }
+        shortcutsStore.onStartMonitoring = { [weak self] in
+            guard let self, !self.state.isActive else { return }
+            await self.startMonitoring()
+        }
+        shortcutsStore.onStopMonitoring = { [weak self] in
+            guard let self, self.state.isActive else { return }
+            await self.toggleEnabled()
+        }
+        shortcutsStore.onStartScreenBreak = { [weak self] duration in
+            guard let self else { return }
+            self.beginScreenBreakNow(durationSeconds: duration)
+        }
+
         UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 250])
 
         loadSettings()
         applyAppearance()
-
-        if showInDock {
-            NSApp.setActivationPolicy(.regular)
-        }
 
         if let iconPath = Bundle.main.path(forResource: "AppIcon", ofType: "icns"),
            let icon = NSImage(contentsOfFile: iconPath) {
@@ -449,6 +562,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         Task { @MainActor in
             await self.initialSetupFlow()
+            // If tracking never started (e.g. not configured), nudge the user.
+            self.maybeSendStartMonitoringReminder()
         }
     }
 
@@ -458,30 +573,65 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             let hostingController = NSHostingController(rootView: dashboardView)
             
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 850, height: 600),
-                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                contentRect: NSRect(x: 0, y: 0, width: 480, height: 760),
+                styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false
             )
             
             window.center()
             window.contentViewController = hostingController
-            window.title = "PostureAI Dashboard"
+            window.setContentSize(NSSize(width: 480, height: 760))
+            window.title = "PostureAI Settings"
             window.isReleasedWhenClosed = false
-            window.titlebarAppearsTransparent = true
-            window.isMovableByWindowBackground = true
+            window.isMovableByWindowBackground = false
             
             dashboardWindow = window
         }
         
-        NSApp.setActivationPolicy(.regular)
         dashboardWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// Sizes the dashboard window to exactly fit its content (no scrolling),
+    /// capped to the visible screen area. The height change is animated so the
+    /// window slides to its new size instead of jumping.
+    func fitDashboardWindow(toContentHeight height: CGFloat) {
+        guard let window = dashboardWindow else { return }
+        let currentContentHeight = window.contentView?.frame.height ?? 0
+        guard abs(currentContentHeight - height) > 2 else { return }
+
+        var newHeight = height
+        if let screen = NSScreen.main {
+            newHeight = min(newHeight, screen.visibleFrame.height - 20)
+        }
+
+        let frame = window.frame
+        let titleBarHeight = frame.height - currentContentHeight
+        let newFrame = NSRect(
+            x: frame.minX,
+            y: frame.minY,
+            width: 480,
+            height: max(newHeight + titleBarHeight, 120)
+        )
+        window.setFrame(newFrame, display: true, animate: true)
     }
 
     public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         menuBarManager.statusItem.button?.performClick(nil)
         return false
+    }
+
+    /// Relaunches the app from a detached shell so the relaunch survives
+    /// this process terminating.
+    func relaunchApp() {
+        let appPath = Bundle.main.bundleURL.path
+        let script = "sleep 1 && open \"\(appPath)\""
+        let process = Process()
+        process.launchPath = "/bin/sh"
+        process.arguments = ["-c", script]
+        process.launch()
+        NSApp.terminate(nil)
     }
 
     deinit {
@@ -538,6 +688,50 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
         powerSourceObserver.startObserving()
 
+        // Auto-pause: video calls and Focus (Do Not Disturb)
+        videoCallDetector.isOurCameraActive = { [weak self] in
+            self?.cameraDetector.isActive ?? false
+        }
+        videoCallDetector.onMeetingStateChange = { [weak self] isInMeeting in
+            Task { @MainActor in
+                await self?.handleMeetingStateChange(isInMeeting)
+            }
+        }
+        videoCallDetector.startMonitoring()
+
+        focusObserver.onFocusStateChange = { [weak self] isInFocus in
+            Task { @MainActor in
+                await self?.handleFocusStateChange(isInFocus)
+            }
+        }
+        focusObserver.startMonitoring()
+
+        // Auto-detected single-AirPod indicator (polls Bluetooth connection count)
+        singleBudTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.refreshSingleBudState()
+            }
+        }
+        refreshSingleBudState()
+
+        // Screen break reminder: blur the screen for the break duration
+        breakReminderManager.onBreakStart = { [weak self] in
+            Task { @MainActor in
+                self?.beginScreenBreak()
+            }
+        }
+
+        // Daily "Start monitoring?" reminder when the app is activated
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.maybeSendStartMonitoringReminder()
+            }
+        }
+
         hotkeyManager.configure(
             enabled: toggleShortcutEnabled,
             shortcut: toggleShortcut,
@@ -563,6 +757,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             self?.openDashboard()
         }
 
+        menuBarManager.onShowAbout = { [weak self] in
+            self?.showAbout()
+        }
+
         menuBarManager.onShowAnalytics = { [weak self] in
             self?.showAnalytics()
         }
@@ -571,8 +769,16 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             self?.startCalibration()
         }
 
+        menuBarManager.onOpenHelp = { [weak self] in
+            self?.openHelp()
+        }
+
         menuBarManager.onQuit = { [weak self] in
             NSApp.terminate(nil)
+        }
+
+        menuBarManager.nextBreakSecondsProvider = { [weak self] in
+            self?.breakReminderManager.secondsUntilNextBreak
         }
     }
 
@@ -584,12 +790,20 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
         analyticsWindowController?.appDelegate = self
         analyticsWindowController?.showWindow(nil)
-        NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
     }
 
     @objc public func openSettings() {
         openDashboard()
+    }
+
+    func showAbout() {
+        aboutWindowController.showAbout()
+    }
+
+    func openHelp() {
+        guard let url = URL(string: "https://github.com/jeffrey1024hk-stack/HKICT/issues") else { return }
+        NSWorkspace.shared.open(url)
     }
 }
 
@@ -627,11 +841,25 @@ extension AppDelegate {
         )
     }
 
+    /// Posts a "Start monitoring?" notification once per day when tracking
+    /// hasn't been launched. Only fires if notifications are allowed.
+    @MainActor
+    func maybeSendStartMonitoringReminder() {
+        guard dailyReminderEnabled, state == .disabled else { return }
+
+        let defaults = UserDefaults.standard
+        let today = Calendar.current.startOfDay(for: Date())
+        if let last = defaults.object(forKey: SettingsKeys.lastStartReminderDate) as? Date,
+           Calendar.current.isDate(last, inSameDayAs: today) {
+            return
+        }
+        defaults.set(today, forKey: SettingsKeys.lastStartReminderDate)
+        postureAlertManager.postStartMonitoringReminder()
+    }
+
     // MARK: - Activation Policy
 
     func restoreAccessoryActivationPolicyIfNeeded(excluding windowToIgnore: NSWindow? = nil) {
-        guard !showInDock else { return }
-
         let hasOtherVisibleTitledWindows = NSApp.windows.contains { window in
             guard window != windowToIgnore else { return false }
             return window.isVisible && !window.isMiniaturized && window.styleMask.contains(.titled)

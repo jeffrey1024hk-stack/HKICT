@@ -12,17 +12,16 @@ extension AppDelegate {
             let hostingController = NSHostingController(rootView: dashboardView)
             
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 360, height: 490),
-                styleMask: [.titled, .closable, .fullSizeContentView],
+                contentRect: NSRect(x: 0, y: 0, width: 560, height: 660),
+                styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false
             )
             
-            window.titlebarAppearsTransparent = true
-            window.titleVisibility = .hidden
             window.isMovableByWindowBackground = true
-            window.backgroundColor = .clear
+            window.title = "PostureAI Settings"
             window.contentViewController = hostingController
+            window.setContentSize(NSSize(width: 560, height: 660))
             window.center()
             window.isReleasedWhenClosed = false
             

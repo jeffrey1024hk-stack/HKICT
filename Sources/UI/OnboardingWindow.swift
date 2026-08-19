@@ -52,7 +52,6 @@ class OnboardingWindowController: NSObject, NSWindowDelegate {
         window.centerOnActiveScreen()
 
         self.window = window
-        NSApp.setActivationPolicy(.regular)
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }

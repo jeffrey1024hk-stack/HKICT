@@ -41,6 +41,8 @@ private let fallbackStrings: [String: String] = [
     "status.pausedScreenLocked": "Status: Paused (screen locked)",
     "status.pausedPutInAirPods": "Status: Paused (put in AirPods)",
     "status.pausedOnBattery": "Status: Paused (on battery)",
+    "status.pausedInMeeting": "Status: Paused (in a meeting)",
+    "status.pausedInFocus": "Status: Paused (Focus mode)",
 
     // Accessibility
     "accessibility.goodPosture": "Good Posture",
@@ -151,8 +153,6 @@ private let fallbackStrings: [String: String] = [
     "settings.launchAtLogin.help": "Automatically start PostureAI when you log in",
     "settings.autoUpdates": "Automatic updates",
     "settings.autoUpdates.help": "Check for new versions in the background and offer to install them",
-    "settings.showInDock": "Show in dock",
-    "settings.showInDock.help": "Keep PostureAI in Dock and Cmd+Tab",
     "settings.blurWhenAway": "Blur when away",
     "settings.blurWhenAway.help.camera": "Apply full blur when you step away",
     "settings.blurWhenAway.help.airpods": "Apply full blur when you step away. Only available when using camera for detection.",
@@ -160,11 +160,17 @@ private let fallbackStrings: [String: String] = [
     "settings.pauseOnTheGo.help": "Auto-pause on laptop-only display",
     "settings.pauseOnBattery": "Pause on battery",
     "settings.pauseOnBattery.help": "Auto-pause to save power when on battery",
+    "settings.pauseOnBattery.help.desktop": "Only available on Mac laptops",
     "settings.fullScreenOverlay": "Full screen overlay",
     "settings.fullScreenOverlay.help": "Extend effects over the dock and menu bar",
     "settings.shortcut": "Shortcut",
     "settings.shortcut.help": "Global keyboard shortcut to toggle PostureAI. Click the field and press your desired key combination.",
     "settings.shortcut.press": "Press...",
+    "settings.language": "Language",
+    "settings.language.system": "(System)",
+    "settings.language.restartTitle": "Restart Required",
+    "settings.language.restartMessage": "Changing the language will restart PostureAI to apply the new language. Continue?",
+    "settings.language.restartConfirm": "Restart",
     "settings.compatibilityMode": "Compatibility mode",
     "settings.compatibilityMode.help": "Enable if blur isn't appearing",
     "settings.viewOnGitHub": "View on GitHub",
@@ -179,11 +185,42 @@ private let fallbackStrings: [String: String] = [
     "settings.intensity.medium": "Medium",
     "settings.intensity.firm": "Firm",
     "settings.intensity.aggressive": "Aggressive",
+    "settings.section.tracking": "Monitoring",
+    "settings.section.general": "General Preferences",
+    "settings.section.calibration": "Calibration & Alerts",
+    "settings.section.privacy": "Tracking & Privacy",
+    "settings.section.reminders": "Reminders & Auto-Pause",
+
+    "settings.tab.general": "General",
+    "settings.tab.tracking": "Tracking",
+    "settings.tab.response": "Response",
+    "settings.tab.behavior": "Behavior",
+    "settings.tab.autoPause": "Auto Pause",
+    "settings.tab.reminders": "Reminders",
+    "settings.resetAll": "Reset All Settings",
+    "settings.resetAll.confirmTitle": "Reset All Settings?",
+    "settings.resetAll.confirm": "This will erase all PostureAI settings and restore the app to its original state.",
+    "settings.resetAll.confirmButton": "Reset",
+    "settings.airpodsReady": "AirPods active — ready",
+    "settings.airpodsNotConnected": "AirPods not connected",
+    "settings.warningColor": "Warning Color",
+    "settings.noCameras.title": "No cameras",
+    "settings.source.camera": "Camera",
+    "settings.source.airpods": "AirPods",
+    "settings.preferredTag": "Preferred",
+    "settings.activeTag": "Active",
+    "settings.calibrate": "Calibrate",
+    "settings.done": "Done",
+    "settings.brightness": "Brightness",
+    "settings.versionShort": "v%@",
+    "settings.privacy.note": "Posture analysis happens on-device. Camera frames are processed locally and never leave your Mac.",
+    "settings.delay.stepper": "Trigger alert after %d seconds of slouching",
+    "settings.version": "Version %@ (Build %@)",
 
     // Analytics
     "analytics.title": "Analytics",
-    "analytics.header": "Posture Analytics",
-    "analytics.tagline": "Track your habits and improvement over time",
+    "analytics.header": "PostureAI Analytics",
+    "analytics.tagline": "SIT BETTER · WORK SMARTER",
     "analytics.todayScore": "Today's Score",
     "analytics.monitoringTime": "Monitoring Time",
     "analytics.slouchDuration": "Slouch Duration",
@@ -210,19 +247,137 @@ private let fallbackStrings: [String: String] = [
     "dashboard.status.good": "Good Posture",
     "dashboard.live.off": "OFF",
     "dashboard.live.on": "LIVE",
-    "dashboard.inputSource": "INPUT SOURCE",
+    "dashboard.inputSource": "Input Source",
     "dashboard.camera": "Camera",
     "dashboard.airpods": "AirPods",
-    "dashboard.sensitivityTolerance": "SENSITIVITY & TOLERANCE",
+    "dashboard.sensitivityTolerance": "Sensitivity & Tolerance",
     "dashboard.slouchSensitivity": "Slouch Sensitivity",
     "dashboard.deadZoneTolerance": "Dead Zone Tolerance",
     "dashboard.recalibrate": "Recalibrate Sitting Posture",
+
+    "settings.status.disconnected": "Disconnected",
+    "settings.status.needsCalibration": "Needs calibration",
+    "settings.status.ready": "Ready",
+
+    // Alerts
+    "alert.section": "Alerts",
+    "alert.showAlert": "Show notification",
+    "alert.showAlert.help": "Show a notification when slouching is detected",
+    "alert.spatialSoundSection": "Spatial Sound",
+    "alert.spatialSound": "Sound alert",
+    "alert.spatialSound.help": "Play a tone when you slouch",
+    "alert.sound.off": "Off",
+    "alert.sound.on": "On",
+    "alert.sound.airpodsOnly": "AirPods only",
+    "alert.sound.alwaysOn": "Always On",
+    "alert.sound.autoAirPods": "Automatically when connected to AirPods",
+    "alert.slouch.title": "Posture Alert",
+    "alert.slouch.body": "Slouching detected. Sit up straight.",
+    "alert.voiceAnnouncement": "Voice reminder",
+    "alert.voiceAnnouncement.help": "Speak \"Sit up straight\" after 5 seconds of slouching (instead of the tone)",
+    "alert.voiceAnnouncement.help.off": "Turn sound on to use the voice reminder",
+    "alert.voiceAnnouncement.help.airpods": "Speak \"Sit up straight\" after 5 seconds of slouching — AirPods output only",
+    "voice.sitUpStraight": "Sit up straight",
+
+    // Screen Break Reminder
+    "breakReminder.section": "Screen Break Reminder",
+    "breakReminder.enabled": "Screen break (20/20/20)",
+    "breakReminder.enabled.help": "Every 20 minutes, blurs the screen for 20 seconds so you look 20 feet away",
+    "breakReminder.interval": "Work interval",
+    "breakReminder.interval.minutes": "%d min",
+    "breakReminder.startNow": "Start Screen Break Now",
+    "breakReminder.duration": "Break length",
+    "breakReminder.duration.seconds": "%d sec",
+    "breakReminder.startIn": "Start in",
+    "breakReminder.now": "Now",
+    "screenBreak.title": "Look 20 feet away",
+    "screenBreak.caption": "Blink a few times and relax your shoulders",
+
+    // Daily Start Reminder
+    "reminder.section": "Start Monitoring",
+    "reminder.daily": "Daily start reminder",
+    "reminder.daily.help": "Prompt to start monitoring when tracking isn't running",
+    "reminder.startMonitoring.title": "PostureAI isn't monitoring",
+    "reminder.startMonitoring.body": "Start monitoring?",
+
+    // Auto-Pause
+    "autoPause.section": "Auto-Pause",
+    "autoPause.meeting": "Pause during meetings",
+    "autoPause.meeting.help": "Auto-pause when a video call is active (Zoom, Teams, FaceTime, etc.) to avoid screen blurs",
+    "autoPause.focus": "Pause during Focus",
+    "autoPause.focus.help": "Only pauses during the Focus modes you select below (custom modes included)",
+    "autoPause.focus.modes": "Focus modes to pause during",
+
+    // Dual Sensor Fusion
+    "fusion.enabled": "Dual sensor fusion",
+    "fusion.enabled.help": "Combine AirPods tilt and camera positioning simultaneously for better accuracy",
+    "fusion.disabledNote": "Camera and AirPods are locked while fusion is on",
+
+    // Single AirPod (auto-detected)
+    "singleBud.badge": "Single bud — lower accuracy",
+
+    // About
+    "about.windowTitle": "About PostureAI",
+    "about.title": "PostureAI",
+    "about.tagline": "SIT BETTER · WORK SMARTER",
+    "about.version": "Version %@ (Build %@)",
+    "about.github": "GitHub",
+    "about.license": "License",
+    "about.privacy": "Privacy Policy",
+    "about.copyright": "© 2026 PostureAI. All rights reserved.",
 
     // Common
     "common.cancel": "Cancel"
 ]
 
+// MARK: - In-App Language Selection
+
+public enum AppLanguage: String, CaseIterable, Identifiable {
+    case system = ""
+    case english = "en"
+    case german = "de"
+    case traditionalChinese = "zh-Hant"
+    case japanese = "ja"
+    case spanish = "es"
+    case french = "fr"
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .system: return L("settings.language.system")
+        case .english: return "English"
+        case .german: return "Deutsch"
+        case .traditionalChinese: return "繁體中文"
+        case .japanese: return "日本語"
+        case .spanish: return "Español"
+        case .french: return "Français"
+        }
+    }
+}
+
+private let appLanguageKey = "appLanguage"
+
+public func currentAppLanguage() -> AppLanguage {
+    guard let raw = UserDefaults.standard.string(forKey: appLanguageKey),
+          let lang = AppLanguage(rawValue: raw) else { return .system }
+    return lang
+}
+
+public func setAppLanguage(_ language: AppLanguage) {
+    UserDefaults.standard.set(language.rawValue, forKey: appLanguageKey)
+}
+
 public func L(_ key: String) -> String {
+    // In-app language selection overrides the system language.
+    let language = currentAppLanguage()
+    if language != .system,
+       let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
+       let bundle = Bundle(path: path) {
+        let customVal = bundle.localizedString(forKey: key, value: nil, table: nil)
+        if customVal != key { return customVal }
+    }
+
     let mainVal = Bundle.main.localizedString(forKey: key, value: nil, table: nil)
     if mainVal != key { return mainVal }
 

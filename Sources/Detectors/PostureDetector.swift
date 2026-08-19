@@ -8,6 +8,8 @@ struct PostureReading: Equatable {
     let timestamp: Date
     let isBadPosture: Bool
     let severity: Double  // 0.0 (good) to 1.0 (very bad)
+    /// Which detector produced this reading. Nil for untagged/legacy readings.
+    var source: TrackingSource?
 
     static let good = PostureReading(timestamp: Date(), isBadPosture: false, severity: 0)
 }

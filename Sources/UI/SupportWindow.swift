@@ -11,7 +11,6 @@ final class SupportWindowController: NSObject, NSWindowDelegate {
 
         if let existingWindow = window {
             existingWindow.makeKeyAndOrderFront(nil)
-            NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
             return
         }
@@ -39,7 +38,6 @@ final class SupportWindowController: NSObject, NSWindowDelegate {
         }
 
         self.window = window
-        NSApp.setActivationPolicy(.regular)
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         window.setFrameAutosaveName("SupportWindow")

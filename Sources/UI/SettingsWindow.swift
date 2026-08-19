@@ -15,7 +15,6 @@ struct SettingsView: View {
     @State private var intensitySlider: Double
     @State private var deadZoneSlider: Double
     @State private var blurWhenAway: Bool
-    @State private var showInDock: Bool
     @State private var pauseOnTheGo: Bool
     @State private var pauseOnBattery: Bool
     @State private var useCompatibilityMode: Bool
@@ -97,9 +96,8 @@ struct SettingsView: View {
         _intensitySlider = State(initialValue: Double(Self.closestIndex(for: Double(profileIntensity), in: intensityValues)))
         _deadZoneSlider = State(initialValue: Double(Self.closestIndex(for: Double(profileDeadZone), in: deadZoneValues)))
         _blurWhenAway = State(initialValue: appDelegate.blurWhenAway)
-        _showInDock = State(initialValue: appDelegate.showInDock)
         _pauseOnTheGo = State(initialValue: appDelegate.pauseOnTheGo)
-        _pauseOnBattery = State(initialValue: appDelegate.pauseOnBattery)
+        _pauseOnBattery = State(initialValue: appDelegate.pauseOnBattery && appDelegate.hasBattery)
         _useCompatibilityMode = State(initialValue: appDelegate.useCompatibilityMode)
         _useFullScreenOverlay = State(initialValue: appDelegate.useFullScreenOverlay)
         _selectedCameraID = State(initialValue: appDelegate.selectedCameraID ?? cameras.first?.uniqueID ?? "")
@@ -200,7 +198,7 @@ struct SettingsView: View {
             }
 
             if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-                Text("v\(version)")
+                Text(L("settings.versionShort", version))
                     .font(.system(size: 9, weight: .medium))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 5)
@@ -431,7 +429,6 @@ struct SettingsView: View {
                         Text(L("settings.warning"))
                             .font(.system(size: 11))
                             .frame(width: 82, alignment: .leading)
-                        HelpButton(text: L("settings.warning.help"))
                     }
 
                     CompactWarningStylePicker(selection: $warningMode)
@@ -549,22 +546,6 @@ struct SettingsView: View {
                             launchAtLogin = SMAppService.mainApp.status == .enabled
                         }
                     }
-
-                    CompactToggle(
-                        title: L("settings.showInDock"),
-                        helpText: L("settings.showInDock.help"),
-                        isOn: $showInDock
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .onChange(of: showInDock) { newValue in
-                        appDelegate.showInDock = newValue
-                        appDelegate.saveSettings()
-                        NSApp.setActivationPolicy(newValue ? .regular : .accessory)
-                        DispatchQueue.main.async {
-                            appDelegate.settingsWindowController.window?.makeKeyAndOrderFront(nil)
-                            NSApp.activate(ignoringOtherApps: true)
-                        }
-                    }
                 }
 
 #if !APP_STORE
@@ -601,11 +582,15 @@ struct SettingsView: View {
 
                     CompactToggle(
                         title: L("settings.pauseOnBattery"),
-                        helpText: L("settings.pauseOnBattery.help"),
-                        isOn: $pauseOnBattery
+                        helpText: appDelegate.hasBattery
+                            ? L("settings.pauseOnBattery.help")
+                            : L("settings.pauseOnBattery.help.desktop"),
+                        isOn: $pauseOnBattery,
+                        isDisabled: !appDelegate.hasBattery
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .onChange(of: pauseOnBattery) { newValue in
+                        guard appDelegate.hasBattery else { return }
                         Task { @MainActor in
                             await appDelegate.setPauseOnBatteryEnabled(newValue)
                         }

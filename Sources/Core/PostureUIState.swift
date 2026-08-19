@@ -104,6 +104,10 @@ struct PostureUIState: Equatable {
             return L("status.pausedPutInAirPods")
         case .onBattery:
             return L("status.pausedOnBattery")
+        case .inMeeting:
+            return L("status.pausedInMeeting")
+        case .inFocus:
+            return L("status.pausedInFocus")
         }
     }
 }

@@ -8,8 +8,8 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(name: "PostureAICore", targets: ["PostureAICore"])
-    ],
+        .library(name: "PostureAICore", targets: ["PostureAICore"]),
+        ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.26.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.4")
@@ -33,7 +33,11 @@ let package = Package(
                 .linkedFramework("Vision"),
                 .linkedFramework("CoreImage"),
                 .linkedFramework("CoreMotion"),
-                .linkedFramework("IOBluetooth")
+                .linkedFramework("IOBluetooth"),
+                .linkedFramework("AppIntents"),
+                .linkedFramework("CoreMediaIO"),
+                .linkedFramework("Intents"),
+                .linkedFramework("WidgetKit")
             ]
         ),
         // Executable target
@@ -42,6 +46,9 @@ let package = Package(
             dependencies: ["PostureAICore"],
             path: "Sources/App"
         ),
+        // Widget extension target (lives outside Sources/ so the main build
+        // ignores it; assembled into Contents/PlugIns by build.sh via the
+        // PostureAIWidget.xcodeproj Widget Extension target)
         // Test target
         .testTarget(
             name: "PostureAITests",

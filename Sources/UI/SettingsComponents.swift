@@ -2,30 +2,14 @@ import AppKit
 import SwiftUI
 import Combine
 
-// MARK: - HelpButton Component
-
-struct HelpButton: View {
-    let text: String
-    var body: some View {
-        Image(systemName: "questionmark.circle")
-            .font(.system(size: 10))
-            .foregroundColor(.secondary)
-            .help(text)
-    }
-}
-
 // MARK: - Brand Colors
 
 extension Color {
-    static let brandCyan = Color(red: 0.31, green: 0.82, blue: 0.77)      // #4fd1c5
+    static let brandCyan = Color(red: 0.0, green: 0.48, blue: 1.0)        // #007AFF accent blue
     static let brandNavy = Color(red: 0.10, green: 0.15, blue: 0.27)      // #1a2744
     static let sectionBackground = Color(NSColor.controlBackgroundColor).opacity(0.5)
 
-    static let onBrandCyan = Color(NSColor(name: nil) { appearance in
-        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(red: 0.10, green: 0.15, blue: 0.27, alpha: 1.0)
-            : NSColor.white
-    })
+    static let onBrandCyan = Color.white
 }
 
 // MARK: - Settings Card
@@ -59,9 +43,6 @@ struct SettingsCard<Trailing: View, Content: View>: View {
                     .foregroundColor(.brandCyan)
                 Text(title)
                     .font(.system(size: 12, weight: .semibold))
-                if let helpText {
-                    HelpButton(text: helpText)
-                }
                 Spacer(minLength: 8)
                 trailing()
             }
@@ -102,12 +83,9 @@ struct CompactSlider: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            HStack(spacing: 3) {
-                Text(title)
-                    .font(.system(size: 11))
-                    .frame(width: 82, alignment: .leading)
-                HelpButton(text: helpText)
-            }
+            Text(title)
+                .font(.system(size: 11))
+                .frame(width: 82, alignment: .leading)
 
             SteppedSliderTrack(value: $value, range: range, step: step)
                 .frame(maxWidth: .infinity)
@@ -178,7 +156,7 @@ struct SteppedSliderTrack: View {
                     .position(x: thumbX, y: geo.size.height / 2)
             }
             .contentShape(Rectangle())
-            .gesture(
+            .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { gesture in
                         let f = min(1, max(0, (gesture.location.x - thumbRadius) / usable))
@@ -199,27 +177,13 @@ struct BrandSwitch: View {
     var isDisabled: Bool = false
 
     var body: some View {
-        Button(action: { toggle() }) {
-            Capsule()
-                .fill(isOn ? Color.brandCyan : Color.primary.opacity(0.15))
-                .frame(width: 30, height: 18)
-                .overlay(alignment: isOn ? .trailing : .leading) {
-                    Circle()
-                        .fill(.white)
-                        .shadow(color: .black.opacity(0.2), radius: 1, y: 0.5)
-                        .frame(width: 14, height: 14)
-                        .padding(2)
-                }
-        }
-        .buttonStyle(.plain)
-        .opacity(isDisabled ? 0.5 : 1.0)
-    }
-
-    func toggle() {
-        guard !isDisabled else { return }
-        withAnimation(.easeInOut(duration: 0.15)) {
-            isOn.toggle()
-        }
+        Toggle("", isOn: $isOn)
+            .toggleStyle(.switch)
+            .labelsHidden()
+            .controlSize(.mini)
+            .tint(NotabilityTheme.accentBlue)
+            .disabled(isDisabled)
+            .opacity(isDisabled ? 0.5 : 1.0)
     }
 }
 
@@ -234,26 +198,16 @@ struct CompactToggle: View {
     var body: some View {
         HStack(spacing: 6) {
             BrandSwitch(isOn: $isOn, isDisabled: isDisabled)
-                .frame(width: 32, alignment: .leading)
+                .frame(width: 38, alignment: .leading)
 
             Text(title)
                 .font(.system(size: 11))
                 .lineLimit(1)
                 .opacity(isDisabled ? 0.5 : 1.0)
 
-            HelpButton(text: helpText)
-
             Spacer(minLength: 0)
         }
         .frame(height: 22)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if !isDisabled {
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    isOn.toggle()
-                }
-            }
-        }
     }
 }
 
@@ -317,7 +271,7 @@ struct InlineColorPicker: View {
                     .onChange(of: saturation) { _ in updateColorFromHSB() }
 
                 HStack {
-                    Text("Brightness")
+                    Text(L("settings.brightness"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Slider(value: $brightness, in: 0...1)
@@ -758,15 +712,13 @@ struct CompactShortcutRecorder: View {
     var body: some View {
         HStack(spacing: 6) {
             BrandSwitch(isOn: $isEnabled)
-                .frame(width: 32, alignment: .leading)
+                .frame(width: 38, alignment: .leading)
                 .onChange(of: isEnabled) { _ in
                     onShortcutChange()
                 }
 
             Text(L("settings.shortcut"))
                 .font(.system(size: 11))
-
-            HelpButton(text: L("settings.shortcut.help"))
 
             Button(action: {
                 isRecording.toggle()

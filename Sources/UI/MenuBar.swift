@@ -2,29 +2,26 @@ import AppKit
 import SwiftUI
 
 @MainActor
-public class MenuBarManager: NSObject, NSWindowDelegate {
+public class MenuBarManager: NSObject, NSMenuDelegate {
     
     // MARK: - Public Properties
     
     /// Public statusItem for popup window anchoring in AppDelegate
     public var statusItem: NSStatusItem!
     
+    /// Provides seconds until the next screen break, or nil when none is
+    /// scheduled. Wired up by AppDelegate.
+    public var nextBreakSecondsProvider: (() -> TimeInterval?)?
+    
     // Callback closures expected by AppDelegate
     public var onToggleEnabled: (() -> Void)?
     public var onOpenSettings: (() -> Void)?
-    public var onOpenSupport: (() -> Void)?
+    public var onShowAbout: (() -> Void)?
     public var onShowAnalytics: (() -> Void)?
-    public var onShowSettings: (() -> Void)?
-    public var onShowSupport: (() -> Void)?
     public var onRecalibrate: (() -> Void)?
-    public var onTogglePause: (() -> Void)?
     public var onCheckForUpdates: (() -> Void)?
+    public var onOpenHelp: (() -> Void)?
     public var onQuit: (() -> Void)?
-    
-    // MARK: - Private Window References
-    
-    private var dashboardWindow: NSWindow?
-    private var analyticsWindowController: AnalyticsWindowController?
     
     // MARK: - Initialization
     
@@ -46,81 +43,115 @@ public class MenuBarManager: NSObject, NSWindowDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "figure.walk", accessibilityDescription: "PostureAI")
+            let image = NSImage(systemSymbolName: "figure.walk", accessibilityDescription: "PostureAI")
+            image?.isTemplate = true
+            button.image = image
         }
         
         rebuildMenu()
     }
     
-    public func rebuildMenu() {
+    /// Builds the status menu. Exposed separately from `rebuildMenu()` so
+    /// headless tests can inspect the structure without a window server.
+    public func makeMenu() -> NSMenu {
         let menu = NSMenu()
-        
-        // 1. Dashboard & Settings
-        let dashboardItem = NSMenuItem(
-            title: "Dashboard & Settings...",
-            action: #selector(openDashboard),
-            keyEquivalent: "d"
-        )
-        dashboardItem.target = self
-        menu.addItem(dashboardItem)
+        menu.delegate = self
 
-        // 2. Analytics Menu Item
+        // 0. About PostureAI
+        let aboutItem = NSMenuItem(
+            title: "About PostureAI",
+            action: #selector(showAbout),
+            keyEquivalent: ""
+        )
+        aboutItem.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: "About PostureAI")
+        aboutItem.image?.isTemplate = true
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        // 1. Settings ⌘,
+        let settingsItem = NSMenuItem(
+            title: "Settings...",
+            action: #selector(openSettings),
+            keyEquivalent: ","
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
+        // 2. Analytics (primary feature — no shortcut clutter)
         let analyticsItem = NSMenuItem(
             title: "Analytics...",
             action: #selector(openAnalytics),
-            keyEquivalent: "a"
+            keyEquivalent: ""
         )
+        analyticsItem.image = NSImage(systemSymbolName: "chart.bar", accessibilityDescription: "Analytics")
+        analyticsItem.image?.isTemplate = true
         analyticsItem.target = self
         menu.addItem(analyticsItem)
-        
+
         menu.addItem(NSMenuItem.separator())
-        
-        // 3. Recalibrate Action
-        let recalibrateItem = NSMenuItem(
-            title: "Recalibrate Posture",
-            action: #selector(handleRecalibrate),
-            keyEquivalent: "r"
-        )
-        recalibrateItem.target = self
-        menu.addItem(recalibrateItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
-        // 4. Check for Updates
+
+        // 3. Check for Updates (GitHub releases page)
         let updateItem = NSMenuItem(
             title: "Check for Updates...",
             action: #selector(handleCheckForUpdates),
             keyEquivalent: ""
         )
+        updateItem.image = NSImage(systemSymbolName: "arrow.clockwise.circle", accessibilityDescription: "Check for Updates")
+        updateItem.image?.isTemplate = true
         updateItem.target = self
         menu.addItem(updateItem)
-        
+
+        // 4. Help (GitHub issues)
+        let helpItem = NSMenuItem(
+            title: "Help...",
+            action: #selector(handleHelp),
+            keyEquivalent: ""
+        )
+        helpItem.image = NSImage(systemSymbolName: "questionmark.circle", accessibilityDescription: "Help")
+        helpItem.image?.isTemplate = true
+        helpItem.target = self
+        menu.addItem(helpItem)
+
         menu.addItem(NSMenuItem.separator())
-        
-        // 5. Quit Action
+
+        // 5. Quit ⌘Q
         let quitItem = NSMenuItem(
-            title: "Quit PostureAI",
+            title: "Quit",
             action: #selector(handleQuit),
             keyEquivalent: "q"
         )
+        quitItem.image = NSImage(systemSymbolName: "xmark", accessibilityDescription: "Quit")
+        quitItem.image?.isTemplate = true
         quitItem.target = self
         menu.addItem(quitItem)
         
-        statusItem.menu = menu
+        return menu
+    }
+    
+    public func rebuildMenu() {
+        statusItem?.menu = makeMenu()
     }
     
     // MARK: - Actions
     
-    /// Opens the modern SwiftUI Dashboard window
-    @objc public func openDashboard() {
+    /// Opens the modern SwiftUI Settings window
+    @objc public func openSettings() {
         if let onOpenSettings = onOpenSettings {
             onOpenSettings()
             return
         }
 
         // No delegate wired (headless/fallback): nothing to show.
-        NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    /// Opens the About PostureAI window
+    @objc public func showAbout() {
+        if let onShowAbout = onShowAbout {
+            onShowAbout()
+        }
     }
 
     /// Opens the Analytics window
@@ -128,11 +159,6 @@ public class MenuBarManager: NSObject, NSWindowDelegate {
         if let onShowAnalytics = onShowAnalytics {
             onShowAnalytics()
         } else {
-            if analyticsWindowController == nil {
-                analyticsWindowController = AnalyticsWindowController()
-            }
-            analyticsWindowController?.showWindow(nil)
-            analyticsWindowController?.window?.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
         }
     }
@@ -152,6 +178,14 @@ public class MenuBarManager: NSObject, NSWindowDelegate {
             NSWorkspace.shared.open(url)
         }
     }
+
+    @objc private func handleHelp() {
+        if let onOpenHelp = onOpenHelp {
+            onOpenHelp()
+        } else if let url = URL(string: "https://github.com/jeffrey1024hk-stack/HKICT/issues") {
+            NSWorkspace.shared.open(url)
+        }
+    }
     
     @objc private func handleQuit() {
         if let onQuit = onQuit {
@@ -161,51 +195,50 @@ public class MenuBarManager: NSObject, NSWindowDelegate {
         }
     }
     
-    // MARK: - NSWindowDelegate
+    // MARK: - NSMenuDelegate
     
-    public func windowWillClose(_ notification: Notification) {
-        if let closingWindow = notification.object as? NSWindow, closingWindow == dashboardWindow {
-            dashboardWindow = nil
-            
-            // Check if any other visible titled windows exist before hiding from dock
-            let hasOtherVisibleWindows = NSApp.windows.contains { window in
-                window != closingWindow && window.isVisible && !window.isMiniaturized && window.styleMask.contains(.titled)
-            }
-            
-            if !hasOtherVisibleWindows {
-                NSApp.setActivationPolicy(.accessory)
-            }
-        }
+    public func menuWillOpen(_ menu: NSMenu) {
+        refreshNextBreak()
     }
     
     // MARK: - Status & UI Updates
     
-    public func updateShortcut(enabled: Bool, shortcut: Any? = nil) {}
-    public func updateEnabledState(_ isEnabled: Bool) {}
-    public func updateRecalibrateEnabled(_ canRecalibrate: Bool) {}
+    /// Refreshes the status button countdown when a screen break is imminent.
+    public func refreshNextBreak() {
+        let seconds = nextBreakSecondsProvider?()
+
+        // Show a short countdown next to the menu bar icon when the break is
+        // imminent (under 5 minutes); otherwise keep the icon clean.
+        if let seconds, seconds > 0, seconds < 300 {
+            statusItem?.button?.title = "\(max(1, Int(ceil(seconds / 60))))m"
+        } else {
+            statusItem?.button?.title = ""
+        }
+    }
+
+    func updateShortcut(enabled: Bool, shortcut: AppKeyboardShortcut?) {}
+    func updateEnabledState(_ isEnabled: Bool) {}
+    func updateRecalibrateEnabled(_ canRecalibrate: Bool) {}
     
-    public func updateStatus(text: String? = nil, icon: Any? = nil) {
+    func updateStatus(text: String? = nil, icon: MenuBarIcon? = nil) {
         guard let button = statusItem?.button else { return }
         
-        if let iconName = icon as? String {
-            button.image = NSImage(systemSymbolName: iconName, accessibilityDescription: "PostureAI")
-        } else if let image = icon as? NSImage {
-            button.image = image
+        if let icon {
+            button.image = icon.image
         }
         
-        if let text = text {
+        if let text {
             button.title = text
         }
     }
     
-    public func updateStatus(isSlouching: Bool = false) {
-        let iconName = isSlouching ? "figure.fall" : "figure.walk"
-        updateStatus(icon: iconName)
+    func updateStatus(isSlouching: Bool = false) {
+        updateStatus(icon: isSlouching ? .bad : .good)
     }
     
-    public func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {
+    func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {
         if isPaused {
-            updateStatus(icon: "pause.circle")
+            updateStatus(icon: .paused)
         } else {
             updateStatus(isSlouching: isSlouching)
         }

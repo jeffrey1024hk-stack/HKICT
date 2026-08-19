@@ -598,7 +598,8 @@ class CameraPostureDetector: NSObject, PostureDetector {
         let reading = PostureReading(
             timestamp: Date(),
             isBadPosture: isBadPosture,
-            severity: severity
+            severity: severity,
+            source: .camera
         )
 
         DispatchQueue.main.async {

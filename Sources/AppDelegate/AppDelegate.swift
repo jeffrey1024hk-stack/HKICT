@@ -6,19 +6,6 @@ import os.log
 import ComposableArchitecture
 import SwiftUI
 
-func fitDebug(_ msg: String) {
-    let path = "/tmp/fit.log"
-    if !FileManager.default.fileExists(atPath: path) {
-        FileManager.default.createFile(atPath: path, contents: nil)
-    }
-    let line = "\(Date()): \(msg)\n"
-    if let data = line.data(using: .utf8), let h = FileHandle(forWritingAtPath: path) {
-        defer { try? h.close() }
-        h.seekToEndOfFile()
-        h.write(data)
-    }
-}
-
 extension String {
     /// Uses shared L() helper (bundle lookup + English fallbacks)
     var localized: String {
@@ -643,14 +630,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
         let newHeight = sectionHeight + (fixedContentRemainder ?? 0)
         lastTargetContentHeight = newHeight
-        fitDebug("fit(section=\(sectionHeight)) current=\(currentContentHeight) remainder=\(fixedContentRemainder ?? 0) new=\(newHeight)")
 
         guard newHeight.isFinite, newHeight > 60 else { return }
 
         // Cap to the visible screen area.
         let screen = window.screen ?? NSScreen.main
         let cappedHeight = min(newHeight, (screen?.visibleFrame.height ?? newHeight) - 20)
-        fitDebug("  capped=\(cappedHeight) diff=\(abs(currentContentHeight - cappedHeight))")
         guard abs(currentContentHeight - cappedHeight) > 2 else { return }
 
         // Anchor the window's top edge (title bar) and move the bottom edge,

@@ -378,7 +378,7 @@ struct ModernDashboardView: View {
                     if let targetHeight = sectionHeights[section] {
                         appDelegate.fitDashboardWindow(sectionHeight: targetHeight)
                     }
-                    withAnimation(.easeInOut(duration: 0.3)) { selectedSection = section }
+                    selectedSection = section
                 }) {
                     VStack(spacing: 3) {
                         Image(systemName: section.icon)

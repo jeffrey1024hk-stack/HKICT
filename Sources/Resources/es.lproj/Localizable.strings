@@ -226,7 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "Activa el sonido para usar el recordatorio de voz";
 "analytics.insufficientData" = "Aún no hay suficientes datos para mostrar análisis. ¡Sigue usando PostureAI!";
 "autoPause.focus" = "Pausar durante el modo Focus";
-"autoPause.focus.help" = "Solo se pausa en los modos de concentración que selecciones a continuación (incluidos los personalizados)";
+"autoPause.focus.help" = "Pausa cuando un modo de concentración esté activo. macOS solo muestra si está activo, no cuál.";
 "autoPause.focus.modes" = "Modos de concentración en los que pausar";
 "autoPause.meeting" = "Pausar durante reuniones";
 "autoPause.meeting.help" = "Pausa automática cuando hay una videollamada activa (Zoom, Teams, FaceTime, etc.)";
@@ -236,6 +236,7 @@
 "breakReminder.interval" = "Intervalo de trabajo";
 "breakReminder.interval.minutes" = "%d min";
 "breakReminder.section" = "Recordatorio de descanso de pantalla";
+"breakReminder.start" = "Iniciar descanso de pantalla";
 "breakReminder.startNow" = "Iniciar descanso de pantalla ahora";
 "dashboard.airpods" = "AirPods";
 "dashboard.camera" = "Cámara";
@@ -273,6 +274,16 @@
 "settings.language.restartTitle" = "Reinicio necesario";
 "settings.language.restartMessage" = "Cambiar el idioma reiniciará PostureAI para aplicar el nuevo idioma. ¿Continuar?";
 "settings.language.restartConfirm" = "Reiniciar";
+"settings.permissions.title" = "Permisos";
+"settings.permissions.camera" = "Cámara";
+"settings.permissions.bluetooth" = "Bluetooth";
+"settings.permissions.notifications" = "Notificaciones";
+"settings.permissions.allowed" = "Permitido";
+"settings.permissions.denied" = "Denegado";
+"settings.permissions.restricted" = "Restringido";
+"settings.permissions.notDetermined" = "No solicitado";
+"settings.permissions.revoke" = "Revocar";
+"settings.permissions.manage" = "Gestionar";
 "settings.noCameras.title" = "Sin cámaras";
 "settings.pauseOnBattery.help.desktop" = "Solo disponible en Mac portátiles";
 "settings.preferredTag" = "Preferido";

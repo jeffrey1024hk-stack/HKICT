@@ -233,26 +233,53 @@ class AirPodsPostureDetector: NSObject, PostureDetector {
     /// Check if any paired AirPods are currently Bluetooth-connected.
     /// Unlike `isConnected` (which requires active motion tracking), this uses
     /// IOBluetooth and works without Motion permission.
+    ///
+    /// Returns the cached value refreshed by `refreshBluetoothState()` so this
+    /// getter never runs `IOBluetoothDevice.pairedDevices()` synchronously.
     var isBluetoothConnected: Bool {
-        guard let devices = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] else {
-            return false
-        }
-        return devices.contains { device in
-            guard let name = device.name?.lowercased() else { return false }
-            return name.contains("airpods") && device.isConnected()
-        }
+        cachedBluetoothConnected
     }
 
     /// Number of AirPods Bluetooth devices currently connected (excluding the
     /// Find My tracker on the case). A count of 1 means only one bud is in use.
+    ///
+    /// Returns the cached value refreshed by `refreshBluetoothState()` so this
+    /// getter never runs `IOBluetoothDevice.pairedDevices()` synchronously.
     var connectedAirPodsDeviceCount: Int {
-        guard let devices = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] else {
-            return 0
+        cachedConnectedAirPodsCount
+    }
+
+    // MARK: - Bluetooth State Cache
+
+    /// Serial queue for Bluetooth queries. `IOBluetoothDevice.pairedDevices()`
+    /// can block indefinitely, so it must never run on the main thread.
+    private static let bluetoothCacheQueue = DispatchQueue(label: "chill.PostureAI.bluetooth", qos: .utility)
+
+    /// Cached value backing `isBluetoothConnected`.
+    private var cachedBluetoothConnected = false
+
+    /// Cached value backing `connectedAirPodsDeviceCount`.
+    private var cachedConnectedAirPodsCount = 0
+
+    /// Re-queries IOBluetooth on a background queue and updates the cached
+    /// values read by `isBluetoothConnected`/`connectedAirPodsDeviceCount`.
+    func refreshBluetoothState() {
+        Self.bluetoothCacheQueue.async { [weak self] in
+            guard let self = self else { return }
+            let devices = (IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice]) ?? []
+            let anyConnected = devices.contains { device in
+                guard let name = device.name?.lowercased(), device.isConnected() else { return false }
+                return name.contains("airpods")
+            }
+            let connectedCount = devices.filter { device in
+                guard let name = device.name?.lowercased(), device.isConnected() else { return false }
+                return name.contains("airpods") && !name.contains("find my")
+            }.count
+            DispatchQueue.main.async {
+                self.cachedBluetoothConnected = anyConnected
+                self.cachedConnectedAirPodsCount = connectedCount
+            }
         }
-        return devices.filter { device in
-            guard device.isConnected(), let name = device.name?.lowercased() else { return false }
-            return name.contains("airpods") && !name.contains("find my")
-        }.count
     }
 
     var onPostureReading: ((PostureReading) -> Void)?

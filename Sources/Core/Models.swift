@@ -103,12 +103,12 @@ extension NSWindow.Level {
     /// just under `.popUpMenu` so system menu dropdowns still open on top.
     static let aboveFullscreen = NSWindow.Level(rawValue: 100)
 
-    /// One below the system notification-banner level (~24), but still above
-    /// normal/fullscreen app content when combined with
-    /// `.canJoinAllSpaces` + `.fullScreenAuxiliary`. Used for blur/warning
-    /// overlays so system notifications (banners/alerts) stay visible on top
-    /// while the screen is blurred.
-    static let belowNotifications = NSWindow.Level(rawValue: 23)
+    /// Below the system notification window level (measured at 8, the
+    /// UserNotificationCenter presentation level) so banners and alerts stay
+    /// fully visible while the screen is blurred, but still above normal
+    /// windows/fullscreen app content when combined with `.canJoinAllSpaces` +
+    /// `.fullScreenAuxiliary`. Used for blur/warning/screen-break overlays.
+    static let belowNotifications = NSWindow.Level(rawValue: 7)
 }
 
 // MARK: - Warning Mode

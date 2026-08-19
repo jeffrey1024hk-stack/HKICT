@@ -278,8 +278,11 @@ extension AppDelegate {
     // MARK: - Single AirPod Detection
 
     /// Polls Bluetooth to detect when only one AirPod is in use (macOS does
-    /// not expose which bud is worn, only the connection count).
+    /// not expose which bud is worn, only the connection count). The Bluetooth
+    /// query runs off the main thread (IOBluetooth can block), so this reads
+    /// the cached result from the previous poll.
     func refreshSingleBudState() {
+        airPodsDetector.refreshBluetoothState()
         let single = airPodsDetector.connectedAirPodsDeviceCount == 1
         guard single != isSingleBudInUse else { return }
         isSingleBudInUse = single

@@ -171,6 +171,17 @@ private let fallbackStrings: [String: String] = [
     "settings.language.restartTitle": "Restart Required",
     "settings.language.restartMessage": "Changing the language will restart PostureAI to apply the new language. Continue?",
     "settings.language.restartConfirm": "Restart",
+    "settings.permissions.title": "Permissions",
+    "settings.permissions.camera": "Camera",
+    "settings.permissions.bluetooth": "Bluetooth",
+    "settings.permissions.notifications": "Notifications",
+    "settings.permissions.focus": "Focus",
+    "settings.permissions.allowed": "Allowed",
+    "settings.permissions.denied": "Denied",
+    "settings.permissions.restricted": "Restricted",
+    "settings.permissions.notDetermined": "Not Requested",
+    "settings.permissions.revoke": "Revoke",
+    "settings.permissions.manage": "Manage",
     "settings.compatibilityMode": "Compatibility mode",
     "settings.compatibilityMode.help": "Enable if blur isn't appearing",
     "settings.viewOnGitHub": "View on GitHub",
@@ -286,6 +297,7 @@ private let fallbackStrings: [String: String] = [
     "breakReminder.interval": "Work interval",
     "breakReminder.interval.minutes": "%d min",
     "breakReminder.startNow": "Start Screen Break Now",
+    "breakReminder.start": "Start Screen Break",
     "breakReminder.duration": "Break length",
     "breakReminder.duration.seconds": "%d sec",
     "breakReminder.startIn": "Start in",
@@ -305,8 +317,8 @@ private let fallbackStrings: [String: String] = [
     "autoPause.meeting": "Pause during meetings",
     "autoPause.meeting.help": "Auto-pause when a video call is active (Zoom, Teams, FaceTime, etc.) to avoid screen blurs",
     "autoPause.focus": "Pause during Focus",
-    "autoPause.focus.help": "Only pauses during the Focus modes you select below (custom modes included)",
-    "autoPause.focus.modes": "Focus modes to pause during",
+    "autoPause.focus.help": "Pauses whenever a Focus mode is active. macOS only shows apps whether Focus is on, not which mode.",
+        "autoPause.focus.modes": "Focus modes to pause during",
 
     // Dual Sensor Fusion
     "fusion.enabled": "Dual sensor fusion",
@@ -384,18 +396,15 @@ public func L(_ key: String) -> String {
     let classVal = Bundle(for: LocalizationToken.self).localizedString(forKey: key, value: nil, table: nil)
     if classVal != key { return classVal }
 
+    if let fallback = fallbackStrings[key] {
+        return fallback
+    }
+
     #if SWIFT_PACKAGE
     let moduleVal = NSLocalizedString(key, bundle: .module, comment: "")
     if moduleVal != key { return moduleVal }
     #endif
 
-    if let fallback = fallbackStrings[key] {
-        return fallback
-    }
-
-    #if DEBUG
-    NSLog("Missing localization for key: %@", key)
-    #endif
     return key
 }
 

@@ -298,6 +298,8 @@ cat > "$CONTENTS/Info.plist" << EOF
     <string>PostureAI needs access to motion data to monitor your posture using AirPods.</string>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>PostureAI uses Bluetooth to detect paired AirPods for head motion tracking.</string>
+    <key>NSFocusStatusUsageDescription</key>
+    <string>PostureAI pauses posture tracking while a Focus mode is active, so it needs to read your Focus status.</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>CFBundleIconFile</key>
@@ -409,6 +411,11 @@ if [ "$APP_STORE_BUILD" = true ]; then
 EOF
 else
     # Direct distribution entitlements (hardened runtime, no sandbox)
+    # NOTE: `com.apple.developer.focus-status` is deliberately NOT claimed here.
+    # Ad-hoc signing (used for dev and the build.sh bundle) is not trusted by
+    # TCC for that entitlement — claiming it makes macOS kill the app at launch
+    # with "Launchd job spawn failed". release.sh adds it when re-signing with
+    # the Developer ID certificate, which is the only signature TCC accepts.
     cat > "$BUILD_DIR/PostureAI.entitlements" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

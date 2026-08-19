@@ -226,7 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "請開啟聲音以使用語音提醒";
 "analytics.insufficientData" = "尚無足夠數據顯示分析。請繼續使用 PostureAI！";
 "autoPause.focus" = "專注模式期間暫停";
-"autoPause.focus.help" = "僅在下方選取的專注模式期間暫停（包含自訂模式）";
+"autoPause.focus.help" = "只要有專注模式啟用即暫停。macOS 只會告知 App 專注模式是否啟用，不會告知是哪一個。";
 "autoPause.focus.modes" = "暫停期間的專注模式";
 "autoPause.meeting" = "會議期間暫停";
 "autoPause.meeting.help" = "視訊通話進行時（Zoom、Teams、FaceTime 等）自動暫停";
@@ -236,6 +236,7 @@
 "breakReminder.interval" = "工作間隔";
 "breakReminder.interval.minutes" = "%d 分鐘";
 "breakReminder.section" = "螢幕休息提醒";
+"breakReminder.start" = "開始螢幕休息";
 "breakReminder.startNow" = "立即開始螢幕休息";
 "dashboard.airpods" = "AirPods";
 "dashboard.camera" = "相機";
@@ -273,6 +274,16 @@
 "settings.language.restartTitle" = "需要重新啟動";
 "settings.language.restartMessage" = "變更語言會重新啟動 PostureAI 以套用新語言。是否繼續？";
 "settings.language.restartConfirm" = "重新啟動";
+"settings.permissions.title" = "權限";
+"settings.permissions.camera" = "相機";
+"settings.permissions.bluetooth" = "藍牙";
+"settings.permissions.notifications" = "通知";
+"settings.permissions.allowed" = "已允許";
+"settings.permissions.denied" = "已拒絕";
+"settings.permissions.restricted" = "受限";
+"settings.permissions.notDetermined" = "尚未請求";
+"settings.permissions.revoke" = "移除";
+"settings.permissions.manage" = "管理";
 "settings.noCameras.title" = "沒有相機";
 "settings.pauseOnBattery.help.desktop" = "僅適用於 Mac 筆記型電腦";
 "settings.preferredTag" = "偏好";

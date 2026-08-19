@@ -6,6 +6,19 @@ import os.log
 import ComposableArchitecture
 import SwiftUI
 
+func fitDebug(_ msg: String) {
+    let path = "/tmp/fit.log"
+    if !FileManager.default.fileExists(atPath: path) {
+        FileManager.default.createFile(atPath: path, contents: nil)
+    }
+    let line = "\(Date()): \(msg)\n"
+    if let data = line.data(using: .utf8), let h = FileHandle(forWritingAtPath: path) {
+        defer { try? h.close() }
+        h.seekToEndOfFile()
+        h.write(data)
+    }
+}
+
 extension String {
     /// Uses shared L() helper (bundle lookup + English fallbacks)
     var localized: String {
@@ -571,50 +584,94 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         if dashboardWindow == nil {
             let dashboardView = ModernDashboardView(appDelegate: self)
             let hostingController = NSHostingController(rootView: dashboardView)
-            
+
+            // NOTE: `hostingController.view.fittingSize` deadlocks the Auto
+            // Layout engine when the view hierarchy contains a GeometryReader
+            // (the dashboard's section height probe), so the window opens at a
+            // fixed default size and fitDashboardWindow() corrects it on the
+            // first height measurement.
+            let initialContentHeight: CGFloat = 620
+
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 480, height: 760),
+                contentRect: NSRect(x: 0, y: 0, width: 480, height: initialContentHeight),
                 styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false
             )
-            
-            window.center()
+
+            // Assigning the content view controller collapses the window to
+            // the hosting view's (empty) frame, so set the content size to the
+            // initial size afterwards, and disable automatic resizing so
+            // future content changes are animated by fitDashboardWindow()
+            // instead of snapping.
             window.contentViewController = hostingController
-            window.setContentSize(NSSize(width: 480, height: 760))
+            hostingController.sizingOptions = []
+            window.setContentSize(NSSize(width: 480, height: initialContentHeight))
+            window.center()
             window.title = "PostureAI Settings"
             window.isReleasedWhenClosed = false
             window.isMovableByWindowBackground = false
-            
+
             dashboardWindow = window
         }
-        
+
         dashboardWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    /// Sizes the dashboard window to exactly fit its content (no scrolling),
-    /// capped to the visible screen area. The height change is animated so the
-    /// window slides to its new size instead of jumping.
-    func fitDashboardWindow(toContentHeight height: CGFloat) {
+    /// The content height the dashboard window is currently sized to (or being
+    /// animated toward). Used as the stable baseline when computing the target
+    /// height for a new section.
+    private var lastTargetContentHeight: CGFloat?
+
+    /// The constant height of everything around the section card (header, tab
+    /// bar, footer, spacing). Measured once from the window's initial size and
+    /// reused so every section targets `sectionHeight + fixedContentRemainder`.
+    private var fixedContentRemainder: CGFloat?
+
+    /// Sizes the dashboard window to fit the currently selected section.
+    /// The section card is the only part of the dashboard whose height varies,
+    /// so the target content height is the measured section height plus the
+    /// (constant) height of everything else. The height change is animated so
+    /// the window's bottom edge slides to its new size instead of jumping.
+    func fitDashboardWindow(sectionHeight: CGFloat) {
         guard let window = dashboardWindow else { return }
-        let currentContentHeight = window.contentView?.frame.height ?? 0
-        guard abs(currentContentHeight - height) > 2 else { return }
 
-        var newHeight = height
-        if let screen = NSScreen.main {
-            newHeight = min(newHeight, screen.visibleFrame.height - 20)
+        let currentContentHeight = lastTargetContentHeight ?? (window.contentView?.frame.height ?? 0)
+        if fixedContentRemainder == nil {
+            fixedContentRemainder = max(currentContentHeight - sectionHeight, 0)
         }
+        let newHeight = sectionHeight + (fixedContentRemainder ?? 0)
+        lastTargetContentHeight = newHeight
+        fitDebug("fit(section=\(sectionHeight)) current=\(currentContentHeight) remainder=\(fixedContentRemainder ?? 0) new=\(newHeight)")
 
+        guard newHeight.isFinite, newHeight > 60 else { return }
+
+        // Cap to the visible screen area.
+        let screen = window.screen ?? NSScreen.main
+        let cappedHeight = min(newHeight, (screen?.visibleFrame.height ?? newHeight) - 20)
+        fitDebug("  capped=\(cappedHeight) diff=\(abs(currentContentHeight - cappedHeight))")
+        guard abs(currentContentHeight - cappedHeight) > 2 else { return }
+
+        // Anchor the window's top edge (title bar) and move the bottom edge,
+        // so the footer/disclaimer at the bottom slides up or down smoothly as
+        // the window grows or shrinks, while the content stays top-aligned.
         let frame = window.frame
-        let titleBarHeight = frame.height - currentContentHeight
+        let contentHeight = window.contentView?.frame.height ?? frame.height
+        let titleBarHeight = frame.height - contentHeight
+        let newTotalHeight = max(cappedHeight + titleBarHeight, 120)
         let newFrame = NSRect(
             x: frame.minX,
-            y: frame.minY,
+            y: frame.maxY - newTotalHeight,
             width: 480,
-            height: max(newHeight + titleBarHeight, 120)
+            height: newTotalHeight
         )
-        window.setFrame(newFrame, display: true, animate: true)
+
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            window.animator().setFrame(newFrame, display: true)
+        }
     }
 
     public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

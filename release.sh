@@ -180,6 +180,14 @@ codesign --force --options runtime --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_
 codesign --force --options runtime --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_FW/Versions/B/Updater.app"
 codesign --force --options runtime --sign "$DEVELOPER_ID" --timestamp "$SPARKLE_FW"
 
+# Claim the Focus status entitlement for the Developer ID signature only.
+# build.sh deliberately omits it (ad-hoc-signed bundles are killed by TCC when
+# it is present); with a real Developer ID signature TCC accepts it and the
+# app appears under Privacy & Security → Focus.
+if ! /usr/libexec/PlistBuddy -c "Print :com.apple.developer.focus-status" "build/PostureAI.entitlements" >/dev/null 2>&1; then
+    /usr/libexec/PlistBuddy -c "Add :com.apple.developer.focus-status bool true" "build/PostureAI.entitlements"
+fi
+
 codesign --force --options runtime --entitlements "build/PostureAI.entitlements" --sign "$DEVELOPER_ID" --timestamp "build/PostureAI.app"
 
 # Verify signature

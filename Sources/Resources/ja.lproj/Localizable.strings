@@ -226,7 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "音声リマインダーを使うにはサウンドをオンにしてください";
 "analytics.insufficientData" = "分析を表示するのに十分なデータがまだありません。PostureAI を使い続けてください！";
 "autoPause.focus" = "集中モード中は一時停止";
-"autoPause.focus.help" = "下で選択した集中モードのときのみ一時停止します（カスタムモード含む）";
+"autoPause.focus.help" = "集中モードが有効な間は一時停止します。macOS はどのモードかではなく有効かどうかのみをアプリに公開します。";
 "autoPause.focus.modes" = "一時停止する集中モード";
 "autoPause.meeting" = "会議中は一時停止";
 "autoPause.meeting.help" = "ビデオ通話（Zoom、Teams、FaceTime など）中は自動で一時停止します";
@@ -236,6 +236,7 @@
 "breakReminder.interval" = "作業間隔";
 "breakReminder.interval.minutes" = "%d 分";
 "breakReminder.section" = "画面休憩リマインダー";
+"breakReminder.start" = "画面休憩を開始";
 "breakReminder.startNow" = "今すぐ画面休憩を開始";
 "dashboard.airpods" = "AirPods";
 "dashboard.camera" = "カメラ";
@@ -273,6 +274,16 @@
 "settings.language.restartTitle" = "再起動が必要です";
 "settings.language.restartMessage" = "言語を変更すると、新しい言語を適用するために PostureAI が再起動されます。続行しますか？";
 "settings.language.restartConfirm" = "再起動";
+"settings.permissions.title" = "権限";
+"settings.permissions.camera" = "カメラ";
+"settings.permissions.bluetooth" = "Bluetooth";
+"settings.permissions.notifications" = "通知";
+"settings.permissions.allowed" = "許可済み";
+"settings.permissions.denied" = "拒否済み";
+"settings.permissions.restricted" = "制限付き";
+"settings.permissions.notDetermined" = "未リクエスト";
+"settings.permissions.revoke" = "取り消す";
+"settings.permissions.manage" = "管理";
 "settings.noCameras.title" = "カメラがありません";
 "settings.pauseOnBattery.help.desktop" = "Mac ノートブックでのみ利用できます";
 "settings.preferredTag" = "優先";

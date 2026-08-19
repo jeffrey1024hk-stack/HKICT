@@ -226,7 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "Activez le son pour utiliser le rappel vocal";
 "analytics.insufficientData" = "Pas encore assez de données pour afficher les analyses. Continuez à utiliser PostureAI !";
 "autoPause.focus" = "Pause pendant le mode Focus";
-"autoPause.focus.help" = "Ne se met en pause que dans les modes de concentration sélectionnés ci-dessous (modes personnalisés inclus)";
+"autoPause.focus.help" = "Met en pause dès qu'un mode de concentration est actif. macOS ne montre aux apps que l'état, pas le mode.";
 "autoPause.focus.modes" = "Modes de concentration dans lesquels faire une pause";
 "autoPause.meeting" = "Pause pendant les réunions";
 "autoPause.meeting.help" = "Pause automatique lorsqu'un appel vidéo est actif (Zoom, Teams, FaceTime, etc.)";
@@ -236,6 +236,7 @@
 "breakReminder.interval" = "Intervalle de travail";
 "breakReminder.interval.minutes" = "%d min";
 "breakReminder.section" = "Rappel de pause d'écran";
+"breakReminder.start" = "Démarrer la pause d'écran";
 "breakReminder.startNow" = "Démarrer la pause d'écran maintenant";
 "dashboard.airpods" = "AirPods";
 "dashboard.camera" = "Caméra";
@@ -273,6 +274,16 @@
 "settings.language.restartTitle" = "Redémarrage requis";
 "settings.language.restartMessage" = "Changer la langue redémarrera PostureAI pour appliquer la nouvelle langue. Continuer ?";
 "settings.language.restartConfirm" = "Redémarrer";
+"settings.permissions.title" = "Autorisations";
+"settings.permissions.camera" = "Caméra";
+"settings.permissions.bluetooth" = "Bluetooth";
+"settings.permissions.notifications" = "Notifications";
+"settings.permissions.allowed" = "Autorisé";
+"settings.permissions.denied" = "Refusé";
+"settings.permissions.restricted" = "Restreint";
+"settings.permissions.notDetermined" = "Non demandée";
+"settings.permissions.revoke" = "Révoquer";
+"settings.permissions.manage" = "Gérer";
 "settings.noCameras.title" = "Aucune caméra";
 "settings.pauseOnBattery.help.desktop" = "Disponible uniquement sur les Mac portables";
 "settings.preferredTag" = "Préféré";

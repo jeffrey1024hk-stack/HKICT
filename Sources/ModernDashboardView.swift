@@ -1,20 +1,24 @@
 import SwiftUI
 import AppKit
 import ServiceManagement
-
-// MARK: - Content Height Preference
-
-struct DashboardContentHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
+import AVFoundation
+import CoreBluetooth
+import UserNotifications
+import Intents
 
 extension Notification.Name {
     /// Posted by `AppDelegate.syncUIToState()` whenever the tracking UI state
     /// changes (enabled state, slouching, active source, profile settings).
     static let postureUIStateChanged = Notification.Name("PostureUIStateChanged")
+}
+
+// MARK: - Section Height Preference
+
+struct DashboardSectionHeightKey: PreferenceKey {
+    static var defaultValue: [DashboardSection: CGFloat] = [:]
+    static func reduce(value: inout [DashboardSection: CGFloat], nextValue: () -> [DashboardSection: CGFloat]) {
+        value.merge(nextValue()) { _, new in new }
+    }
 }
 
 // MARK: - Dashboard Sections
@@ -58,8 +62,6 @@ struct ModernDashboardView: View {
 
     private let contentWidth: CGFloat = 440
 
-    @State private var measuredContentHeight: CGFloat = 0
-
     // Live status
     @State private var intensity: Double
     @State private var deadZone: Double
@@ -68,6 +70,7 @@ struct ModernDashboardView: View {
     @State private var activeSource: TrackingSource = .camera
 
     @State private var selectedSection: DashboardSection = .general
+    @State private var sectionHeights: [DashboardSection: CGFloat] = [:]
 
     // Tracking
     @State private var selectedCameraID: String
@@ -97,6 +100,8 @@ struct ModernDashboardView: View {
     @State private var pauseOnBattery: Bool
     @State private var blurWhenAway: Bool
     @State private var toggleShortcutEnabled: Bool
+    @State private var notificationPermissionStatus: UNAuthorizationStatus = .notDetermined
+    @State private var permissionTick = 0
 
     // Reminders
     @State private var breakReminderEnabled: Bool
@@ -221,43 +226,100 @@ struct ModernDashboardView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 14) {
-                headerCard
-                tabBar
-                sectionCard.id(selectedSection)
+        VStack(spacing: 14) {
+            headerCard
+            tabBar
 
-                footer
-                    .padding(.top, 10)
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            .padding(.bottom, 16)
-            .frame(width: contentWidth)
-            .background(
-                GeometryReader { geo in
-                    Color.clear.preference(key: DashboardContentHeightKey.self, value: geo.size.height)
-                }
-            )
+            // The section card is top-aligned inside a flexible container that
+            // fills the space between the tab bar and the footer. The card
+            // keeps its full intrinsic height (fixedSize) and is clipped by the
+            // container, so when the window grows the card's lower part is
+            // revealed smoothly while the header and tab bar stay put and the
+            // footer stays pinned to the bottom edge.
+            sectionContainer
+
+            footer
         }
+        .padding(.top, 20)
+        .padding(.bottom, 16)
+        .frame(width: contentWidth)
         .frame(width: contentWidth + 40)
-        .onPreferenceChange(DashboardContentHeightKey.self) { value in
-            guard value > 120 else { return }
-            measuredContentHeight = value
+        .background(heightMeasurementProbe)
+        .onPreferenceChange(DashboardSectionHeightKey.self) { heights in
+            sectionHeights.merge(heights) { _, new in new }
         }
-        .onChange(of: measuredContentHeight) { _ in postHeight() }
+        .onChange(of: selectedSection) { newSection in
+            if newSection == .autoPause { loadFocusModes() }
+        }
         // Listen for live posture state changes
         .onReceive(NotificationCenter.default.publisher(for: .postureUIStateChanged)) { _ in
             refreshState()
         }
         .onAppear {
             refreshState()
-            postHeight()
+            loadNotificationPermissionStatus()
         }
     }
 
-    private func postHeight() {
-        appDelegate.fitDashboardWindow(toContentHeight: measuredContentHeight)
+    /// The section card plus a height probe. The GeometryReader is a
+    /// background sibling so it measures the section card's laid-out height
+    /// (an overlay/preference probe reports 0 in this layout). It reports the
+    /// height once on appear and again whenever the layout height changes,
+    /// which drives `fitDashboardWindow`.
+    private var sectionContainer: some View {
+        ZStack(alignment: .top) {
+            sectionCard
+                .id(selectedSection)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(width: contentWidth, alignment: .top)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear { reportSectionHeight(geo.size.height) }
+                            .onChange(of: geo.size.height) { reportSectionHeight($0) }
+                    }
+                )
+        }
+        .frame(maxWidth: .infinity)
+        .frame(maxHeight: .infinity)
+        .clipped()
+    }
+
+    private func reportSectionHeight(_ height: CGFloat) {
+        guard height > 60 else { return }
+        // Ignore intermediate heights reported while the content is animating
+        // between section heights; the tab switch already pre-targets the
+        // window to the final height. Only the settled height may refit.
+        if let cached = sectionHeights[selectedSection], abs(cached - height) > 2 { return }
+        DispatchQueue.main.async { appDelegate.fitDashboardWindow(sectionHeight: height) }
+    }
+
+    private func loadFocusModes() {
+        focusModes = FocusModeReader.configuredModes()
+    }
+
+    /// Renders every section card hidden (opacity 0, no hit testing) so their
+    /// laid-out heights are known up front. A tab switch can then start the
+    /// window animation toward the exact target height at the same moment the
+    /// content transitions, keeping the two in sync so the taller content is
+    /// never clipped while the window is still the old (smaller) size.
+    private var heightMeasurementProbe: some View {
+        ZStack {
+            ForEach(DashboardSection.allCases) { section in
+                sectionCard(for: section)
+                    .opacity(0)
+                    .allowsHitTesting(false)
+                    .frame(width: contentWidth)
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear.preference(
+                                key: DashboardSectionHeightKey.self,
+                                value: [section: geo.size.height]
+                            )
+                        }
+                    )
+            }
+        }
     }
 
     // MARK: - Header (always on top)
@@ -312,14 +374,21 @@ struct ModernDashboardView: View {
     private var tabBar: some View {
         HStack(spacing: 4) {
             ForEach(DashboardSection.allCases) { section in
-                Button(action: { selectedSection = section }) {
+                Button(action: {
+                    if let targetHeight = sectionHeights[section] {
+                        appDelegate.fitDashboardWindow(sectionHeight: targetHeight)
+                    }
+                    withAnimation(.easeInOut(duration: 0.3)) { selectedSection = section }
+                }) {
                     VStack(spacing: 3) {
                         Image(systemName: section.icon)
                             .font(.system(size: 13, weight: .semibold))
+                            .frame(width: 18, height: 16)
                         Text(section.title)
                             .font(.system(size: 10, weight: selectedSection == section ? .semibold : .regular, design: .rounded))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
+                            .frame(height: 12)
                     }
                     .foregroundColor(selectedSection == section ? .white : .primary)
                     .frame(maxWidth: .infinity)
@@ -350,7 +419,12 @@ struct ModernDashboardView: View {
 
     @ViewBuilder
     private var sectionCard: some View {
-        switch selectedSection {
+        sectionCard(for: selectedSection)
+    }
+
+    @ViewBuilder
+    private func sectionCard(for section: DashboardSection) -> some View {
+        switch section {
         case .general: generalCard
         case .tracking: trackingCard
         case .response: responseCard
@@ -433,6 +507,60 @@ struct ModernDashboardView: View {
                         launchAtLogin = SMAppService.mainApp.status == .enabled
                     }
                 }
+
+                SubtleDivider()
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "lock.shield")
+                            .font(.system(size: 11))
+                            .foregroundColor(NotabilityTheme.accentBlue)
+                        Text(L("settings.permissions.title"))
+                            .font(.system(size: 11, weight: .semibold))
+                        Spacer()
+                    }
+                    permissionRow(
+                        icon: "camera.fill",
+                        name: L("settings.permissions.camera"),
+                        status: cameraPermissionStatus,
+                        actionTitle: L("settings.permissions.revoke"),
+                        action: { revokeCameraPermission() }
+                    )
+                    permissionRow(
+                        icon: "airpodspro",
+                        name: L("settings.permissions.bluetooth"),
+                        status: bluetoothPermissionStatus,
+                        actionTitle: L("settings.permissions.manage"),
+                        action: { openSystemSettings("com.apple.preference.security?Privacy_Bluetooth") }
+                    )
+                    permissionRow(
+                        icon: "bell.fill",
+                        name: L("settings.permissions.notifications"),
+                        status: PermissionStatus(notificationPermissionStatus),
+                        actionTitle: L("settings.permissions.manage"),
+                        action: { openSystemSettings("com.apple.Notifications-Settings.extension") }
+                    )
+                    permissionRow(
+                        icon: "moon.fill",
+                        name: L("settings.permissions.focus"),
+                        status: focusPermissionStatus,
+                        actionTitle: L("settings.permissions.manage"),
+                        action: {
+                            if focusPermissionStatus == .notDetermined {
+                                requestFocusPermission()
+                            } else {
+                                openSystemSettings("com.apple.preference.security?Privacy_Focus")
+                            }
+                        }
+                    )
+                }
+                .id(permissionTick)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.primary.opacity(0.04))
+                )
 
                 SubtleDivider()
 
@@ -868,7 +996,7 @@ struct ModernDashboardView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "play.fill")
                             .font(.system(size: 10, weight: .semibold))
-                        Text(L("breakReminder.startNow"))
+                        Text(L("breakReminder.start"))
                             .font(.system(size: 12, weight: .semibold, design: .rounded))
                     }
                     .foregroundColor(.white)
@@ -1032,6 +1160,153 @@ struct ModernDashboardView: View {
         }
         .frame(height: 24)
         .help(help)
+    }
+
+    // MARK: - Permissions
+
+    private enum PermissionStatus {
+        case granted, denied, restricted, notDetermined
+
+        var label: String {
+            switch self {
+            case .granted: return L("settings.permissions.allowed")
+            case .denied: return L("settings.permissions.denied")
+            case .restricted: return L("settings.permissions.restricted")
+            case .notDetermined: return L("settings.permissions.notDetermined")
+            }
+        }
+
+        var symbol: String? {
+            switch self {
+            case .granted: return "checkmark.circle.fill"
+            case .denied: return "xmark.circle.fill"
+            case .restricted: return "exclamationmark.triangle.fill"
+            case .notDetermined: return nil
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .granted: return NotabilityTheme.successGreen
+            case .denied: return NotabilityTheme.dangerRed
+            case .restricted: return .orange
+            case .notDetermined: return .secondary
+            }
+        }
+
+        init(_ status: UNAuthorizationStatus) {
+            switch status {
+            case .authorized, .provisional: self = .granted
+            case .denied: self = .denied
+            case .notDetermined: self = .notDetermined
+            @unknown default: self = .notDetermined
+            }
+        }
+
+        init(_ status: INFocusStatusAuthorizationStatus) {
+            switch status {
+            case .authorized: self = .granted
+            case .denied: self = .denied
+            case .restricted: self = .restricted
+            case .notDetermined: self = .notDetermined
+            @unknown default: self = .notDetermined
+            }
+        }
+    }
+
+    private var cameraPermissionStatus: PermissionStatus {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized: return .granted
+        case .denied: return .denied
+        case .restricted: return .restricted
+        case .notDetermined: return .notDetermined
+        @unknown default: return .notDetermined
+        }
+    }
+
+    private var bluetoothPermissionStatus: PermissionStatus {
+        switch CBManager.authorization {
+        case .allowedAlways: return .granted
+        case .denied: return .denied
+        case .restricted: return .restricted
+        case .notDetermined: return .notDetermined
+        @unknown default: return .notDetermined
+        }
+    }
+
+    private var focusPermissionStatus: PermissionStatus {
+        PermissionStatus(INFocusStatusCenter.default.authorizationStatus)
+    }
+
+    private func requestFocusPermission() {
+        INFocusStatusCenter.default.requestAuthorization { [self] _ in
+            Task { @MainActor in
+                permissionTick += 1
+            }
+        }
+    }
+
+    private func loadNotificationPermissionStatus() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            Task { @MainActor in
+                notificationPermissionStatus = settings.authorizationStatus
+            }
+        }
+    }
+
+    private func revokeCameraPermission() {
+        let bundleID = Bundle.main.bundleIdentifier ?? "chill..PostureAI"
+        let process = Process()
+        process.launchPath = "/usr/bin/tccutil"
+        process.arguments = ["reset", "Camera", bundleID]
+        try? process.run()
+        process.waitUntilExit()
+        permissionTick += 1
+    }
+
+    private func openSystemSettings(_ pane: String) {
+        if let url = URL(string: "x-apple.systempreferences:\(pane)") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    private func permissionRow(
+        icon: String,
+        name: String,
+        status: PermissionStatus,
+        actionTitle: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+                .frame(width: 16)
+
+            Text(name)
+                .font(.system(size: 11))
+
+            Spacer()
+
+            HStack(spacing: 4) {
+                if let statusSymbol = status.symbol {
+                    Image(systemName: statusSymbol)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(status.color)
+                }
+                Text(status.label)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(status.color)
+            }
+
+            Button(action: action) {
+                Text(actionTitle)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(NotabilityTheme.accentBlue)
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(height: 24)
     }
 
     // MARK: - Helpers

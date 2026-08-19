@@ -129,7 +129,11 @@ extension AppDelegate {
         if let savedModes = defaults.stringArray(forKey: SettingsKeys.focusPauseModes) {
             focusPauseModes = savedModes
         } else {
-            focusPauseModes = FocusModeReader.configuredModes().map { $0.identifier }
+            // Defaults only: enumerating real device Focus modes reads the Do
+            // Not Disturb database, which would trigger the "access data from
+            // other apps" prompt at launch. The real list is loaded lazily when
+            // the user opens the Auto Pause tab.
+            focusPauseModes = FocusModeReader.defaultModes().map { $0.identifier }
         }
         if defaults.object(forKey: SettingsKeys.meetingPauseEnabled) != nil {
             applyTrackingAction(.setMeetingPauseEnabled(defaults.bool(forKey: SettingsKeys.meetingPauseEnabled)))

@@ -46,7 +46,7 @@ A single, lightweight app that prevents — rather than merely treats — the pr
 - **Menu bar controls** — Quick access to status, settings, calibration, and quit
 - **Multi-display support** — Works across all connected monitors
 - **Lightweight background app** — Minimal resource usage; never interrupts your flow
-- **6 languages** — English, Spanish, French, German, Japanese, and Simplified Chinese
+- **6 languages** — English, Spanish, French, German, Japanese, and Traditional Chinese
 
 ## How It Works
 

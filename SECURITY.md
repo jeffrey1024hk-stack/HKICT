@@ -1,23 +1,23 @@
-# Security Policy
+# Report a security vulnerability
 
-## Supported Versions
+## How to report a security vulnerability
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+If you believe that you have discovered a security vulnerability in our open source software,
+please report it to us using the [GitHub private vulnerability feature](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/privately-reporting-a-security-vulnerability).
+This can be done by navigating to the "Security" tab of the repository where you found the issue at https://github.com/jeffrey1024hk-stack/HKICT/security.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.0   | :white_check_mark: |
+Reports should include specific software version(s) that you believe are affected;
+a technical description of the behavior that you observed and the behavior that you expected;
+the steps required to reproduce the issue;
+and a proof of concept or exploit.
 
-## Reporting a Vulnerability
+## How these reports are handled
 
-If you discover a security vulnerability, please report it by opening an issue at:
+The initial acknowledgment of the report is neither an acceptance nor a rejection of the report.
+We may come back to you with further questions or invite you to collaborate while working through the details of your report.
+Resolution timelines may vary depending on the complexity and severity of the issue.
 
-https://github.com/jeffrey1024hk-stack/HKICT/issues
+## Additional guidelines
 
-Please include as much detail as possible, including the version of the
-project you are using and steps to reproduce the issue. You can expect to
-receive an update on the reported vulnerability within a reasonable time
-after it is filed. If the vulnerability is accepted, a fix will be released
-in a future version; if it is declined, the issue will be closed with an
-explanation.
+Output from automated security scans or fuzzers must include additional context demonstrating the vulnerability with a proof of concept or working exploit.
+Please include enough information to allow us to reproduce the issue. We will credit you in the public advisory if the report is accepted.

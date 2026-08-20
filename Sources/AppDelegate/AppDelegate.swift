@@ -173,7 +173,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
-    var appAppearance = AppAppearance.auto
+    var appAppearance = AppAppearance.system
     var pauseOnTheGo = false
     var pauseOnBattery: Bool {
         trackingStore.withState { $0.pauseOnBatteryEnabled }
@@ -205,11 +205,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     // Single AirPod in use (auto-detected; macOS doesn't expose which side)
     var isSingleBudInUse = false
     private var singleBudTimer: Timer?
-
-    // Which Focus modes the user wants to pause during (identifiers).
-    var focusPauseModes: [String] = [] {
-        didSet { focusObserver.selectedModeIdentifiers = Set(focusPauseModes) }
-    }
 
     // Screen break (blur) overlay shown by the 20/20/20 reminder
     let screenBreakOverlayManager = ScreenBreakOverlayManager()
@@ -593,6 +588,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             // instead of snapping.
             window.contentViewController = hostingController
             hostingController.sizingOptions = []
+            hostingController.view.autoresizingMask = [.width, .height]
             window.setContentSize(NSSize(width: 480, height: initialContentHeight))
             window.center()
             window.title = "PostureAI Settings"
@@ -611,10 +607,21 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     /// height for a new section.
     private var lastTargetContentHeight: CGFloat?
 
+    /// Drives the manual window height animation. Kept so a new switch can
+    /// cancel an in-flight animation before starting a new one.
+    private var windowHeightAnimator: Timer?
+
     /// The constant height of everything around the section card (header, tab
     /// bar, footer, spacing). Measured once from the window's initial size and
     /// reused so every section targets `sectionHeight + fixedContentRemainder`.
     private var fixedContentRemainder: CGFloat?
+
+    /// The measured height of everything around the section card, reported by
+    /// the dashboard view's fixed-height probes (header + tab bar + footer +
+    /// spacing + padding). Preferred over `fixedContentRemainder`, which is
+    /// derived from the initial window size and is wrong when the section
+    /// content outgrows that initial size.
+    var dashboardFixedContentHeight: CGFloat?
 
     /// Sizes the dashboard window to fit the currently selected section.
     /// The section card is the only part of the dashboard whose height varies,
@@ -628,7 +635,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         if fixedContentRemainder == nil {
             fixedContentRemainder = max(currentContentHeight - sectionHeight, 0)
         }
-        let newHeight = sectionHeight + (fixedContentRemainder ?? 0)
+        let remainder = dashboardFixedContentHeight ?? fixedContentRemainder
+        let newHeight = sectionHeight + (remainder ?? 0)
         lastTargetContentHeight = newHeight
 
         guard newHeight.isFinite, newHeight > 60 else { return }
@@ -645,18 +653,34 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         let contentHeight = window.contentView?.frame.height ?? frame.height
         let titleBarHeight = frame.height - contentHeight
         let newTotalHeight = max(cappedHeight + titleBarHeight, 120)
-        let newFrame = NSRect(
-            x: frame.minX,
-            y: frame.maxY - newTotalHeight,
-            width: 480,
-            height: newTotalHeight
-        )
+        let topEdge = frame.maxY
 
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.3
-            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            window.animator().setFrame(newFrame, display: true)
+        // Manually step the resize at 60fps, keeping the top edge EXACTLY
+        // fixed at every frame. Each setFrame uses display: true so the content
+        // view re-lays out synchronously with the window instead of lagging a
+        // frame behind (which makes the header/tab bar look like they shift).
+        windowHeightAnimator?.invalidate()
+        let fromHeight = frame.height
+        let duration = 0.3
+        let start = CACurrentMediaTime()
+        let timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak window] timer in
+            guard let window = window else { timer.invalidate(); return }
+            let t = min((CACurrentMediaTime() - start) / duration, 1)
+            let eased = 0.5 - 0.5 * cos(CGFloat.pi * t)
+            let h = fromHeight + (newTotalHeight - fromHeight) * eased
+            window.setFrame(
+                NSRect(x: frame.minX, y: topEdge - h, width: frame.width, height: h),
+                display: true
+            )
+            if t >= 1 {
+                timer.invalidate()
+                window.setFrame(
+                    NSRect(x: frame.minX, y: topEdge - newTotalHeight, width: frame.width, height: newTotalHeight),
+                    display: true
+                )
+            }
         }
+        windowHeightAnimator = timer
     }
 
     public func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

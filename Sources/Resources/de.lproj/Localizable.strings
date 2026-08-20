@@ -114,7 +114,7 @@
 "settings.section.response" = "Haltungsreaktion";
 "settings.section.behavior" = "Verhalten";
 "settings.appearance" = "Erscheinungsbild";
-"settings.appearance.auto" = "Automatisch";
+"settings.appearance.system" = "System";
 "settings.appearance.light" = "Hell";
 "settings.appearance.dark" = "Dunkel";
 "settings.active" = "Aktiv";
@@ -226,8 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "Aktiviere den Ton, um die Sprachansage zu nutzen";
 "analytics.insufficientData" = "Noch nicht genügend Daten für Analysen gesammelt. Nutze PostureAI weiter!";
 "autoPause.focus" = "Während Focus pausieren";
-"autoPause.focus.help" = "Pausiert, sobald ein Fokusmodus aktiv ist. macOS zeigt Apps nur, ob Fokus aktiv ist, nicht welcher.";
-"autoPause.focus.modes" = "Focus-Modi zum Pausieren";
+"autoPause.focus.help" = "Pausiert, sobald ein Fokusmodus aktiv ist. macOS zeigt Apps nur, ob Fokus aktiv ist, nicht welcher, gilt also für alle Modi.";
 "autoPause.meeting" = "Bei Besprechungen pausieren";
 "autoPause.meeting.help" = "Auto-Pause bei aktiver Video-Konferenz (Zoom, Teams, FaceTime usw.)";
 "autoPause.section" = "Auto-Pause";
@@ -288,10 +287,12 @@
 "settings.pauseOnBattery.help.desktop" = "Nur auf Mac-Notebooks verfügbar";
 "settings.preferredTag" = "Bevorzugt";
 "settings.privacy.note" = "Die Haltungsanalyse erfolgt auf dem Gerät. Kamerabilder werden lokal verarbeitet und verlassen deinen Mac nie.";
-"settings.resetAll" = "Alle Einstellungen zurücksetzen";
-"settings.resetAll.confirm" = "Dadurch werden alle PostureAI-Einstellungen gelöscht und die App in den Auslieferungszustand versetzt.";
+"settings.resetAll" = "Einstellungen zurücksetzen";
+"settings.resetAll.description" = "Setzt die ausgewählten Einstellungen auf ihre Standardwerte zurück.";
+"settings.resetAll.button" = "Zurücksetzen…";
+"settings.resetAll.confirm" = "Die Einstellungen werden auf ihre Standardwerte zurückgesetzt und die App in den Auslieferungszustand versetzt.";
 "settings.resetAll.confirmButton" = "Zurücksetzen";
-"settings.resetAll.confirmTitle" = "Alle Einstellungen zurücksetzen?";
+"settings.resetAll.confirmTitle" = "Einstellungen zurücksetzen?";
 "settings.section.calibration" = "Kalibrierung & Warnungen";
 "settings.section.general" = "Allgemeine Einstellungen";
 "settings.section.privacy" = "Verfolgung & Datenschutz";

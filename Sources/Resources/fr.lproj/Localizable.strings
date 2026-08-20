@@ -114,7 +114,7 @@
 "settings.section.response" = "Réaction à la posture";
 "settings.section.behavior" = "Comportement";
 "settings.appearance" = "Apparence";
-"settings.appearance.auto" = "Automatique";
+"settings.appearance.system" = "Système";
 "settings.appearance.light" = "Clair";
 "settings.appearance.dark" = "Sombre";
 "settings.active" = "Actif";
@@ -226,8 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "Activez le son pour utiliser le rappel vocal";
 "analytics.insufficientData" = "Pas encore assez de données pour afficher les analyses. Continuez à utiliser PostureAI !";
 "autoPause.focus" = "Pause pendant le mode Focus";
-"autoPause.focus.help" = "Met en pause dès qu'un mode de concentration est actif. macOS ne montre aux apps que l'état, pas le mode.";
-"autoPause.focus.modes" = "Modes de concentration dans lesquels faire une pause";
+"autoPause.focus.help" = "Met en pause dès qu'un mode de concentration est actif. macOS ne montre aux apps que l'état, pas le mode, cela s'applique donc à tous les modes.";
 "autoPause.meeting" = "Pause pendant les réunions";
 "autoPause.meeting.help" = "Pause automatique lorsqu'un appel vidéo est actif (Zoom, Teams, FaceTime, etc.)";
 "autoPause.section" = "Pause automatique";
@@ -288,10 +287,12 @@
 "settings.pauseOnBattery.help.desktop" = "Disponible uniquement sur les Mac portables";
 "settings.preferredTag" = "Préféré";
 "settings.privacy.note" = "L'analyse de la posture est effectuée sur l'appareil. Les images de la caméra sont traitées localement et ne quittent jamais votre Mac.";
-"settings.resetAll" = "Réinitialiser tous les réglages";
-"settings.resetAll.confirm" = "Cela effacera tous les réglages de PostureAI et restaurera l'application à son état d'origine.";
+"settings.resetAll" = "Réinitialiser les réglages";
+"settings.resetAll.description" = "Réinitialise les réglages sélectionnés à leurs valeurs par défaut.";
+"settings.resetAll.button" = "Réinitialiser…";
+"settings.resetAll.confirm" = "Les réglages seront réinitialisés à leurs valeurs par défaut et l'app sera restaurée à son état d'origine.";
 "settings.resetAll.confirmButton" = "Réinitialiser";
-"settings.resetAll.confirmTitle" = "Réinitialiser tous les réglages ?";
+"settings.resetAll.confirmTitle" = "Réinitialiser les réglages ?";
 "settings.section.calibration" = "Calibrage et alertes";
 "settings.section.general" = "Préférences générales";
 "settings.section.privacy" = "Suivi et confidentialité";

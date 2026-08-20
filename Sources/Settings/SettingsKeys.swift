@@ -31,7 +31,6 @@ enum SettingsKeys {
     static let lastStartReminderDate = "lastStartReminderDate"
     static let meetingPauseEnabled = "meetingPauseEnabled"
     static let focusPauseEnabled = "focusPauseEnabled"
-    static let focusPauseModes = "focusPauseModes"
     static let dualSensorEnabled = "dualSensorEnabled"
     static let detectionMode = "detectionMode"
     static let trackingSource = "trackingSource"

@@ -114,7 +114,7 @@
 "settings.section.response" = "姿勢提醒方式";
 "settings.section.behavior" = "行為設定";
 "settings.appearance" = "外觀";
-"settings.appearance.auto" = "自動";
+"settings.appearance.system" = "系統";
 "settings.appearance.light" = "淺色";
 "settings.appearance.dark" = "深色";
 "settings.active" = "已啟用";
@@ -226,8 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "請開啟聲音以使用語音提醒";
 "analytics.insufficientData" = "尚無足夠數據顯示分析。請繼續使用 PostureAI！";
 "autoPause.focus" = "專注模式期間暫停";
-"autoPause.focus.help" = "只要有專注模式啟用即暫停。macOS 只會告知 App 專注模式是否啟用，不會告知是哪一個。";
-"autoPause.focus.modes" = "暫停期間的專注模式";
+"autoPause.focus.help" = "只要有專注模式啟用即暫停。macOS 只會告知 App 專注模式是否啟用，不會告知是哪一個，因此適用於所有專注模式。";
 "autoPause.meeting" = "會議期間暫停";
 "autoPause.meeting.help" = "視訊通話進行時（Zoom、Teams、FaceTime 等）自動暫停";
 "autoPause.section" = "自動暫停";
@@ -288,10 +287,12 @@
 "settings.pauseOnBattery.help.desktop" = "僅適用於 Mac 筆記型電腦";
 "settings.preferredTag" = "偏好";
 "settings.privacy.note" = "姿勢分析在裝置上進行。相機畫面在本地處理，絕不會離開你的 Mac。";
-"settings.resetAll" = "重置所有設定";
-"settings.resetAll.confirm" = "這會清除所有 PostureAI 設定並將 App 恢復為原始狀態。";
+"settings.resetAll" = "重置設定";
+"settings.resetAll.description" = "將所選設定重設為預設值。";
+"settings.resetAll.button" = "重置…";
+"settings.resetAll.confirm" = "設定將重設為預設值，並將 App 恢復為原始狀態。";
 "settings.resetAll.confirmButton" = "重置";
-"settings.resetAll.confirmTitle" = "要重置所有設定嗎？";
+"settings.resetAll.confirmTitle" = "重置設定？";
 "settings.section.calibration" = "校正與提醒";
 "settings.section.general" = "一般偏好設定";
 "settings.section.privacy" = "追蹤與隱私";

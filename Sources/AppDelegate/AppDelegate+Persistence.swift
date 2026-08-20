@@ -29,7 +29,6 @@ extension AppDelegate {
         defaults.set(breakReminderEnabled, forKey: SettingsKeys.breakReminderEnabled)
         defaults.set(breakReminderInterval, forKey: SettingsKeys.breakReminderInterval)
         defaults.set(dailyReminderEnabled, forKey: SettingsKeys.dailyReminderEnabled)
-        defaults.set(focusPauseModes, forKey: SettingsKeys.focusPauseModes)
         defaults.set(meetingPauseEnabled, forKey: SettingsKeys.meetingPauseEnabled)
         defaults.set(focusPauseEnabled, forKey: SettingsKeys.focusPauseEnabled)
         defaults.set(dualSensorEnabled, forKey: SettingsKeys.dualSensorEnabled)
@@ -80,9 +79,14 @@ extension AppDelegate {
         }
 
         useCompatibilityMode = defaults.bool(forKey: SettingsKeys.useCompatibilityMode)
-        if let appearanceString = defaults.string(forKey: SettingsKeys.appAppearance),
-           let appearance = AppAppearance(rawValue: appearanceString) {
-            appAppearance = appearance
+        if let appearanceString = defaults.string(forKey: SettingsKeys.appAppearance) {
+            // Migrate the pre-macOS-27 "auto" value (now "system")
+            if appearanceString == "auto" {
+                appAppearance = .system
+                defaults.set(AppAppearance.system.rawValue, forKey: SettingsKeys.appAppearance)
+            } else if let appearance = AppAppearance(rawValue: appearanceString) {
+                appAppearance = appearance
+            }
         }
         blurWhenAway = defaults.bool(forKey: SettingsKeys.blurWhenAway)
         pauseOnTheGo = defaults.bool(forKey: SettingsKeys.pauseOnTheGo)
@@ -126,15 +130,6 @@ extension AppDelegate {
         breakReminderInterval = defaults.double(forKey: SettingsKeys.breakReminderInterval)
         if breakReminderInterval < 1 { breakReminderInterval = 20 }
         dailyReminderEnabled = defaults.bool(forKey: SettingsKeys.dailyReminderEnabled)
-        if let savedModes = defaults.stringArray(forKey: SettingsKeys.focusPauseModes) {
-            focusPauseModes = savedModes
-        } else {
-            // Defaults only: enumerating real device Focus modes reads the Do
-            // Not Disturb database, which would trigger the "access data from
-            // other apps" prompt at launch. The real list is loaded lazily when
-            // the user opens the Auto Pause tab.
-            focusPauseModes = FocusModeReader.defaultModes().map { $0.identifier }
-        }
         if defaults.object(forKey: SettingsKeys.meetingPauseEnabled) != nil {
             applyTrackingAction(.setMeetingPauseEnabled(defaults.bool(forKey: SettingsKeys.meetingPauseEnabled)))
         }

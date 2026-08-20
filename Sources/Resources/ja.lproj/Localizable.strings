@@ -114,7 +114,7 @@
 "settings.section.response" = "警告フィードバック";
 "settings.section.behavior" = "動作";
 "settings.appearance" = "外観";
-"settings.appearance.auto" = "自動";
+"settings.appearance.system" = "システム";
 "settings.appearance.light" = "ライト";
 "settings.appearance.dark" = "ダーク";
 "settings.active" = "有効";
@@ -226,8 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "音声リマインダーを使うにはサウンドをオンにしてください";
 "analytics.insufficientData" = "分析を表示するのに十分なデータがまだありません。PostureAI を使い続けてください！";
 "autoPause.focus" = "集中モード中は一時停止";
-"autoPause.focus.help" = "集中モードが有効な間は一時停止します。macOS はどのモードかではなく有効かどうかのみをアプリに公開します。";
-"autoPause.focus.modes" = "一時停止する集中モード";
+"autoPause.focus.help" = "集中モードが有効な間は一時停止します。macOS はどのモードかではなく有効かどうかのみをアプリに公開するため、すべての集中モードに適用されます。";
 "autoPause.meeting" = "会議中は一時停止";
 "autoPause.meeting.help" = "ビデオ通話（Zoom、Teams、FaceTime など）中は自動で一時停止します";
 "autoPause.section" = "自動一時停止";
@@ -288,10 +287,12 @@
 "settings.pauseOnBattery.help.desktop" = "Mac ノートブックでのみ利用できます";
 "settings.preferredTag" = "優先";
 "settings.privacy.note" = "姿勢分析はデバイス上で行われます。カメラの映像はローカルで処理され、Mac の外に送信されることはありません。";
-"settings.resetAll" = "すべての設定をリセット";
-"settings.resetAll.confirm" = "これにより PostureAI のすべての設定が消去され、アプリは初期状態に戻ります。";
+"settings.resetAll" = "設定をリセット";
+"settings.resetAll.description" = "選択した設定を既定値にリセットします。";
+"settings.resetAll.button" = "リセット…";
+"settings.resetAll.confirm" = "設定は既定値にリセットされ、アプリは元の状態に戻ります。";
 "settings.resetAll.confirmButton" = "リセット";
-"settings.resetAll.confirmTitle" = "すべての設定をリセットしますか？";
+"settings.resetAll.confirmTitle" = "設定をリセットしますか？";
 "settings.section.calibration" = "キャリブレーションとアラート";
 "settings.section.general" = "一般設定";
 "settings.section.privacy" = "トラッキングとプライバシー";

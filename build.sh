@@ -85,19 +85,34 @@ done
 echo ""
 if [ "$DEV_BUILD" = true ]; then
     HOST_ARCH="$(uname -m)"
-    swift build -c "$BUILD_CONFIG" --arch "$HOST_ARCH" --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
-    DEV_BINARY="$SCRIPT_DIR/.build/${HOST_ARCH}-apple-macosx/${BUILD_CONFIG}/PostureAI"
-    if [ ! -f "$DEV_BINARY" ]; then
-        echo -e "${RED}Error: Expected SwiftPM binary not found at $DEV_BINARY${NC}"
+    swift build -c "$BUILD_CONFIG" --arch "$HOST_ARCH" --scratch-path "$SCRIPT_DIR/.build/dev" --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
+    # Xcode 27's Swift Build engine outputs to <scratch>/out/Products/<config>;
+    # older toolchains output to .build/<triple>/<config>. Resolve whichever exists.
+    NEW_BINARY="$SCRIPT_DIR/.build/dev/out/Products/${BUILD_CONFIG}/PostureAI"
+    LEGACY_BINARY="$SCRIPT_DIR/.build/${HOST_ARCH}-apple-macosx/${BUILD_CONFIG}/PostureAI"
+    if [ -f "$NEW_BINARY" ]; then
+        DEV_BINARY="$NEW_BINARY"
+    elif [ -f "$LEGACY_BINARY" ]; then
+        DEV_BINARY="$LEGACY_BINARY"
+    else
+        echo -e "${RED}Error: Expected SwiftPM binary not found at $NEW_BINARY or $LEGACY_BINARY${NC}"
         exit 1
     fi
     cp "$DEV_BINARY" "$MACOS_DIR/$APP_NAME"
 else
-    swift build -c release --arch arm64 --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
-    swift build -c release --arch x86_64 --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
+    # Build each architecture into its own scratch path so the two invocations
+    # do not clobber each other under Xcode 27's Swift Build engine.
+    swift build -c release --arch arm64 --scratch-path "$SCRIPT_DIR/.build/arch-arm64" --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
+    swift build -c release --arch x86_64 --scratch-path "$SCRIPT_DIR/.build/arch-x86_64" --product PostureAI "${SWIFT_BUILD_FLAGS[@]}"
 
-    ARM64_BINARY="$SCRIPT_DIR/.build/arm64-apple-macosx/release/PostureAI"
-    X86_BINARY="$SCRIPT_DIR/.build/x86_64-apple-macosx/release/PostureAI"
+    ARM64_BINARY="$SCRIPT_DIR/.build/arch-arm64/out/Products/Release/PostureAI"
+    X86_BINARY="$SCRIPT_DIR/.build/arch-x86_64/out/Products/Release/PostureAI"
+    if [ ! -f "$ARM64_BINARY" ]; then
+        ARM64_BINARY="$SCRIPT_DIR/.build/arm64-apple-macosx/release/PostureAI"
+    fi
+    if [ ! -f "$X86_BINARY" ]; then
+        X86_BINARY="$SCRIPT_DIR/.build/x86_64-apple-macosx/release/PostureAI"
+    fi
 
     if [ ! -f "$ARM64_BINARY" ] || [ ! -f "$X86_BINARY" ]; then
         echo -e "${RED}Error: Expected SwiftPM binaries not found.${NC}"

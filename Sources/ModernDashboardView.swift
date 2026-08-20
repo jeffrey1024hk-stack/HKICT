@@ -3,6 +3,7 @@ import AppKit
 import ServiceManagement
 import AVFoundation
 import CoreBluetooth
+import CoreMotion
 import UserNotifications
 import Intents
 
@@ -18,6 +19,15 @@ struct DashboardSectionHeightKey: PreferenceKey {
     static var defaultValue: [DashboardSection: CGFloat] = [:]
     static func reduce(value: inout [DashboardSection: CGFloat], nextValue: () -> [DashboardSection: CGFloat]) {
         value.merge(nextValue()) { _, new in new }
+    }
+}
+
+/// Sum of the fixed-height elements around the section card (header, tab bar,
+/// footer). Reported by background GeometryReaders on each of them.
+struct DashboardFixedHeightsKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value += nextValue()
     }
 }
 
@@ -111,8 +121,6 @@ struct ModernDashboardView: View {
     @State private var dailyReminderEnabled: Bool
     @State private var meetingPauseEnabled: Bool
     @State private var focusPauseEnabled: Bool
-    @State private var focusModes: [FocusModeInfo] = []
-    @State private var selectedFocusModeIDs: Set<String> = []
 
     let detectionModes: [DetectionMode] = [.responsive, .balanced, .performance]
 
@@ -221,8 +229,6 @@ struct ModernDashboardView: View {
         _dailyReminderEnabled = State(initialValue: appDelegate.dailyReminderEnabled)
         _meetingPauseEnabled = State(initialValue: appDelegate.meetingPauseEnabled)
         _focusPauseEnabled = State(initialValue: appDelegate.focusPauseEnabled)
-        _focusModes = State(initialValue: FocusModeReader.configuredModes())
-        _selectedFocusModeIDs = State(initialValue: Set(appDelegate.focusPauseModes))
     }
 
     var body: some View {
@@ -244,12 +250,16 @@ struct ModernDashboardView: View {
         .padding(.bottom, 16)
         .frame(width: contentWidth)
         .frame(width: contentWidth + 40)
+        .frame(maxHeight: .infinity)
         .background(heightMeasurementProbe)
         .onPreferenceChange(DashboardSectionHeightKey.self) { heights in
             sectionHeights.merge(heights) { _, new in new }
         }
-        .onChange(of: selectedSection) { newSection in
-            if newSection == .autoPause { loadFocusModes() }
+        .onPreferenceChange(DashboardFixedHeightsKey.self) { fixed in
+            guard fixed > 0 else { return }
+            // header + tab bar + footer + 3 inter-element spacings (3 * 14) +
+            // top/bottom padding (20 + 16).
+            appDelegate.dashboardFixedContentHeight = fixed + 78
         }
         // Listen for live posture state changes
         .onReceive(NotificationCenter.default.publisher(for: .postureUIStateChanged)) { _ in
@@ -294,8 +304,12 @@ struct ModernDashboardView: View {
         DispatchQueue.main.async { appDelegate.fitDashboardWindow(sectionHeight: height) }
     }
 
-    private func loadFocusModes() {
-        focusModes = FocusModeReader.configuredModes()
+    /// Background probe that reports a fixed-height element's laid-out height
+    /// into `DashboardFixedHeightsKey` (summed by the preference reducer).
+    private func fixedHeightProbe() -> some View {
+        GeometryReader { geo in
+            Color.clear.preference(key: DashboardFixedHeightsKey.self, value: geo.size.height)
+        }
     }
 
     /// Renders every section card hidden (opacity 0, no hit testing) so their
@@ -367,6 +381,7 @@ struct ModernDashboardView: View {
                 .labelsHidden()
             }
         }
+        .background(fixedHeightProbe())
     }
 
     // MARK: - Section Tab Bar
@@ -413,6 +428,7 @@ struct ModernDashboardView: View {
                     .fill(.ultraThinMaterial)
             }
         }
+        .background(fixedHeightProbe())
     }
 
     // MARK: - Section Content
@@ -474,21 +490,19 @@ struct ModernDashboardView: View {
                     Text(L("settings.appearance"))
                         .font(.system(size: 11))
                     Spacer()
-                    CompactSegmentedPicker(
+                    AppearancePicker(
                         selection: Binding(
                             get: { appAppearance },
                             set: { newValue in
+                                guard newValue != appAppearance else { return }
                                 appDelegate.appAppearance = newValue
                                 appDelegate.saveSettings()
                                 appDelegate.applyAppearance()
                                 appAppearance = newValue
                             }
-                        ),
-                        options: AppAppearance.allCases.map { ($0, $0.displayName) }
+                        )
                     )
-                    .frame(width: 170)
                 }
-                .frame(height: 26)
 
                 CompactToggle(
                     title: L("settings.launchAtLogin"),
@@ -522,13 +536,29 @@ struct ModernDashboardView: View {
                     permissionRow(
                         icon: "camera.fill",
                         name: L("settings.permissions.camera"),
+                        detail: L("settings.permissions.camera.reason"),
                         status: cameraPermissionStatus,
-                        actionTitle: L("settings.permissions.revoke"),
-                        action: { revokeCameraPermission() }
+                        actionTitle: cameraPermissionStatus == .notDetermined ? L("settings.permissions.request") : L("settings.permissions.revoke"),
+                        action: {
+                            if cameraPermissionStatus == .notDetermined {
+                                requestCameraPermission()
+                            } else {
+                                revokeCameraPermission()
+                            }
+                        }
+                    )
+                    permissionRow(
+                        icon: "figure.walk.motion",
+                        name: L("settings.permissions.motion"),
+                        detail: L("settings.permissions.motion.reason"),
+                        status: motionPermissionStatus,
+                        actionTitle: L("settings.permissions.manage"),
+                        action: { openSystemSettings("com.apple.preference.security?Privacy_Motion") }
                     )
                     permissionRow(
                         icon: "airpodspro",
                         name: L("settings.permissions.bluetooth"),
+                        detail: L("settings.permissions.bluetooth.reason"),
                         status: bluetoothPermissionStatus,
                         actionTitle: L("settings.permissions.manage"),
                         action: { openSystemSettings("com.apple.preference.security?Privacy_Bluetooth") }
@@ -536,6 +566,7 @@ struct ModernDashboardView: View {
                     permissionRow(
                         icon: "bell.fill",
                         name: L("settings.permissions.notifications"),
+                        detail: L("settings.permissions.notifications.reason"),
                         status: PermissionStatus(notificationPermissionStatus),
                         actionTitle: L("settings.permissions.manage"),
                         action: { openSystemSettings("com.apple.Notifications-Settings.extension") }
@@ -543,6 +574,7 @@ struct ModernDashboardView: View {
                     permissionRow(
                         icon: "moon.fill",
                         name: L("settings.permissions.focus"),
+                        detail: L("settings.permissions.focus.reason"),
                         status: focusPermissionStatus,
                         actionTitle: L("settings.permissions.manage"),
                         action: {
@@ -564,36 +596,30 @@ struct ModernDashboardView: View {
 
                 SubtleDivider()
 
-                Button(action: {
-                    let alert = NSAlert()
-                    alert.messageText = L("settings.resetAll.confirmTitle")
-                    alert.informativeText = L("settings.resetAll.confirm")
-                    alert.alertStyle = .warning
-                    alert.addButton(withTitle: L("settings.resetAll.confirmButton"))
-                    alert.addButton(withTitle: L("common.cancel"))
-                    if alert.runModal() == .alertFirstButtonReturn {
-                        let domain = Bundle.main.bundleIdentifier ?? "chill..PostureAI"
-                        UserDefaults.standard.removePersistentDomain(forName: domain)
-                        UserDefaults.standard.synchronize()
-                        appDelegate.relaunchApp()
-                    }
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.counterclockwise")
-                            .font(.system(size: 11, weight: .semibold))
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(L("settings.resetAll"))
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
+                        Text(L("settings.resetAll.description"))
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
                     }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 9)
-                    .background(
-                        RoundedRectangle(cornerRadius: 9, style: .continuous)
-                            .fill(NotabilityTheme.dangerRed)
-                    )
-                    .contentShape(Rectangle())
+                    Spacer()
+                    Button(L("settings.resetAll.button")) {
+                        let alert = NSAlert()
+                        alert.messageText = L("settings.resetAll.confirmTitle")
+                        alert.informativeText = L("settings.resetAll.confirm")
+                        alert.alertStyle = .warning
+                        alert.addButton(withTitle: L("settings.resetAll.confirmButton")).hasDestructiveAction = true
+                        alert.addButton(withTitle: L("common.cancel"))
+                        if alert.runModal() == .alertFirstButtonReturn {
+                            let domain = Bundle.main.bundleIdentifier ?? "chill.PostureAI"
+                            UserDefaults.standard.removePersistentDomain(forName: domain)
+                            UserDefaults.standard.synchronize()
+                            appDelegate.relaunchApp()
+                        }
+                    }
                 }
-                .buttonStyle(.plain)
             }
         }
     }
@@ -1036,40 +1062,7 @@ struct ModernDashboardView: View {
                 .onChange(of: focusPauseEnabled) { newValue in
                     appDelegate.focusPauseEnabled = newValue
                     appDelegate.saveSettings()
-                }
-
-                if focusPauseEnabled {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L("autoPause.focus.modes"))
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.secondary)
-
-                        ForEach(focusModes) { mode in
-                            Toggle(isOn: Binding(
-                                get: { selectedFocusModeIDs.contains(mode.identifier) },
-                                set: { isOn in
-                                    if isOn {
-                                        selectedFocusModeIDs.insert(mode.identifier)
-                                    } else {
-                                        selectedFocusModeIDs.remove(mode.identifier)
-                                    }
-                                    appDelegate.focusPauseModes = Array(selectedFocusModeIDs)
-                                    appDelegate.saveSettings()
-                                }
-                            )) {
-                                Text(mode.name)
-                                    .font(.system(size: 11))
-                                    .lineLimit(1)
-                            }
-                            .toggleStyle(.checkbox)
-                        }
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(Color.primary.opacity(0.04))
-                    )
+                    appDelegate.focusObserver.reevaluate()
                 }
             }
         }
@@ -1099,6 +1092,7 @@ struct ModernDashboardView: View {
             }
         }
         .padding(.top, 4)
+        .background(fixedHeightProbe())
     }
 
     // MARK: - Warning Mode Pills (Blur / Border only)
@@ -1234,6 +1228,25 @@ struct ModernDashboardView: View {
         }
     }
 
+    private var motionPermissionStatus: PermissionStatus {
+        guard #available(macOS 14.0, *) else { return .notDetermined }
+        switch CMHeadphoneMotionManager.authorizationStatus() {
+        case .authorized: return .granted
+        case .denied: return .denied
+        case .restricted: return .restricted
+        case .notDetermined: return .notDetermined
+        @unknown default: return .notDetermined
+        }
+    }
+
+    private func requestCameraPermission() {
+        AVCaptureDevice.requestAccess(for: .video) { [self] _ in
+            Task { @MainActor in
+                permissionTick += 1
+            }
+        }
+    }
+
     private var focusPermissionStatus: PermissionStatus {
         PermissionStatus(INFocusStatusCenter.default.authorizationStatus)
     }
@@ -1273,40 +1286,48 @@ struct ModernDashboardView: View {
     private func permissionRow(
         icon: String,
         name: String,
+        detail: String,
         status: PermissionStatus,
         actionTitle: String,
         action: @escaping () -> Void
     ) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 11))
-                .foregroundColor(.secondary)
-                .frame(width: 16)
+        VStack(alignment: .leading, spacing: 1) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .frame(width: 16)
 
-            Text(name)
-                .font(.system(size: 11))
+                Text(name)
+                    .font(.system(size: 11))
 
-            Spacer()
+                Spacer()
 
-            HStack(spacing: 4) {
-                if let statusSymbol = status.symbol {
-                    Image(systemName: statusSymbol)
-                        .font(.system(size: 10, weight: .semibold))
+                HStack(spacing: 4) {
+                    if let statusSymbol = status.symbol {
+                        Image(systemName: statusSymbol)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(status.color)
+                    }
+                    Text(status.label)
+                        .font(.system(size: 10, weight: .medium))
                         .foregroundColor(status.color)
                 }
-                Text(status.label)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(status.color)
-            }
 
-            Button(action: action) {
-                Text(actionTitle)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(NotabilityTheme.accentBlue)
+                Button(action: action) {
+                    Text(actionTitle)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(NotabilityTheme.accentBlue)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
+            .frame(height: 24)
+
+            Text(detail)
+                .font(.system(size: 9))
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(height: 24)
     }
 
     // MARK: - Helpers

@@ -114,7 +114,7 @@
 "settings.section.response" = "Respuesta postural";
 "settings.section.behavior" = "Comportamiento";
 "settings.appearance" = "Apariencia";
-"settings.appearance.auto" = "Automático";
+"settings.appearance.system" = "Sistema";
 "settings.appearance.light" = "Claro";
 "settings.appearance.dark" = "Oscuro";
 "settings.active" = "Activo";
@@ -226,8 +226,7 @@
 "alert.voiceAnnouncement.help.off" = "Activa el sonido para usar el recordatorio de voz";
 "analytics.insufficientData" = "Aún no hay suficientes datos para mostrar análisis. ¡Sigue usando PostureAI!";
 "autoPause.focus" = "Pausar durante el modo Focus";
-"autoPause.focus.help" = "Pausa cuando un modo de concentración esté activo. macOS solo muestra si está activo, no cuál.";
-"autoPause.focus.modes" = "Modos de concentración en los que pausar";
+"autoPause.focus.help" = "Pausa cuando un modo de concentración esté activo. macOS solo muestra si está activo, no cuál, por lo que aplica a todos los modos.";
 "autoPause.meeting" = "Pausar durante reuniones";
 "autoPause.meeting.help" = "Pausa automática cuando hay una videollamada activa (Zoom, Teams, FaceTime, etc.)";
 "autoPause.section" = "Pausa automática";
@@ -288,10 +287,12 @@
 "settings.pauseOnBattery.help.desktop" = "Solo disponible en Mac portátiles";
 "settings.preferredTag" = "Preferido";
 "settings.privacy.note" = "El análisis de postura se realiza en el dispositivo. Los fotogramas de la cámara se procesan localmente y nunca salen de tu Mac.";
-"settings.resetAll" = "Restablecer todos los ajustes";
-"settings.resetAll.confirm" = "Esto borrará todos los ajustes de PostureAI y restaurará la aplicación a su estado original.";
+"settings.resetAll" = "Restablecer ajustes";
+"settings.resetAll.description" = "Restablece los ajustes seleccionados a sus valores predeterminados.";
+"settings.resetAll.button" = "Restablecer…";
+"settings.resetAll.confirm" = "Los ajustes se restablecerán a sus valores predeterminados y la aplicación volverá a su estado original.";
 "settings.resetAll.confirmButton" = "Restablecer";
-"settings.resetAll.confirmTitle" = "¿Restablecer todos los ajustes?";
+"settings.resetAll.confirmTitle" = "¿Restablecer ajustes?";
 "settings.section.calibration" = "Calibración y alertas";
 "settings.section.general" = "Preferencias generales";
 "settings.section.privacy" = "Seguimiento y privacidad";

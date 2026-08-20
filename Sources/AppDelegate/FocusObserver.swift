@@ -2,24 +2,23 @@ import AppKit
 import Intents
 import os.log
 
-/// Observes which macOS Focus (Do Not Disturb) mode is active and reports
-/// whether it is one the user has selected to pause during.
+/// Observes whether macOS Focus (Do Not Disturb) is active and reports the
+/// on/off state.
 ///
-/// Detection uses the public `INFocusStatusCenter` API, which reports whether
-/// any Focus mode is active and the identifier of the active mode. The app
-/// only requests the Focus privacy permission (listed under Privacy & Security
-/// → Focus) — it never reads the Do Not Disturb database, so no App Management
-/// permission is involved.
+/// Detection uses the public `INFocusStatusCenter` API. The app only requests
+/// the Focus privacy permission (listed under Privacy & Security → Focus) —
+/// it never reads the Do Not Disturb database, so no App Management permission
+/// is involved.
+///
+/// macOS exposes only `isFocused` (whether any Focus mode is active), never
+/// which mode. The Auto Pause setting is therefore a single "pause while a
+/// Focus mode is active" toggle rather than a per-mode selection.
 private let log = OSLog(subsystem: "chill..PostureAI", category: "Focus")
 
 @MainActor
 final class FocusObserver {
     private(set) var isInFocus = false
     var onFocusStateChange: ((Bool) -> Void)?
-
-    /// The Focus mode identifiers the user wants to pause during.
-    /// An empty set means never pause (feature effectively off).
-    var selectedModeIdentifiers: Set<String> = []
 
     private var timer: Timer?
     private var didRequestAuthorization = false
@@ -62,20 +61,10 @@ final class FocusObserver {
     }
 
     private func refresh() {
-        let focused = currentFocusMatchesSelection()
+        let focused = INFocusStatusCenter.default.focusStatus.isFocused == true
         guard focused != isInFocus else { return }
-        os_log(.info, log: log, "Focus state changed: %{public}@", focused ? "matching active" : "inactive")
+        os_log(.info, log: log, "Focus state changed: %{public}@", focused ? "active" : "inactive")
         isInFocus = focused
         onFocusStateChange?(focused)
-    }
-
-    private func currentFocusMatchesSelection() -> Bool {
-        guard !selectedModeIdentifiers.isEmpty else { return false }
-
-        // The public API only reports whether *any* Focus mode is active, not
-        // which one, so pause whenever Focus is on and the user selected at
-        // least one mode to pause during.
-        let status = INFocusStatusCenter.default.focusStatus
-        return status.isFocused == true
     }
 }

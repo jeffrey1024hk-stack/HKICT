@@ -126,7 +126,7 @@
 "settings.section.response" = "Posture response";
 "settings.section.behavior" = "Behavior";
 "settings.appearance" = "Appearance";
-"settings.appearance.auto" = "Auto";
+"settings.appearance.system" = "System";
 "settings.appearance.light" = "Light";
 "settings.appearance.dark" = "Dark";
 "settings.active" = "Active";
@@ -246,8 +246,7 @@
 "alert.voiceAnnouncement.help.off" = "Turn sound on to use the voice reminder";
 "analytics.insufficientData" = "Not enough data collected yet to display analytics. Keep using PostureAI!";
 "autoPause.focus" = "Pause during Focus";
-"autoPause.focus.help" = "Pauses whenever a Focus mode is active. macOS only shows apps whether Focus is on, not which mode.";
-"autoPause.focus.modes" = "Focus modes to pause during";
+"autoPause.focus.help" = "Pauses tracking while any Focus mode is active. macOS only lets apps know whether Focus is on, not which mode, so this applies to all Focus modes.";
 "autoPause.meeting" = "Pause during meetings";
 "autoPause.meeting.help" = "Auto-pause when a video call is active (Zoom, Teams, FaceTime, etc.) to avoid screen blurs";
 "autoPause.section" = "Auto-Pause";
@@ -308,10 +307,12 @@
 "settings.pauseOnBattery.help.desktop" = "Only available on Mac laptops";
 "settings.preferredTag" = "Preferred";
 "settings.privacy.note" = "Posture analysis happens on-device. Camera frames are processed locally and never leave your Mac.";
-"settings.resetAll" = "Reset All Settings";
-"settings.resetAll.confirm" = "This will erase all PostureAI settings and restore the app to its original state.";
+"settings.resetAll" = "Reset Settings";
+"settings.resetAll.description" = "Resets selected settings to their default values.";
+"settings.resetAll.button" = "Reset...";
+"settings.resetAll.confirm" = "Settings will be reset to their default values and will restore the app to its original state.";
 "settings.resetAll.confirmButton" = "Reset";
-"settings.resetAll.confirmTitle" = "Reset All Settings?";
+"settings.resetAll.confirmTitle" = "Reset Settings?";
 "settings.section.calibration" = "Calibration & Alerts";
 "settings.section.general" = "General Preferences";
 "settings.section.privacy" = "Tracking & Privacy";

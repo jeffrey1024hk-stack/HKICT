@@ -699,6 +699,67 @@ struct CompactSegmentedPicker<T: Hashable>: View {
     }
 }
 
+// MARK: - Appearance Picker
+
+/// macOS-style System/Light/Dark picker with rounded-rectangle thumbnails.
+struct AppearancePicker: View {
+    @Binding var selection: AppAppearance
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ForEach(AppAppearance.allCases) { appearance in
+                optionButton(appearance)
+            }
+        }
+        .padding(7)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.primary.opacity(0.05))
+        )
+    }
+
+    private func optionButton(_ appearance: AppAppearance) -> some View {
+        let isSelected = selection == appearance
+        return Button {
+            selection = appearance
+        } label: {
+            VStack(spacing: 5) {
+                thumbnail(appearance, isSelected: isSelected)
+                Text(appearance.displayName)
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(.primary)
+            }
+        }
+        .buttonStyle(.plain)
+        .animation(.easeOut(duration: 0.15), value: isSelected)
+    }
+
+    private func thumbnail(_ appearance: AppAppearance, isSelected: Bool) -> some View {
+        Group {
+            switch appearance {
+            case .system:
+                HStack(spacing: 0) {
+                    Rectangle().fill(Color(red: 0.92, green: 0.93, blue: 0.94))
+                    Rectangle().fill(Color(red: 0.15, green: 0.16, blue: 0.19))
+                }
+            case .light:
+                Rectangle().fill(Color(red: 0.92, green: 0.93, blue: 0.94))
+            case .dark:
+                Rectangle().fill(Color(red: 0.15, green: 0.16, blue: 0.19))
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .stroke(
+                    isSelected ? NotabilityTheme.accentBlue : Color.primary.opacity(0.15),
+                    lineWidth: isSelected ? 2.5 : 1
+                )
+        )
+        .frame(width: 54, height: 36)
+    }
+}
+
 // MARK: - Compact Shortcut Recorder
 
 struct CompactShortcutRecorder: View {
